@@ -57,5 +57,29 @@ function MasterMenu(props){
                 <Dropdown.Item>
                    <Link to="/app/master/workstation">WorkStation</Link> 
                 </Dropdown.Item>
+                <Dropdown.Item>
+                    <Link to="/app/master/operation">Operation</Link>
+                </Dropdown.Item>
+                <Dropdown.Item>
+                    <Link to="/app/master/route">Route</Link>
+                </Dropdown.Item>
+              
                 </Dropdown.Menu>;
+}
+
+
+function ProductionMenu(props){
+    return <Dropdown.Menu>
+        <Dropdown.Item>
+            <Link to="/app/production/bom">Bill of Materials (BOM)</Link>
+        </Dropdown.Item>
+        <Dropdown.Item>
+            <Link to="/app/production/workorder">WorkOrder</Link>
+        </Dropdown.Item>
+        <Dropdown.Item>
+            <Link to="/app/production/job">Job</Link>
+        </Dropdown.Item>
+        
+        
+    </Dropdown.Menu>
 }

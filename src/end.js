@@ -5,6 +5,21 @@ let p="http://localhost:3000";
 let End={
     auth:p+"/auth",
     checkAuth:p+"/checkAuth",
+    
+    production:{
+        bom:{
+            create:"/app/production/bom/create",
+            read:"/app/production/bom/read",
+        },
+        workorder:{
+            create:"/app/production/workorder/create",
+            read:"/app/production/workorder/read"
+        },
+        job:{
+            create:"/app/production/job/create",
+            read:"/app/production/job/read"
+        }
+    },
     master:{
         group:{
             create:p+"/app/master/group/create",
@@ -39,7 +54,16 @@ let End={
             modify:p+"/app/master/account/modify",
             read:p+"/app/master/account/read",
             
-        },
+        },operation:{
+            create:p+"/app/master/operation/create",
+            modify:p+"/app/master/operation/modify",
+            read:p+"/app/master/operation/create",
+        },route:{
+            create:p+"/app/master/route/create",
+            modify:p+"/app/master/route/modify",
+            read:p+"/app/master/route/read"
+        }
+
     
     }
 
