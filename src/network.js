@@ -34,13 +34,27 @@ export let MakePostFetch=(path,body,auth)=>{
 };
 
 /**
+ * Standard error handler used in react forms
+ * It just set form state to error and pass errorMsg string
+ * @param {Error} err 
+ */
+export function FormErrorHandler(err){
+    this.setState({errorState:true,errorMsg:err.message});
+}
+
+
+/**
  * Contain function to pull common entities from backend server
  */
 export const Get={
 
     Group:getgroup,
     IdProof:getidproof,
-    Unit:getunits
+    Unit:getunits,
+    Workplace:getworkplace,
+    Item:getitem,
+    Route:getroute
+
 
 };
 
@@ -86,7 +100,57 @@ async function getgroup(type){
 }
 
 
+/**
+ * Returns Options for the Select list
+ * @param {string} type 
+ */
+async function getworkplace(type){
+    let f=new FormData();
+    if(type!=undefined)f.append("type",type);
+    const r=await MakePostFetch(End.master.workplace.read,f,true)
+    if(r.status==200){
+        const json= await r.json();
+        return json.result.map(v=>{
+            return {key:v.id,value:v.id,text:v.name,gid:v.gid,group_name:v.group_name}
+        })
+    }
+    else throw Error("unable to fullfill this request");
+}
 
 
+
+
+
+
+/**
+ * Returns Options for the Select list
+ * @param {string} type 
+ */
+async function getitem(type){
+    let f=new FormData();
+    if(type!=undefined)f.append("gid",type);
+    const r=await MakePostFetch(End.master.item.read,f,true)
+    if(r.status==200){
+        const json= await r.json();
+        return json.map(v=>{ return {key:v.id,value:v.id,text:v.name,gid:v.gid,name:v.name,unit:v.unit,unit_name:v.unit_name,group_name:v.group_name}});
+    }
+    else throw Error("unable to fullfill this request");
+}
+
+
+/**
+ * Returns Options for the Select list
+ * @param {string} type 
+ */
+async function getroute(type){
+    let f=new FormData();
+    if(type!=undefined)f.append("gid",type);
+    const r=await MakePostFetch(End.master.route.read,f,true)
+    if(r.status==200){
+        const json= await r.json();
+        return json.map(v=>{return {key:v.id,value:v.id,text:v.name,gid:v.gid,group_name:v.group_name,name:v.name,description:v.description}});
+    }
+    else throw Error("unable to fullfill this request");
+}
 
 

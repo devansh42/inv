@@ -5,7 +5,9 @@ export let GroupTypes={
     Account:1,
     User:2,
     Workplace:3,
-    Item:4
+    Item:4,
+    Operation:5,
+    Route:6
 }
 export let Genders=[
     {key:0,value:0,text:"Male"},
