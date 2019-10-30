@@ -6,6 +6,47 @@ import { Get, MakePostFetch } from '../../network';
 import { GroupTypes } from '../../Fixed';
 import End from '../../end';
 import PropTypes from 'prop-types';
+
+/**
+ * This component renders List of Route List
+ * @param {ReactProp} props 
+ */
+export function RouteList(props){
+    const mapFn=(v,i)=>{
+        const {name,group_name,description,id}=v;
+        return <Table.Row key={i}>
+            <Table.Cell>
+            <Link title="Edit this Record" to={End.master.route.modify+"/"+id}>
+                <Icon name="edit"></Icon>
+            </Link>
+            </Table.Cell>
+        <Table.Cell>
+            {name}
+        </Table.Cell>
+        <Table.Cell>
+         <small>{group_name}</small>
+        </Table.Cell>
+        
+        <Table.Cell>
+            {description}
+        </Table.Cell>
+        </Table.Row>
+    }
+
+    const fetcher=()=>{
+        return MakePostFetch(End.master.route.read,new FormData(),true)
+    }
+    const headers=[
+        "","Name","Group","Workplace","Description"
+    ];
+  
+    return <RecordList headers={headers} title="Route(s)" mapFn={mapFn}  fetchPromise={fetcher} />
+  
+  
+}
+
+
+
 export class RouteForm extends Component{
     constructor(props){
         super(props);

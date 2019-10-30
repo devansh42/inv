@@ -4,61 +4,35 @@ import { Select, Form, Button, Message, Header, Card } from "semantic-ui-react";
 import End from "../../end";
 import { MakePostFetch } from "../../network";
 
-export class GroupList extends Component{
-    constructor(props){
-        super(props);
-        this.state={contentLoaded:false,recordCount:0};
-        this.dataList=[];
-        this.fetchContent();
 
+export function GroupList(props){
+    const mapFn=(v,i)=>{
+        const {name,text,id}=v;
+    return <Table.Row key={i}>
+            <Table.Cell>
+            <Link title="Edit this Record" to={End.master.group.modify+"/"+id}>
+                <Icon name="edit"></Icon>
+            </Link>
+            </Table.Cell>
+        <Table.Cell>
+            {name}
+        </Table.Cell>
+        <Table.Cell>
+            {text}
+        </Table.Cell>
+        </Table.Row>
+    };
+
+    const fetcher=()=>{
+        return MakePostFetch(End.master.group.read,new FormData(),true)
     }
-
-    fetchContent(){
-        MakePostFetch(End.master.group.read,new FormData(),true)
-        .then(r=>{
-            if(r.status==200)return r.json();
-            else throw Error("Couldn't fetch the content");
-        })
-        .then(r=>{
-               
-            this.dataList= r.results.map((v,i)=>{
-                const {name,text,id}=v;
-            return <Table.Row key={i}>
-                    <Table.Cell>
-                    <Link title="Edit this Record" to={"/app/master/group/modify/"+id}>
-                        <Icon name="edit"></Icon>
-                    </Link>
-                    </Table.Cell>
-                <Table.Cell>
-                    {name}
-                </Table.Cell>
-                <Table.Cell>
-                    {text}
-                </Table.Cell>
-                </Table.Row>
-            });
-            this.setState({contentLoaded:true,recordCount:r.results.length});
-        })
-        .catch(err=>{
-            this.setState({errorState:true,errorMsg:err.message});
-        })
-    }
-    render(){
-        let {recordCount,contentLoaded}=this.state;
-
-        const headers=[
-            "","Name","Type"
-        ];
-        return <div>
-            <Header dividing>Group <Label floating>{recordCount}</Label> </Header>
-            <MasterEntity.List sortable headers={headers}>
-                <Table.Body>
-                    {(contentLoaded)?this.dataList:<Loader/>}
-                </Table.Body>
-            </MasterEntity.List>
-        </div>
-    }
-
+    const headers=[
+        "","Name","Type"
+    ];
+  
+    return <RecordList headers={headers} title="Group(s)" mapFn={mapFn}  fetchPromise={fetcher} />
+  
+  
 }
 
 

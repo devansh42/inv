@@ -5,63 +5,36 @@ import { Form, Message, Button, Card, Header } from "semantic-ui-react";
 import { MakePostFetch } from "../../network";
 import End from "../../end";
 
-export class UnitList  extends Component{
-    constructor(props){
-        super(props);
-        this.state={contentLoaded:false,recordCount:0};
-        this.dataList=[];
-        this.fetchContent();
+export function UnitList(props){
+    const mapFn=(v,i)=>{
+        const {name,symbol,id}=v;
+        return <Table.Row key={i}>
+            <Table.Cell>
+            <Link title="Edit this Record" to={End.master.unit.modify+"/"+id}>
+                <Icon name="edit"></Icon>
+            </Link>
+            </Table.Cell>
+        <Table.Cell>
+            {name}
+        </Table.Cell>
+        <Table.Cell>
+        {symbol}
+        </Table.Cell>
+       
+        </Table.Row>
     }
 
-    fetchContent(){
-        MakePostFetch(End.master.unit.read,new FormData(),true)
-        .then(r=>{
-            if(r.status==200)return r.json();
-            else throw Error("Couldn't fetch the content");
-        })
-        .then(r=>{
-            this.dataList= r.results.map((v,i)=>{
-                const {name,symbol,id}=v;
-            return <Table.Row key={i}>
-                    <Table.Cell>
-                    <Link title="Edit this Record" to={End.master.unit.modify+"/"+id}>
-                        <Icon name="edit"></Icon>
-                    </Link>
-                    </Table.Cell>
-                <Table.Cell>
-                    {name}
-                </Table.Cell>
-                <Table.Cell>
-                  {symbol}
-                </Table.Cell>
-                </Table.Row>
-            });
-            this.setState({contentLoaded:true,recordCount:r.results.length});
-        })
-        .catch(err=>{
-            this.setState({errorState:true,errorMsg:err.message});
-        })
+    const fetcher=()=>{
+        return MakePostFetch(End.master.unit.read,new FormData(),true)
     }
-
-    render(){
-        let {recordCount,contentLoaded}=this.state;
-
-        const headers=[
-            "","Name","Symbol"
-        ];
-        return <div>
-            <Header dividing>Unit <Label floating>{recordCount}</Label> </Header>
-            <MasterEntity.List sortable headers={headers}>
-                <Table.Body>
-                    {(contentLoaded)?this.dataList:<Loader/>}
-                </Table.Body>
-            </MasterEntity.List>
-        </div>
-    }
-
-
-
+    const headers=[
+        "","Name","Symbol"
+    ];
+  
+    return <RecordList headers={headers} title="Unit(s)" mapFn={mapFn}  fetchPromise={fetcher} />
+  
 }
+
 
 export class UnitForm extends Component{
     constructor(props){

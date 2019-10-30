@@ -8,62 +8,40 @@ import { GroupTypes } from "../../Fixed";
 import { MasterEntity } from "./entityList";
 
 
-
-export class ItemList extends Component{
-    constructor(props){
-        super(props);
-        this.state={recordCount:0,contentLoaded:false};
-        this.dataList=[];
-        this.fetchContent();    
+export function ItemList(props){
+    const mapFn=(v,i)=>{
+        const {name,group_name,unit,id}=v;
+        return <Table.Row key={i}>
+            <Table.Cell>
+            <Link title="Edit this Record" to={End.master.item.modify+"/"+id}>
+                <Icon name="edit"></Icon>
+            </Link>
+            </Table.Cell>
+        <Table.Cell>
+            {name}
+        </Table.Cell>
+        <Table.Cell>
+         <small>{group_name}</small>
+        </Table.Cell>
+        <Table.Cell>
+        {unit}
+        </Table.Cell>
+        </Table.Row>
     }
 
-    fetchContent(){
-        MakePostFetch(End.master.item.read,new FormData(),true)
-        .then(r=>{
-            if(r.status==200)return r.json();
-            else throw Error("Couldn't fetch the content");
-        })
-        .then(r=>{
-                this.dataList= r.results.map((v,i)=>{
-                    const {name,group_name,id,unit_name}=v;
-                return <Table.Row key={i}>
-                        <Table.Cell>
-                        <Link title="Edit this Record" to={"/app/master/item/modify/"+id}>
-                            <Icon name="edit"></Icon>
-                        </Link>
-                        </Table.Cell>
-                    <Table.Cell>
-                        {name}
-                    </Table.Cell>
-                    <Table.Cell>
-                        {group_name}
-                    </Table.Cell>
-                    <Table.Cell>
-                        {unit_name}
-                    </Table.Cell>
-                    </Table.Row>
-                });
-                this.setState({contentLoaded:true,recordCount:r.results.length});
-        })
-        .catch(err=>{
-            this.setState({errorState:true,errorMsg:err.message});
-        })
+    const fetcher=()=>{
+        return MakePostFetch(End.master.item.read,new FormData(),true)
     }
-
-    render(){
-        const {recordCount,contentLoaded}=this.state;
-        const headers=["","Name","Group","Unit"]
-        return <div>
-            <Header>Item List <Label>{recordCount}</Label></Header>
-        <MasterEntity.List sortable headers={headers}>
-            <Table.Body>
-            {contentLoaded?this.dataList:<Loader/>}     
-            </Table.Body>
-        </MasterEntity.List>
-        </div>
-    }
-
+    const headers=[
+        "","Name","Group","Unit"
+    ];
+  
+    return <RecordList headers={headers} title="Item(s)" mapFn={mapFn}  fetchPromise={fetcher} />
+  
 }
+
+
+
 
 export class ItemForm extends Component{
     constructor(props){

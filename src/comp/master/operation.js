@@ -2,8 +2,54 @@
 
 import React,{Component} from "react";
 import { Form, TextArea, Card, Message, Button } from "semantic-ui-react";
+import {MasterEntity} from "./entityList";
 import { Get } from "../../network";
 import {GroupTypes} from "../../Fixed";
+import { RecordList } from "../common/recordList";
+
+
+/**
+ * This component renders operations list
+ * @param {ReactProps} props 
+ */
+export function OperationList(props){
+  
+    const mapFn=(v,i)=>{
+        const {name,group_name,workplace_name,description,id}=v;
+        return <Table.Row key={i}>
+            <Table.Cell>
+            <Link title="Edit this Record" to={End.master.operation.modify+"/"+id}>
+                <Icon name="edit"></Icon>
+            </Link>
+            </Table.Cell>
+        <Table.Cell>
+            {name}
+        </Table.Cell>
+        <Table.Cell>
+         <small>{group_name}</small>
+        </Table.Cell>
+        <Table.Cell>
+            {workplace_name}
+        </Table.Cell>
+        <Table.Cell>
+            {description}
+        </Table.Cell>
+        </Table.Row>
+    }
+
+    const fetcher=()=>{
+        return MakePostFetch(End.master.operation.read,new FormData(),true)
+    }
+    const headers=[
+        "","Name","Group","Workplace","Description"
+    ];
+  
+    return <RecordList headers={headers} title="Operation" mapFn={mapFn}  fetchPromise={fetcher} />
+  
+  
+}
+
+
 
 export  class OperationForm extends Component{
     constructor(props){

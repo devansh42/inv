@@ -1,6 +1,6 @@
 import React,{Component} from "react";
-import { Table } from "semantic-ui-react";
-import PropTypes from "prop-types";s
+import { Table, Message } from "semantic-ui-react";
+import PropTypes from "prop-types";
 
 
 
@@ -14,9 +14,11 @@ import PropTypes from "prop-types";s
       const hf=(v,i)=>{ //for printing header
           return <Table.Cell key={i}>{v}</Table.Cell>
       }
+      const errMsg=<Message error>
+            {props.errorMsg}
+      </Message>
       
-      
-      return <Table sortable={"sortable" in props}>
+      return (props.errorState)?<errMsg/>:<Table sortable={"sortable" in props}>
                 <Table.Header>
                     <Table.Row>
                         {props.headers.map(hf)}
@@ -25,7 +27,7 @@ import PropTypes from "prop-types";s
                 <Table.Body>
                {props.children}
                 </Table.Body>
-        </Table>
+        </Table>;
     
 
  }

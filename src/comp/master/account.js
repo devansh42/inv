@@ -6,62 +6,33 @@ import { MakePostFetch, Get } from "../../network";
 import End from "../../end";
 
 
-
-export class AccountList extends Component{
-    constructor(props){
-        super(props);
-        this.state={contentLoaded:false,recordCount:0};
-        this.dataList=[];
-        this.fetchContent();
+export function AccountList(props){
+    const mapFn=(v,i)=>{
+        const {name,group_name,id}=v;
+    return <Table.Row key={i}>
+            <Table.Cell>
+            <Link title="Edit this Record" to={End.master.account.modify+"/"+id}>
+                <Icon name="edit"></Icon>
+            </Link>
+            </Table.Cell>
+        <Table.Cell>
+            {name}
+        </Table.Cell>
+        <Table.Cell>
+          {group_name}
+        </Table.Cell>
+        </Table.Row>
+    };
+    const headers=[
+        "","Name","Group"
+    ];
+    const fetcher=()=>{
+        return MakePostFetch(End.master.account.read,new FormData(),true)
     }
-
-    fetchContent(){
-        MakePostFetch(End.master.account.read,new FormData(),true)
-        .then(r=>{
-            if(r.status==200)return r.json();
-            else throw Error("Couldn't fetch the content");
-        })
-        .then(r=>{
-            this.dataList= r.results.map((v,i)=>{
-                const {name,group_name,id}=v;
-            return <Table.Row key={i}>
-                    <Table.Cell>
-                    <Link title="Edit this Record" to={End.master.account.modify+"/"+id}>
-                        <Icon name="edit"></Icon>
-                    </Link>
-                    </Table.Cell>
-                <Table.Cell>
-                    {name}
-                </Table.Cell>
-                <Table.Cell>
-                  {group_name}
-                </Table.Cell>
-                </Table.Row>
-            });
-            this.setState({contentLoaded:true,recordCount:r.results.length});
-        })
-        .catch(err=>{
-            this.setState({errorState:true,errorMsg:err.message});
-        })
-    }
-
-    render(){
-        let {recordCount,contentLoaded}=this.state;
-
-        const headers=[
-            "","Name","Group"
-        ];
-        return <div>
-            <Header dividing>Account <Label floating>{recordCount}</Label> </Header>
-            <MasterEntity.List sortable headers={headers}>
-                <Table.Body>
-                    {(contentLoaded)?this.dataList:<Loader/>}
-                </Table.Body>
-            </MasterEntity.List>
-        </div>
-    }
+   
+    return <RecordList headers={headers} title="Account(s)" mapFn={mapFn}  fetchPromise={fetcher} />
+  
 }
-
 
 
 export class AccountForm extends Component{

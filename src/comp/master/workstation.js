@@ -8,62 +8,9 @@ import End from "../../end";
 import { GroupTypes } from "../../Fixed";
 import { MasterEntity } from "./entityList";
 
-
-
-export class WorkplaceList extends Component{
-    constructor(props){
-        super(props);
-        this.state={contentLoaded:false,recordCount:0}
-        this.dataList=[];
-        this.fetchContent();
+export function WorkplaceList(props){
     
-    }
-    
-    fetchContent(){
-        MakePostFetch(End.master.workplace.read,new FormData(),true)
-        .then(r=>{
-            if(r.status==200){
-                return r.json()
-            }
-            else throw Error("Something was went wrong");
-        })
-        .then(r=>{
-            this.dataList=r.results.map(v=>{
-                const {name,addr,op_time,id,cl_time,group_name}=v;
-                return <Table.Row key={id}>
-                    <Table.Cell>
-                        <Link title="Modify this Record" to={"/app/master/account/workplace/modify/"+id}>
-                        <Icon name="edit" ></Icon>
-                        </Link>    
-                    </Table.Cell>
-                    <Table.Cell>
-                        {name}
-                    </Table.Cell>
-                    <Table.Cell>
-                        {group_name}
-                    </Table.Cell>
-                    <Table.Cell>
-                        {this.timeSecToString(op_time)}
-                    </Table.Cell>
-                    <Table.Cell>
-                        {this.timeSecToString(cl_time)}
-                    </Table.Cell>
-                    <Table.Cell>
-                        {addr}
-                    </Table.Cell>
-                    
-                </Table.Row>
-
-            });
-            this.setState({contentLoaded:true,recordCount:r.results.length});
-        })
-        .catch(err=>{
-            this.setState({errorState:true,errorMsg:err.message});
-        })
-    
-    }   
-
-    timeSecToString(s){
+    function timeSecToString(s){
         let x="";
         let h=s/3600;
         h=parseInt(h);
@@ -75,23 +22,43 @@ export class WorkplaceList extends Component{
         return x;
     }
 
+    const mapFn=v=>{
+        const {name,addr,op_time,id,cl_time,group_name}=v;
+        return <Table.Row key={id}>
+            <Table.Cell>
+                <Link title="Modify this Record" to={End.master.workplace.modify+"/"+id}>
+                <Icon name="edit" ></Icon>
+                </Link>    
+            </Table.Cell>
+            <Table.Cell>
+                {name}
+            </Table.Cell>
+            <Table.Cell>
+                {group_name}
+            </Table.Cell>
+            <Table.Cell>
+                {timeSecToString(op_time)}
+            </Table.Cell>
+            <Table.Cell>
+                {timeSecToString(cl_time)}
+            </Table.Cell>
+            <Table.Cell>
+                {addr}
+            </Table.Cell>
+        </Table.Row>
+};
 
-    render(){
-        let {recordCount,contentLoaded}=this.state;
-
-        const headers=[
-            "","Name","Group","Opeing Time","Closing Time","Location"
-        ];
-        return <div>
-            <Header dividing>Workplace <Label floating>{recordCount}</Label> </Header>
-            <MasterEntity.List sortable headers={headers}>
-                <Table.Body>
-                    {(contentLoaded)?this.dataList:<Loader/>}
-                </Table.Body>
-            </MasterEntity.List>
-        </div>
+    const fetcher=()=>{
+        return MakePostFetch(End.master.workplace.read,new FormData(),true)
     }
-}
+   
+    const headers=[
+        "","Name","Group","Opeing Time","Closing Time","Location"
+    ];
+  
+    return <RecordList headers={headers} title="WorkPlace(s)" mapFn={mapFn}  fetchPromise={fetcher} />
+  
+};
 
 export class WorkplaceForm extends Component{
     constructor(props){
