@@ -5,6 +5,46 @@ import { Message, Card, Header, Form, Table } from "semantic-ui-react";
 import { Get, MakePostFetch } from "../../network";
 import End from "../../end";
 
+
+export function BomList(props){
+
+    const mapFn=(v,i)=>{
+        const {name,item_name,qty, route_name,description,id}=v;
+    return <Table.Row key={i}>
+            <Table.Cell>
+            <Link title="Edit this Record" to={End.production.bom.modify+"/"+id}>
+                <Icon name="edit"></Icon>
+            </Link>
+            </Table.Cell>
+        <Table.Cell>
+            {name}
+        </Table.Cell>
+        <Table.Cell>
+          {item_name}
+        </Table.Cell>
+        <Table.Cell>
+          {qty}
+        </Table.Cell>
+        <Table.Cell>
+          {route_name}
+        </Table.Cell>
+        <Table.Cell>
+          {description}
+        </Table.Cell>
+        </Table.Row>
+    };
+    const headers=[
+        "","Name","Item","Quantity","Route","Description"
+    ];
+    const fetcher=()=>{
+        return MakePostFetch(End.production.bom.read,new FormData(),true)
+    }
+   
+    return <RecordList headers={headers} title="Bill of Material(s)" mapFn={mapFn}  fetchPromise={fetcher} />
+  
+}
+
+
 export class BomForm extends Component{
     constructor(props){
         super(props);

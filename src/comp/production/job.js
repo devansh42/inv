@@ -1,12 +1,86 @@
 //This file contains code for job card related stuff
 import React,{Component} from 'react';
-import { Form, Header, Card } from 'semantic-ui-react';
+import { Form, Header, Card, Button } from 'semantic-ui-react';
+import {MakePostFetch, FormErrorHandler} from "../../network";
+import End from '../../end';
 
 export class JobForm extends Component{
     constructor(props){
         super(props);
-        this.state={};
+        this.state={
+            errorState:false,
+            errorMsg:null,
+            btnDisable:false,
+            btnLoading:false,
+            successState:false,
+            OperationOptions:[],
+            WorkOrderOptions:[],
+            WorkerOptions:[]
+        };
+        this.pullResources();
     }
+    
+    pullResources(){
+
+        MakePostFetch(End.production.workorder.read,null,true)
+        .then(r=>{
+            if(r.status==200){
+                return r.json();
+            }
+            else throw Error("Couldn't fetch Work Orders");
+        })
+        .then(r=>{
+            const WorkOrderOptions=r.result.map(v=>{
+                return {id:v.id,key:v.id,text:"#".concat(v.id),...v};
+            });
+            this.setState({WorkOrderOptions});
+        })
+        .catch(FormErrorHandler.bind(this));
+
+        
+        
+        
+        
+        
+        MakePostFetch(End.master.account.read,null,true)
+        .then(r=>{
+            if(r.status==200){
+                return r.json();
+            }
+            else throw Error("Couldn't fetch Worker List");
+
+        })
+        .then(r=>{
+            const WorkerOptions=r.result.map(v=>{
+                return {id:v.id,key:v.id,text:v.name,...v}
+            });
+            this.setState({WorkerOptions});
+            
+        })
+        .catch(FormErrorHandler.bind(this));
+
+    }
+
+    handleChange(e){
+        [b]=this.state.WorkOrderOptions.filter(v=>{
+            return v.id==e.target.value;
+        });
+        const f=new FormData();//for requesting about routing
+        f.append('operation',b.bom);
+        MakePostFetch(End.production.bom.read,f,true)
+            .then(r=>{
+            if(r.status==200)return r.json();
+            else throw Error("Couldn't fetch Operation Details");
+            })
+                .then(r=>{
+                    const  WorkOrderOptions= r.result.map(v=>{
+                        return {id:v.id,text:v.name,key:v.id,...v};
+                    })
+                    this.setState({ WorkOrderOptions});
+                })
+            .catch(FormErrorHandler.bind(this));
+    }
+
     
     render(){
 
@@ -17,7 +91,7 @@ export class JobForm extends Component{
             <Form.Group>
             <Form.Field required>
                 <label>Workorder</label>
-                <Select name="workorder" id="workorder" options={state.WorkOrderOptions} placeholder="Choose from Workorder"  />
+                <Select name="workorder" onChange={this.handleChange.bind(this)} id="workorder" options={state.WorkOrderOptions} placeholder="Choose from Workorder"  />
             </Form.Field>
             <Form.Field required>
               <Form.Input label="Post Date" name="post_date" type="datetime" id="post_date" />  
@@ -37,8 +111,9 @@ export class JobForm extends Component{
                 <label>Worker/Employee</label>
                 <Select name="worker" id="worker" options={state.WorkerOptions} placeholder="Choose Worker/Employee for this task" ></Select>
             </Form.Field>
-            
-            <Button primary onClick={this.handleClick.bind(this)}>{(create)?"Create":"Modify"}</Button>
+            <Message error header="There is something wrong!!" content={this.state.errorMsg}/>
+          
+            <Button primary loading={this.state.btnLoading} disabled={this.state.btnDisable} onClick={this.handleClick.bind(this)}>{(create)?"Create":"Modify"}</Button>
         </Form>;
 
         return (this.state.successState)?<SuccessCard/>:form;

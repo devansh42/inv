@@ -4,6 +4,53 @@ import { Form } from "semantic-ui-react";
 import { Get, MakePostFetch, FormErrorHandler } from "../../network";
 import End from "../../end";
 import { OperationListChooser } from "../master/route";
+import {WorkOrderStates} from "../../Fixed";
+
+export function WorkOrderList(props){
+   
+
+    const getorderStatus=v=>{
+        for(let x in WorkOrderStates){
+            if(v==WorkOrderStates[x])return x;
+        }
+        return "";
+    }
+   
+    const mapFn=(v,i)=>{
+        const {item_name,qty,bom_name,state,id}=v;
+    return <Table.Row key={i}>
+            <Table.Cell>
+            <Link title="Edit this Record" to={End.production.workorder.modify+"/"+id}>
+                <Icon name="edit"></Icon>
+            </Link>
+            </Table.Cell>
+        <Table.Cell>
+            {"#".concat(id)}
+        </Table.Cell>
+        <Table.Cell>
+          {item_name}
+        </Table.Cell>
+        <Table.Cell>
+            {qty}
+        </Table.Cell>
+        <Table.Cell>
+            {bom_name}
+        </Table.Cell>
+        <Table.Cell>
+            {getorderStatus(state)}
+        </Table.Cell>
+        </Table.Row>
+    };
+    const headers=[
+        "","Id","Item","Quantity","Bill of Matreial","State"
+    ];
+    const fetcher=()=>{
+        return MakePostFetch(End.production.workorder.read,new FormData(),true)
+    }
+   
+    return <RecordList headers={headers} title="Account(s)" mapFn={mapFn}  fetchPromise={fetcher} />
+  
+}
 
 export class WorkOrderForm extends Component{
     constructor(props){
