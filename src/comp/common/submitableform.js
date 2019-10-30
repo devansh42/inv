@@ -32,19 +32,3 @@ export function SubmitButton(props){
             </Button>
 }
 
-
-/*
-export function SubmitableForm(props){
-    const {id}=props;    
-    const form=<Form id={id}>
-                
-            </Form>
-
-
-
-
-
-}
-
-
-*/
