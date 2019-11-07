@@ -4,6 +4,47 @@ import { Form, Header, Card, Button } from 'semantic-ui-react';
 import {MakePostFetch, FormErrorHandler} from "../../network";
 import End from '../../end';
 
+
+export function JobCardList(props){
+
+    const mapFn=(v,i)=>{
+        const {id,workorder,operation_name,qty}=v;
+    return <Table.Row key={i}>
+            <Table.Cell>
+            <Link title="Edit this Record" to={End.production.job.modify+"/"+id}>
+                <Icon name="edit"></Icon>
+            </Link>
+            </Table.Cell>
+        <Table.Cell>
+           <Link title="JOB Card Id" to={End.production.job.modify+"/"+id}>
+            {"#".concat(id)}
+           </Link>
+        </Table.Cell>
+        <Table.Cell>
+          {"#".concat(workorder)}
+        </Table.Cell>
+        <Table.Cell>
+          {operation_name}
+        </Table.Cell>
+        <Table.Cell>
+          {qty}
+        </Table.Cell>
+        </Table.Row>
+    };
+    const headers=[
+        "","JOB Id","Workorder","Operation","Qty"
+    ];
+    const fetcher=()=>{
+        return MakePostFetch(End.production.job.read,new FormData(),true)
+    }
+   
+    return <RecordList headers={headers} title="JOB Card(s)" mapFn={mapFn}  fetchPromise={fetcher} />
+  
+}
+
+
+
+
 export class JobForm extends Component{
     constructor(props){
         super(props);

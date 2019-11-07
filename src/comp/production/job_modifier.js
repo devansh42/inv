@@ -7,6 +7,7 @@ import { Get, MakePostFetch } from "../../network";
 import End from "../../end";
 
 export function JobCardAlteration(props) {
+ 
     const [errorState, setErrorState] = useState(false);
     const [errorMsg, setErrorMsg] = useState(null);
     const [startTime, setStartTime] = useState(Date.now());
@@ -137,15 +138,15 @@ export function JobCardAlteration(props) {
  * 
  * @param {ReactProps} props 
  */
-function KVTable({kv_pairs,...props}) {
-    const [kvpair,setKvpair]=useState(kv_pairs);
-    const addRow=e=>{
-        let x=kvpair;
-        x.push({mutable:true});
+function KVTable({ kv_pairs, ...props }) {
+    const [kvpair, setKvpair] = useState(kv_pairs);
+    const addRow = e => {
+        let x = kvpair;
+        x.push({ mutable: true });
         setKvpair(x);
     };
-    const removeRow=i=>{
-        setKvpair(kvpair.filter((v,xi)=>xi!==i));
+    const removeRow = i => {
+        setKvpair(kvpair.filter((v, xi) => xi !== i));
     }
 
     return <Table>
@@ -156,13 +157,13 @@ function KVTable({kv_pairs,...props}) {
                 </Table.Cell>
 
                 <Table.Cell>
-                 Key
+                    Key
                 </Table.Cell>
                 <Table.Cell>
-                Value
+                    Value
                 </Table.Cell>
             </Table.Header>
-            {kvpair.map((v,i)=>{
+            {kvpair.map((v, i) => {
                 return <KVTableRow key={i} kv_key={v.key} removeRow={removeRow} kv_value={v.value} mutable={v.mutable} />
             })}
 
@@ -184,8 +185,8 @@ KVTable.propTypes = {
  * 
  * @param {ReactProps} props 
  */
-function KVTableRow({key,removeRow, mutable, kv_key, kv_value, ...props }) {
-    const handleRemove=e=>{
+function KVTableRow({ key, removeRow, mutable, kv_key, kv_value, ...props }) {
+    const handleRemove = e => {
         removeRow(key);
     }
 
@@ -217,19 +218,19 @@ KVTableRow.propTypes = {
     /**
      * Removes a row in the kv table
      */
-    removeRow:PropTypes.func
+    removeRow: PropTypes.func
 }
 
 /**
  * This element render table row of job logs
  * @param {object} React Props 
  */
-function TableRow({ setErrorMsg, setErrorState, ...props }) {
+function TableRow({ key, removeRow, setErrorMsg, setErrorState, ...props }) {
     const [startTime, setStartTime] = useState(Date.now());
     const [finishTime, setFinishTime] = useState(Date.now());
     const [started, setStarted] = useState(false);
     const [finished, setFinished] = useState(false);
-   
+
     const handleStart = e => {
         setStartTime(Date.now());
         e.target.disabled = true;
@@ -241,8 +242,8 @@ function TableRow({ setErrorMsg, setErrorState, ...props }) {
         e.target.disabled = true;
         setFinished(true);
     }
-    
-    const handleInput = e => {
+
+    /*const handleInput = e => {
         const v = Number(e.target.value);
         let errorState, errorMsg;
 
@@ -264,8 +265,8 @@ function TableRow({ setErrorMsg, setErrorState, ...props }) {
             setErrorMsg(errorMsg);
         }
     }
-
-    return (removed) ? <></> : <Table.Row>
+    */
+    return <Table.Row>
         <Table.Cell>
             <Select placeholder="Choose Worker" name="worker" options={workers} ></Select>
         </Table.Cell>
@@ -278,12 +279,12 @@ function TableRow({ setErrorMsg, setErrorState, ...props }) {
         <Table.Cell>
             {(finished) ? new Date(finishTime).toLocaleString() : <Button onClick={handleFinish}>Finish</Button>}
         </Table.Cell>
-        
+
         <Table.Cell>
             <TextArea rows={2} placeholder="Details..." />
         </Table.Cell>
         <Table.Cell>
-            <Icon name="times" onClick={(e) => { setRemoved(true); }} />
+            <Icon name="times" onClick={(e) => { removeRow(key) }} />
         </Table.Cell>
     </Table.Row>;
 };
@@ -293,7 +294,7 @@ TableRow.propTypes = {
     /**
      * Worker to associated with work
      */
-    workers:PropTypes.arrayOf(PropTypes.object),
+    workers: PropTypes.arrayOf(PropTypes.object),
 
     /**
      * function to update error state
@@ -303,7 +304,7 @@ TableRow.propTypes = {
      * function to update error message
      */
     setErrorMsg: PropTypes.func,
-    
+
     /**
      * total quantity to be completed
      */

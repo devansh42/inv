@@ -62,6 +62,12 @@ let End={
             create:p+"/app/master/route/create",
             modify:p+"/app/master/route/modify",
             read:p+"/app/master/route/read"
+        },
+        kv:{
+            create:p+"/app/master/kv/create",
+            modify:p+"/app/master/kv/modify",
+            read:p+"/app/master/kv/read"
+        
         }
 
     

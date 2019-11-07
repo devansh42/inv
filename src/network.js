@@ -36,6 +36,7 @@ export let MakePostFetch=(path,body,auth)=>{
 /**
  * Standard error handler used in react forms
  * It just set form state to error and pass errorMsg string
+ * It function should be bind with 'this'
  * @param {Error} err 
  */
 export function FormErrorHandler(err){
@@ -53,8 +54,9 @@ export const Get={
     Unit:getunits,
     Workplace:getworkplace,
     Item:getitem,
-    Route:getroute
-
+    Route:getroute,
+    Account:getaccount,
+    KV:getkvpairs
 
 };
 
@@ -132,7 +134,7 @@ async function getitem(type){
     const r=await MakePostFetch(End.master.item.read,f,true)
     if(r.status==200){
         const json= await r.json();
-        return json.map(v=>{ return {key:v.id,value:v.id,text:v.name,gid:v.gid,name:v.name,unit:v.unit,unit_name:v.unit_name,group_name:v.group_name}});
+        return json.result.map(v=>{ return {key:v.id,value:v.id,text:v.name,gid:v.gid,name:v.name,unit:v.unit,unit_name:v.unit_name,group_name:v.group_name}});
     }
     else throw Error("unable to fullfill this request");
 }
@@ -145,12 +147,45 @@ async function getitem(type){
 async function getroute(type){
     let f=new FormData();
     if(type!=undefined)f.append("gid",type);
-    const r=await MakePostFetch(End.master.route.read,f,true)
+    const r=await MakePostFetch(End.master.route.read,f,true);
     if(r.status==200){
         const json= await r.json();
-        return json.map(v=>{return {key:v.id,value:v.id,text:v.name,gid:v.gid,group_name:v.group_name,name:v.name,description:v.description}});
+        return json.result.map(v=>{return {key:v.id,value:v.id,text:v.name,gid:v.gid,group_name:v.group_name,name:v.name,description:v.description}});
     }
     else throw Error("unable to fullfill this request");
 }
 
 
+
+/**
+ * Returns Options for Select list
+ * @param {number} aid 
+ */
+async function getaccount(aid){
+    const f=new FormData();
+    if(aid!=undefined)f.append("id",aid);
+    const r=await MakePostFetch(End.master.account.read,f,true);
+    if(r.status==200){
+        const json=await r.json();
+        return json.result.map((v,i)=>{
+            return {key:i,text:v.account_name,...v}
+        });
+    }
+    else throw Error("unable to fullfill this request");
+}
+
+/**
+ * This returns kv pair array with given id , response array returned remain untouched
+ * @param {number} id of the item record to fetch 
+ */
+async function getkvpairs(id){
+    const f=new FormData();
+    if(id!=undefined)f.append("id",id);
+    const r=await MakePostFetch(End.master.kv.read,f,true);
+    if(r.status==200){
+        const json=await r.json();
+        return json.result;
+    }
+    else throw Error("unable to fullfill this request");
+    
+}

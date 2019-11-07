@@ -20,7 +20,7 @@ export class BaseMenu extends Component{
                 </Menu.Item>
                 <Menu.Item>
                     <Dropdown text="Production" item>
-
+                        <ProductionMenu/>
                     </Dropdown>
                 </Menu.Item>
                 <Menu.Menu >
