@@ -7,7 +7,7 @@ import {IdProofs} from "./Fixed";
 /**
  * 
  * @param {string} path 
- * @param {HTMLFormElement} body 
+ * @param {HTMLFormElement|String|FormData} body 
  * @param {boolean} auth
  */
 export let MakePostFetch=(path,body,auth)=>{
@@ -16,7 +16,8 @@ export let MakePostFetch=(path,body,auth)=>{
         method:"post",
         'credentials':"include",
         headers:{
-            "Access-Control-Allow-Origin":"http://localhost:3001"
+            "Access-Control-Allow-Origin":"http://localhost:3001",
+            "Content-Type":(body instanceof String)?"application/json;charset=utf-8":"form/multipart"
         }
     };
 
