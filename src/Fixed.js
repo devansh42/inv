@@ -20,10 +20,15 @@ export const IdProofs = [
     { key: 4, value: 4, text: "Driving License" }
 
 ]
-export const WorkOrderStates = {
-    "Not Started": 1,
+export const ProcessStates = [
+    { key: 1, color: "black", text: "Not Started" },
+    { key: 2, color: "orange", text: "Processing" },
+    { key: 3, color: "blue", text: "Processed" },
+    { key: 4, color: "green", text: "Completed" },
+    { key: 6, color: "red", text: "Interrupted" },
 
-}
+
+]
 
 
 export const MenuTree = [
