@@ -8,16 +8,23 @@ let End={
     
     production:{
         bom:{
-            create:"/app/production/bom/create",
-            read:"/app/production/bom/read",
+            create:p+"/app/production/bom/create",
+            read:p+"/app/production/bom/read",
         },
         workorder:{
-            create:"/app/production/workorder/create",
-            read:"/app/production/workorder/read"
+            create:p+"/app/production/workorder/create",
+            read:p+"/app/production/workorder/read"
         },
         job:{
-            create:"/app/production/job/create",
-            read:"/app/production/job/read"
+            create:p+"/app/production/job/create",
+            read:p+"/app/production/job/read"
+        },
+        jobModifier:{
+            create:p+"/app/production/jobModifier/create",
+            read:p+"/app/production/jobModifier/read",
+            delete:p+"/app/production/jobModifier/delete",
+            add:p+"/app/production/jobModifier/add",        
+            action:p+"/app/production/jobModifier/action"
         }
     },
     master:{
@@ -66,7 +73,8 @@ let End={
         kv:{
             create:p+"/app/master/kv/create",
             modify:p+"/app/master/kv/modify",
-            read:p+"/app/master/kv/read"
+            read:p+"/app/master/kv/read",
+            delete:p+"/app/master/kv/delete"
         
         }
 
