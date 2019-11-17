@@ -1,11 +1,11 @@
 //This file contains component  definition for key/value pair
-import React,{useState} from "react";
-
+import React, { useState } from "react";
+import PropTypes from "prop-types";
 /**
  * 
  * @param {ReactProps} props 
  */
-function KVTable({ kv_pairs, entityId, header }) {
+function KVTable({ kv_pairs, entityId, header, readOnly }) {
     const [kvpair, setKvpair] = useState(kv_pairs);
     const [errorState, setErrorState] = useState(false);
     const [errorMsg, setErrorMsg] = useState(null);
@@ -68,7 +68,7 @@ function KVTable({ kv_pairs, entityId, header }) {
             <Table.Row>
                 <Table.Header>
                     <Table.Cell>
-                        <Button onClick={addRow}>Add Row</Button>
+                        <Button disabled={readOnly} onClick={addRow}>Add Row</Button>
                     </Table.Cell>
                     <Table.Cell>
                         Key
@@ -77,7 +77,7 @@ function KVTable({ kv_pairs, entityId, header }) {
                         Value
                 </Table.Cell>
                 </Table.Header>
-                {kvpair.map((v, i) => <KVTableRow setErrorMsg={setErrorMsg} setErrorState={setErrorState} addKV={addKV} key={i} kv_key={v.key} removeRow={removeRow} kv_value={v.value} mutable={v.mutable} />)}
+                {kvpair.map((v, i) => <KVTableRow readOnly={readOnly} setErrorMsg={setErrorMsg} setErrorState={setErrorState} addKV={addKV} key={i} kv_key={v.key} removeRow={removeRow} kv_value={v.value} mutable={v.mutable} />)}
 
             </Table.Row>
 
@@ -99,7 +99,11 @@ KVTable.propTypes = {
     /**
      * Unique id of entity, for which kv pair table is constructed
      */
-    entityId: PropTypes.number
+    entityId: PropTypes.number,
+    /**
+     * specify whether table is readonly or not
+     */
+    readOnly: PropTypes.number
 }
 
 
@@ -108,7 +112,7 @@ KVTable.propTypes = {
  * 
  * @param {ReactProps} props 
  */
-function KVTableRow({ setErrorMsg, setErrorState, key, removeRow, mutable, kv_key, kv_value, addKV }) {
+function KVTableRow({ readOnly, setErrorMsg, setErrorState, key, removeRow, mutable, kv_key, kv_value, addKV }) {
 
     const [_key, set_key] = useState("");
     const [_value, set_value] = useState("");
@@ -156,9 +160,9 @@ function KVTableRow({ setErrorMsg, setErrorState, key, removeRow, mutable, kv_ke
             <Table.Cell>
                 {kv_value}
             </Table.Cell>
-            <Table.Cell>
+            {(readOnly)?<></>:<Table.Cell>
                 <Icon name="times" color="red" title="Remove" onClick={handleRemove.bind(this, true)} />
-            </Table.Cell>
+            </Table.Cell>}
 
         </Table.Row>;
 }
