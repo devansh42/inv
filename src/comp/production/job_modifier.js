@@ -107,6 +107,7 @@ export function JobCardAlteration({ jid, iid, ...props }) {
         f.append("action", action);
         f.append("time", time);
         f.append("job_card", jid);
+        f.append("workorder", payload.workorder);
         return MakePostFetch(End.production.jobModifier.action, f, true)
             .then(r => {
                 if (r.status == 200) {
@@ -155,7 +156,7 @@ export function JobCardAlteration({ jid, iid, ...props }) {
                 <JobLogTable job_card={jid} setErrorMsg={setErrorMsg} header="Job Card Logs" setErrorState={setErrorState} logRecord={payload.job_logs} />
             </Form.Group>
             <Form.Group>
-                <KVTable kv_pairs={kvPairs} entity={} header="Properties" />
+                <KVTable kv_pairs={kvPairs} entity={(payload.entityId == null) ? payload.plId : payload.entityId} header="Properties" />
             </Form.Group>
             <Message error>{errorMsg}</Message>
         </Form>
