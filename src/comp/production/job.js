@@ -1,8 +1,11 @@
 //This file contains code for job card related stuff
 import React,{Component} from 'react';
-import { Form, Header, Card, Button } from 'semantic-ui-react';
+import { Form,Table, Header,Select,Message, Card, Button,Icon } from 'semantic-ui-react';
+import {Link} from "react-router-dom";
 import {MakePostFetch, FormErrorHandler} from "../../network";
 import End from '../../end';
+import Apm from '../../apm';
+import { RecordList } from '../common/recordList';
 
 
 export function JobCardList(props){
@@ -16,7 +19,7 @@ export function JobCardList(props){
             </Link>
             </Table.Cell>
         <Table.Cell>
-           <Link title="JOB Card Id" to={End.production.job.modify+"/"+id}>
+           <Link title="JOB Card Id" to={Apm.production.job+"/info/"+id}>
             {"#".concat(id)}
            </Link>
         </Table.Cell>
@@ -63,9 +66,9 @@ export class JobForm extends Component{
     
     pullResources(){
 
-        MakePostFetch(End.production.workorder.read,null,true)
+        MakePostFetch(End.production.workorder.read,new FormData(),true)
         .then(r=>{
-            if(r.status==200){
+            if(r.status===200){
                 return r.json();
             }
             else throw Error("Couldn't fetch Work Orders");
@@ -81,11 +84,11 @@ export class JobForm extends Component{
         
         
         
+        /*
         
-        
-        MakePostFetch(End.master.account.read,null,true)
+        MakePostFetch(End.master.account.read,new FormData(),true)
         .then(r=>{
-            if(r.status==200){
+            if(r.status===200){
                 return r.json();
             }
             else throw Error("Couldn't fetch Worker List");
@@ -99,18 +102,18 @@ export class JobForm extends Component{
             
         })
         .catch(FormErrorHandler.bind(this));
-
+        */
     }
 
     handleChange(e){
-        [b]=this.state.WorkOrderOptions.filter(v=>{
-            return v.id==e.target.value;
+        const [b]=this.state.WorkOrderOptions.filter(v=>{
+            return v.id===e.target.value;
         });
         const f=new FormData();//for requesting about routing
         f.append('operation',b.bom);
         MakePostFetch(End.production.bom.read,f,true)
             .then(r=>{
-            if(r.status==200)return r.json();
+            if(r.status===200)return r.json();
             else throw Error("Couldn't fetch Operation Details");
             })
                 .then(r=>{
@@ -122,6 +125,9 @@ export class JobForm extends Component{
             .catch(FormErrorHandler.bind(this));
     }
 
+    handleClick(e){
+
+    }
     
     render(){
 
@@ -129,32 +135,30 @@ export class JobForm extends Component{
         const {create}=props;
         const form=<Form id="jobcardForm">
             <Header dividing >{(create)?"Add Job":"Modify Job"}</Header>
-            <Form.Group>
+         
             <Form.Field required>
                 <label>Workorder</label>
                 <Select name="workorder" onChange={this.handleChange.bind(this)} id="workorder" options={state.WorkOrderOptions} placeholder="Choose from Workorder"  />
             </Form.Field>
             <Form.Field required>
-              <Form.Input label="Post Date" name="post_date" type="datetime" id="post_date" />  
-            </Form.Field>
-            </Form.Group>
-         
-            <Form.Group>
-            <Form.Field required>
                 <label>Operation</label>
                 <Select name="operation" id='operation' options={state.OperationOptions}  placeholder="Choose from Operations" ></Select>
-            </Form.Field>
-            <Form.Field required>
-                <Form.Input name="qty" placeholder="Quantity to be produces against this Job Card" id="qty" label="For Quantity" />
-            </Form.Field>
+            </Form.Field>  
+          
+         
+            <Form.Group>
+           
+                <Form.Input required name="qty" placeholder="Quantity to be produces against this Job Card" id="qty" label="For Quantity" />
+                <Form.Input required label="Post Date" name="post_date" type="datetime" id="post_date" />  
+        
             </Form.Group>
-            <Form.Field required>
+          {/**   <Form.Field required>
                 <label>Worker/Employee</label>
                 <Select name="worker" id="worker" options={state.WorkerOptions} placeholder="Choose Worker/Employee for this task" ></Select>
-            </Form.Field>
+            </Form.Field> **/}
             <Message error header="There is something wrong!!" content={this.state.errorMsg}/>
           
-            <Button primary loading={this.state.btnLoading} disabled={this.state.btnDisable} onClick={this.handleClick.bind(this)}>{(create)?"Create":"Modify"}</Button>
+            <Button primary loading={this.state.btnLoading} disabled={this.state.btnDisable} onClick={this.handleClick.bind(this)}>{(create)?"Create":"Modify"} JOB Card</Button>
         </Form>;
 
         return (this.state.successState)?<SuccessCard/>:form;

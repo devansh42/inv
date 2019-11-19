@@ -1,4 +1,4 @@
-import React,{Component} from "react";
+import React from "react";
 import { Table, Message } from "semantic-ui-react";
 import PropTypes from "prop-types";
 
@@ -12,7 +12,7 @@ import PropTypes from "prop-types";
  */
   function masterEntityList(props){
       const hf=(v,i)=>{ //for printing header
-          return <Table.Cell key={i}>{v}</Table.Cell>
+          return <Table.HeaderCell key={i}>{v}</Table.HeaderCell>
       }
       const errMsg=<Message error>
             {props.errorMsg}

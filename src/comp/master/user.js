@@ -2,7 +2,7 @@
 
 
 import React, { Component } from "react";
-import { Form, Header } from "semantic-ui-react";
+import { Form, Header, Message, Select, Icon, Button, Card } from "semantic-ui-react";
 import { MakePostFetch } from "../../network";
 import End from "../../end";
 import { UserPermTree } from "./userperms";
@@ -17,6 +17,8 @@ export class UserForm extends Component {
             btnLoading: false,
             successState: false,
             username: props.username,
+            AccountOptions: [],
+
         };
         this.fetchContent();
     }
@@ -25,7 +27,7 @@ export class UserForm extends Component {
     fetchContent() {
         MakePostFetch(End.master.account.read, new FormData(), true)
             .then(r => {
-                if (r.status == 200) return r.json();
+                if (r.status === 200) return r.json();
                 else throw Error("Couldn't Fetch Account List");
 
             })
@@ -55,21 +57,21 @@ export class UserForm extends Component {
             cpassword: /.{8,}/,
             aid: /\d{1,}/
         };
-        const errorMsg = null;
-        if (o.username.match(oe.username) == null) {
+        let errorMsg = null;
+        if (o.username.match(oe.username) === null) {
             errorMsg = "Provide a valid username (upto 20 characters) Alpha numeric charcters and _ is allowed";
 
         }
-        else if (o.password.match(oe.password) == null) {
+        else if (o.password.match(oe.password) === null) {
             errorMsg = "Provide a strong Password (8 Characters Required) ";
         }
-        else if (o.cpassword.match(oe.cpassword) == null || o.password != o.cpassword) {
+        else if (o.cpassword.match(oe.cpassword) === null || o.password !== o.cpassword) {
             errorMsg = "Confirm Password should be same as Password";
         }
-        else if (o.aid.match(oe.aid) == null) {
+        else if (o.aid.match(oe.aid) === null) {
             errorMsg = "Choose a valid Account to assign User Role";
         }
-        const valid = errorMsg == null;
+        const valid = errorMsg === null;
         if (valid) {
             //making request to backend server
             const p = End.master.user;
@@ -128,6 +130,7 @@ export class UserForm extends Component {
                 {props.create ? "Create" : "Modify"}
             </Button>
         </Form>;
+        return form;
     }
 }
 

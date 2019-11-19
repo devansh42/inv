@@ -6,7 +6,7 @@ import End from "../../end";
 import { Form, Statistic, Grid, Card, Feed, Icon, Step, Item } from "semantic-ui-react";
 import PropType from "prop-types";
 import { Link, Switch, Route } from "react-router-dom";
-import { ProcessStates } from "../../Fixed";
+
 
 
 /**
@@ -153,7 +153,7 @@ WorkorderTracker.propTypes = {
  * List of Production Item unit
  * @param {ReactProps} props 
  */
-function unitList({ units,routing, item_name, ...props }) {
+function unitList({ units, routing, item_name, ...props }) {
 
     return <>
 
@@ -171,10 +171,14 @@ function unitList({ units,routing, item_name, ...props }) {
                 </Card.Content>
             </Card></Grid.Column>
         <Grid.Column>
-            {units.map((v, i) => <Item.Routing key={i} operations={v} entityId={v[0].entityId} />)}
+            <Switch>
+                {units.map((v, i) => <Item.Routing key={i} operations={v} entityId={v[0].entityId} />)}
+            </Switch>
         </Grid.Column>
         <Grid.Column>
-            {units.map((v, i) => <Item.Properties key={i} entityId={v[0].entityId} />)}
+            <Switch>
+                {units.map((v, i) => <Item.Properties key={i} entityId={v[0].entityId} />)}
+            </Switch>
         </Grid.Column>
     </>
 
@@ -193,15 +197,15 @@ unitList.propTypes = {
  * Component for Item Unit
  * @param {*} param0 
  */
-function itemUnit({ entityId,routing,blob, ...props }) {
-    const ops = blob.map(v=>v.operation);
-    const color=(x,y)=>{
-       return (x==y)?"green":(x==0)?"grey":"yellow";    
+function itemUnit({ entityId, routing, blob, ...props }) {
+    const ops = blob.map(v => v.operation);
+    const color = (x, y) => {
+        return (x == y) ? "green" : (x == 0) ? "grey" : "yellow";
     }//(ops.length,routing.length);
 
     return <Feed.Event>
         <Feed.Label>
-            <Icon name="circle" color={color(ops.length,routing.length)}  />
+            <Icon name="circle" color={color(ops.length, routing.length)} />
         </Feed.Label>
         <Feed.Content>
             <Link to={"/app/production/workorder/item/".concat(entityId)}>  {"#".concat(entityId)}</Link>
@@ -256,7 +260,7 @@ function itemOperation({ name, job_card, state }) {
 
 
 function itemProps({ entityId, ...props }) {
-    const kvPairs = useEffect(() => {
+    const kvPairs = useEffect(async () => {
         const f = new FormData();
         f.append("id", entityId);
         return MakePostFetch(End.master.kv.read, f, true)
@@ -268,7 +272,7 @@ function itemProps({ entityId, ...props }) {
             .then(r => r.result)
             .catch(err => {
                 //Handle Error
-            })
+            },[true]);
     })
 
     return <Route path={"/app/production/workorder/item/".concat(entityId)}>

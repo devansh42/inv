@@ -64,15 +64,15 @@ export class GroupForm extends Component {
     handleSubmit(e) {
         let valid = true;
         let errorMsg = "";
-        let d = document.getElementById;
+        let d = i =>document.getElementById(i);
         let o = { name: d("group_name").value, type: d("group_type").value };
         let or = { name: /[a-zA-Z0-9]{2,100}/, type: /\d{1,2}/ };
-        if (o.name.trim().match(or.name) == null) {
+        if (o.name.trim().match(or.name) === null) {
             valid = false;
             errorMsg = "Invalid Group (2-100) Characters\n";
 
         }
-        else if (o.type.match(or.type) == null) {
+        else if (o.type.match(or.type) === null) {
             valid = false;
             errorMsg = "Invalid Group Type/Choose from given List";
         }
@@ -91,7 +91,7 @@ export class GroupForm extends Component {
 
             } else {
                 //check user didn't modify anything
-                if (o.name == this.props.name && o.type == this.props.type) {
+                if (o.name === this.props.name && o.type === this.props.type) {
                     this.setState({ successState: true });
                 } else {
                     MakePostFetch(End.master.group.modify, form)
@@ -150,7 +150,7 @@ function SuccessMessage(props) {
 
 let typename = type => {
     for (let y = 0; y < GroupType.length; y++) {
-        if (GroupType[y].value == type) {
+        if (GroupType[y].value === type) {
             return GroupType[y].text
         }
     }

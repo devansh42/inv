@@ -63,10 +63,10 @@ export class UnitForm extends Component {
             name: /\w{2,30}/,
             symbol: /\w{1,5}/
         };
-        if (o.name.match(oe.name) == null) {
+        if (o.name.match(oe.name) === null) {
             errorMsg = "Invalid Name (2-30) Character, e.g. Meter";
         }
-        else if (o.symbol.match(oe.symbol) == null) {
+        else if (o.symbol.match(oe.symbol) === null) {
             errorMsg = "Invalid Symbol (1-5) Character, e.g. Mtr";
         }
         valid = errorMsg === null;
@@ -78,7 +78,7 @@ export class UnitForm extends Component {
                 MakePostFetch(End.master.unit.create, form).then(r => { });
             } else {
                 let p = this.props;
-                if (p.name == o.name && p.symbol == o.symbol) {
+                if (p.name === o.name && p.symbol === o.symbol) {
                     //no need to modify
                     this.setState({ successState: true });
                 } else {

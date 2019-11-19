@@ -2,7 +2,7 @@
 //This file contains mapping for different endpoints
 
 let p="http://localhost:3000";
-let End={
+const End={
     auth:p+"/auth",
     checkAuth:p+"/checkAuth",
     

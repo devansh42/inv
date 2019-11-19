@@ -67,6 +67,7 @@ export class AccountForm extends Component {
     pullResources() {
         Get.Group(GroupTypes.Account)
             .then(r => {
+                
                 this.setState({ AccountGroup: r });
             })
             .catch(err => {
@@ -108,49 +109,49 @@ export class AccountForm extends Component {
             email: /.{,100}/
         };
         let valid, errorMsg = "";
-        if (o.name.match(oe.name) == null) {
+        if (o.name.match(oe.name) === null) {
             errorMsg = "Invalid Name (2-100 Characters)";
         }
-        else if (o.gender.match(oe.gender) == null) {
+        else if (o.gender.match(oe.gender) === null) {
             errorMsg = "Choose Gender (Male|Female)";
         }
-        else if (o.gid.match(oe.gid) == null) {
+        else if (o.gid.match(oe.gid) === null) {
             errorMsg = "Invalid Group, Choose from the given list or create new";
         }
-        else if (o.mobile_no.match(oe.mobile_no) == null) {
+        else if (o.mobile_no.match(oe.mobile_no) === null) {
             errorMsg = "Invalid Mobile No.";
         }
-        else if (o.addr.length > 0 && o.addr.match(oe.addr) == null) {
+        else if (o.addr.length > 0 && o.addr.match(oe.addr) === null) {
             errorMsg = "Invalid Address (2-200 Characters)";
         }
-        else if (o.town.length > 0 && o.town.match(oe.town) == null) {
+        else if (o.town.length > 0 && o.town.match(oe.town) === null) {
             errorMsg = "Invalid Town";
         }
-        else if (o.pincode.length > 0 && o.pincode.match(oe.pincode) == null) {
+        else if (o.pincode.length > 0 && o.pincode.match(oe.pincode) === null) {
             errorMsg = "Invalid Pincode (Require 6 Digits)";
         }
-        else if (o.dob.length > 0 && o.dob.match(oe.dob) == null) {
+        else if (o.dob.length > 0 && o.dob.match(oe.dob) === null) {
             errorMsg = "Invalid Date of Birth (Choose a date before today)";
         }
-        else if (o.email.length > 0 && o.email.match(oe.email) == null) {
+        else if (o.email.length > 0 && o.email.match(oe.email) === null) {
             errorMsg = "Invalid Email, try another";
         }
-        else if (o.join_date.length > 0 && o.join_date.match(oe.join_date) == null) {
+        else if (o.join_date.length > 0 && o.join_date.match(oe.join_date) === null) {
             errorMsg = "Invalid Joining Date";
         }
-        else if (o.id_proof_no.length > 0 && o.id_proof_type.match(oe.id_proof_type) == null) {
+        else if (o.id_proof_no.length > 0 && o.id_proof_type.match(oe.id_proof_type) === null) {
             errorMsg = "Choose Valid Id Proof";
         }
-        else if (o.id_proof_no.length > 0 && o.id_proof_no.match(oe.id_proof_no) == null) {
+        else if (o.id_proof_no.length > 0 && o.id_proof_no.match(oe.id_proof_no) === null) {
             errorMsg = "Invalid Id Proof No."
         }
-        else if (o.id_proof_type.length > 0 && o.id_proof_type.match(oe.id_proof_type) == null) {
+        else if (o.id_proof_type.length > 0 && o.id_proof_type.match(oe.id_proof_type) === null) {
             errorMsg = "Choose Valid Id Proof";
         }
-        else if (o.id_proof_type.length > 0 && o.id_proof_no.match(oe.id_proof_no) == null) {
+        else if (o.id_proof_type.length > 0 && o.id_proof_no.match(oe.id_proof_no) === null) {
             errorMsg = "Enter Id Proof No.";
         }
-        valid = errorMsg == "";
+        valid = errorMsg === "";
 
         if (valid) {
             let form = d("accountForm");
@@ -162,22 +163,22 @@ export class AccountForm extends Component {
                 //non creat request
                 let p = this.props;
                 let s = this.state;
-                let ar = [p.name == s.name,
-                p.addr == s.addr,
-                s.town == p.town,
-                s.gender == p.gender,
+                let ar = [p.name === s.name,
+                p.addr === s.addr,
+                s.town === p.town,
+                s.gender === p.gender,
                 s.dob = p.dob,
                 s.mobile_no = p.mobile_no,
-                s.email == p.email,
-                s.town == p.town,
-                s.id_proof_no == p.id_proof_no,
-                s.id_proof_type == p.id_proof_type,
-                s.join_date == p.join_date,
-                s.gid == p.gid,
-                s.pincode == p.pincode,
+                s.email === p.email,
+                s.town === p.town,
+                s.id_proof_no === p.id_proof_no,
+                s.id_proof_type === p.id_proof_type,
+                s.join_date === p.join_date,
+                s.gid === p.gid,
+                s.pincode === p.pincode,
 
                 ];
-                if (ar.filter(v => v == false).length > 0) {
+                if (ar.filter(v => v === false).length > 0) {
                     MakePostFetch(End.master.account.modify, form).then(r => r);
                 }
                 else {
@@ -232,7 +233,7 @@ function SuccessMessage(props) {
             <Message header="Success!!" content={(props.create) ? 'Group Added' : "Group Modified"} />
             <Card>
                 <Card.Content>
-                    <Card.Header><Icon name={(props.gender == "m") ? "male" : "female"} /> {props.name}</Card.Header>
+                    <Card.Header><Icon name={(props.gender === "m") ? "male" : "female"} /> {props.name}</Card.Header>
                     <Card.Meta>Account</Card.Meta>
                 </Card.Content>
             </Card>

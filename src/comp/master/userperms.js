@@ -1,7 +1,7 @@
 //This contains code to handle user permissions to access various menu options
 
-import React,{Component} from "react";
-import { List, Form, Reveal } from "semantic-ui-react";
+import React,{useState} from "react";
+import { List, Form, Reveal, } from "semantic-ui-react";
 import PropTypes from "prop-types";
 import {MenuTree} from "../../Fixed";
 /**
@@ -10,7 +10,7 @@ import {MenuTree} from "../../Fixed";
  */
 export function UserPermTree(props){
     const map=(v,i)=>{
-        return <treeNode key={i} {...v} />
+        return <TreeNode key={i} {...v} />
     };
 
     return <List>
@@ -22,15 +22,15 @@ export function UserPermTree(props){
  * Node, which contains info current menu option node
  * @param {ReactProps} props 
  */
-function treeNode(props){
+function TreeNode(props){
     
     const [hasPerm,setPerm] = useState(props.checked);
     const [isHidden,setIsHidden]=useState(true);
   
-    const subTree=p=>{
+    const SubTree=p=>{
         return <List.List>
             {p.childs.map((v,i)=>{
-                return <treeNode {...v} key={i} />
+                return <TreeNode {...v} key={i} />
             })}
         </List.List>
     }
@@ -46,17 +46,17 @@ function treeNode(props){
         {'childs' in props ? <List.Icon tilte={isHidden?"Expand":"Contract"}  name={isHidden?"plus circle":"minus circle"}  onClick={handleExpansion} /> : <List.Icon small name="circle" />}
          <List.Content>
              <List.Header>
-                 <Form.Input type="checkbox" checked={hasPem} onChange={checkChange}  label={props.name} />
+                 <Form.Input type="checkbox" checked={hasPerm} onChange={checkChange}  label={props.name} />
                     {(hasPerm)?<input hidden name='menu_perm'  value={props.value} />:<></>}
              </List.Header>
-             {'childs' in props ? <Reveal><Reveal.Content hidden={isHidden} > <subTree checked={hasPerm} childs={props.childs} /></Reveal.Content></Reveal>: <></> }
+             {'childs' in props ? <Reveal><Reveal.Content hidden={isHidden} > <SubTree checked={hasPerm} childs={props.childs} /></Reveal.Content></Reveal>: <></> }
          </List.Content>   
         
      </List.Item>
 
 }
 
-treeNode.propTypes={
+TreeNode.propTypes={
     /**
      * Name of the menu options
      */
@@ -68,7 +68,7 @@ treeNode.propTypes={
     /**
      * specify whether user has permission to use this options
      */
-    checked:PropTypes.bool.isRequired(),
+    checked:PropTypes.bool.isRequired,
     /**
      * array of child subtree
      */

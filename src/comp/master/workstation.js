@@ -2,7 +2,7 @@
 
 
 import React, { Component } from "react";
-import { Button, Select, Form, Message, Table, Header, Label, Loader, Icon } from "semantic-ui-react";
+import { Button, Select, Form, Message, Table, Header, Icon } from "semantic-ui-react";
 import { MakePostFetch, Get } from "../../network";
 import End from "../../end";
 import { GroupTypes } from "../../Fixed";
@@ -107,21 +107,21 @@ export class WorkplaceForm extends Component {
             gid: /\d{1,}/
         };
         let valid = true, errorMsg = null;
-        if (o.name.trim().match(oe.name) == null) {
+        if (o.name.trim().match(oe.name) === null) {
             errorMsg = "Invalid Name (2-200) Character\n";
 
         }
-        else if (o.addr.trim().match(oe.addr) == null) {
+        else if (o.addr.trim().match(oe.addr) === null) {
             errorMsg = "Invalid Address\n";
 
         }
-        else if (o.op_time.trim().match(oe.op_time) == null) {
+        else if (o.op_time.trim().match(oe.op_time) === null) {
             errorMsg = "Invalid Opening Time\n";
         }
-        else if (o.cl_time.trim().match(oe.cl_time) == null) {
+        else if (o.cl_time.trim().match(oe.cl_time) === null) {
             errorMsg = "Invalid Closing Time\n";
         }
-        else if (o.gid.trim().match(oe.gid) == null) {
+        else if (o.gid.trim().match(oe.gid) === null) {
             errorMsg = "Choose valid Group";
         }
         valid = errorMsg === null;
@@ -136,7 +136,7 @@ export class WorkplaceForm extends Component {
             } else {
                 let p = this.props;
                 //no change of content
-                if (p.name == o.name && p.addr == o.addr && p.op_time == o.op_time && p.cl_time == o.cl_time && p.gid == o.gid) {
+                if (p.name === o.name && p.addr === o.addr && p.op_time === o.op_time && p.cl_time === o.cl_time && p.gid === o.gid) {
                     this.setState({ successState: true });
                 } else {
                     MakePostFetch(End.master.workplace.modify, form)
@@ -153,17 +153,20 @@ export class WorkplaceForm extends Component {
         let form = <Form id="formWorkplace" error={this.state.errorState}>
             <Header header={(this.props.create) ? "Create Workplace" : "Modify Workplace"} dividing></Header>
             <Form.Input required title="Name of Workplace e.g. Factory-1" label="Name" name="name" type="text" id="wrk_name" placeholder="WorkPlace Name" />
-            <Form.Input required name="addr" type="text" id="wrk_addr" placeholder="WorkPlace Address" />
-            <Form.Input required id="op_time" name="op_time" title="Opening Time e.g. 08:15:00" type="time" label="Opening Time" />
-            <Form.Input required id="cl_time" name="cl_time" title="Opening Time e.g. 22:15:00" type="time" label="Closing Time" />
+            <Form.Input required name="addr" label="Address" type="text" id="wrk_addr" placeholder="WorkPlace Address" />
             <Form.Field required>
                 <label>Group</label>
                 <Select id="gid" required placeholder="Choose Group" options={this.state.GroupOptions} ></Select>
             </Form.Field>
+            
+            <Form.Group>
+            <Form.Input required id="op_time" name="op_time" title="Opening Time e.g. 08:15:00" type="time" label="Opening Time" />
+            <Form.Input required id="cl_time" name="cl_time" title="Opening Time e.g. 22:15:00" type="time" label="Closing Time" />
+            </Form.Group>
             <Message error header="There is a Problem!!" content={this.state.errorMsg}></Message>
             <Button primary onClick={this.handleSubmit.bind(this)} loading={this.state.btnLoading} disabled={this.state.btnDisable} >{this.props.create ? "Create" : 'Modify'}</Button>
         </Form>;
-        return (this.state.successState) ? <SuccessMessage group={getGroupname(this.state.GroupOptions, this.state.gid)} name={this.state.name} cl_time={this.state.cl_time} op_time={this.state.op_time} addr={this.state.addr} /> : form;
+        return (this.state.successState) ? <SuccessMessage group={getGroupname(this.state.GroupOptions, this.state.gid)} name={this.state.name} cl_time={this.state.cl_time} op_time={this.state.op_time} addr={this.state.addr} /> :form;
     }
 
 }

@@ -1,75 +1,65 @@
 //This is the component which renders first time
 //The whole app run in this component
 
-import React,{Component} from "react";
+import React, { useState,useEffect } from "react";
 import LoginWindow from "./login";
-import { Container,  } from "semantic-ui-react";
+import { Container, } from "semantic-ui-react";
 import { HomeWindow } from "./home";
-import {BrowserRouter as Router,Redirect,Switch,Route} from "react-router-dom";
+import { BrowserRouter as Router, Redirect, Switch, Route } from "react-router-dom";
 import { MakePostFetch } from "./network";
 import End from "./end";
 
-export default class FirstWindow extends Component{
+export default function FirstWindow(props) {
+   const [authed, setAuth] = useState(false);
 
-    constructor(props){
-        super(props);
-        this.state={
-            authed:false
+
+
+    useEffect(() => {
+        let x = localStorage.getItem("jwt_token");
+        if (x != null) {
+
+            MakePostFetch(End.checkAuth, new FormData(), true)
+                .then(r => {
+                    if (r.status === 200) {
+                        //User is authed
+                        setAuth(true);
+                    }
+                });
+
         }
-        this.checkForAuth();
-     }
 
-    checkForAuth(){
-        let x=localStorage.getItem("jwt_token");
-        if(x!=null){
+    }, [props]);
 
-            MakePostFetch(End.checkAuth,new FormData(),true)
-            .then(r=>{
-                if(r.status===200){
-                    //User is authed
-                    this.setAuth(true);
-                }
-            })
-    
-        }
-        
-    }
 
-    setAuth(b){
-        this.setState({authed:b});
-    }
+    return (
 
-    render(){
-        return (
-            
-            
-            <div>
-                <Router>
+
+        <div>
+            <Router>
                 <Container>
-                   {(this.state.authed)?<HomeRedirector />:<LoginWindow setAuth={this.setAuth.bind(this)}/>}
+                    {(authed) ? <HomeRedirector /> : <LoginWindow setAuth={setAuth} />}
                 </Container>
-                </Router>
-            </div>
-            
-            
-            );
-    }
+            </Router>
+        </div>
+
+
+    );
+
 
 
 
 }
 
-    function HomeRedirector(props){
-        let x=window.location.pathname;
-        
-        console.log(x);
-       return <>
-                 <Redirect to={(x=="/")?"app":x} />
-                 
-                    <Switch>
-                        <Route  path="/app">
-                            <HomeWindow/>
-                        </Route>
-                    </Switch>
-                </>;
-    }
+function HomeRedirector(props) {
+    let x = window.location.pathname;
+
+    return <>
+        <Redirect to={(x === "/") ? "app" : x} />
+
+        <Switch>
+            <Route path="/app">
+                <HomeWindow />
+            </Route>
+        </Switch>
+    </>;
+}

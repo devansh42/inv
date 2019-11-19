@@ -1,5 +1,5 @@
 //This file contains code to render record list
-import React, { Component, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Header, Label, Table, Loader } from "semantic-ui-react";
 import { MasterEntity } from "../master/entityList";
@@ -14,38 +14,38 @@ export function RecordList(props) {
     const [recordCount, setRecordCount] = useState(0);
     const [errorState, setErrorState] = useState(false);
     const [errorMsg, setErrorMsg] = useState(null);
-
-    const dataList = [];
+    const [dataList,setDataList]=useState([]);
     useEffect(() => {
         props.fetchPromise()
             .then(r => {
-                if (r.status == 200) return r.json();
+                if (r.status === 200) return r.json();
                 else throw Error("Couldn't fetch the content");
             })
+            .then(r=>r.result)
             .then(r => {
-                dataList = r.results.map(props.mapFn); //performs map operation on fetched content
-                return [true, dataList.length]; //return true (i.e. content is loaded from the background), and length of fetched content
+                const dataList = r.map(props.mapFn); //performs map operation on fetched content
+              
+                return [true, dataList.length,dataList]; //return true (i.e. content is loaded from the background), and length of fetched content
             })
-            .then(([loaded, len]) => {
+            .then(([loaded, len,list]) => {
                 setContentLoaded(loaded);
                 setRecordCount(len);
-
+                setDataList(list);
             })
             .catch(err => {
                 setErrorMsg(err.message);
                 setErrorState(true);
             })
-    });
 
-
-    return <div>
-        <Header dividing>{props.title} <Label floating>{recordCount}</Label> </Header>
+        });
+    return <>
+        <Header dividing>{props.title} <Label color="teal" horizontal>{recordCount}</Label> </Header>
         <MasterEntity.List errorState={errorState} errorMsg={errorMsg} sortable headers={props.headers}>
             <Table.Body>
                 {(contentLoaded) ? dataList : <Loader />}
             </Table.Body>
         </MasterEntity.List>
-    </div>
+    </>
 }
 
 

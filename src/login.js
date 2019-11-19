@@ -2,7 +2,7 @@
 
 import React,{Component} from 'react';
 import { Segment,Form,Message,Button, Grid, Header, Icon } from 'semantic-ui-react';
-import {Redirect} from "react-router-dom";
+
 import End from './end';
 
 import { MakePostFetch } from './network';
