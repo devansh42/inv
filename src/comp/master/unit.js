@@ -3,7 +3,7 @@
 import React, { Component } from "react";
 import { Form, Icon, Message, Button, Card, Header, Table } from "semantic-ui-react";
 import { Link } from 'react-router-dom';
-import { MakePostFetch } from "../../network";
+import { MakePostFetch, FormResponseHandlerWithLoadingDisabler } from "../../network";
 import End from "../../end";
 import { RecordList } from '../common/recordList';
 export function UnitList(props) {
@@ -54,7 +54,7 @@ export class UnitForm extends Component {
 
     handleSubmit(e) {
         let valid, errorMsg = null;
-        let d = document.getElementById;
+        let d = c => document.getElementById(c);
         let o = {
             name: d("name").value,
             symbol: d("symbol").value
@@ -72,17 +72,26 @@ export class UnitForm extends Component {
         valid = errorMsg === null;
         if (valid) {
             let form = d("unitForm");
-            this.setState({ name: o.name, symbol: o.symbol });
+            this.setState({btnLoading:true,btnDisable:true,  name: o.name, symbol: o.symbol });
 
             if (this.props.create) {
-                MakePostFetch(End.master.unit.create, form).then(r => { });
+                MakePostFetch(End.master.unit.create, form, true)
+                    .then(FormResponseHandlerWithLoadingDisabler.bind(this))
+                    .then(r=>{
+                        this.setState({successState:true});
+                    })
+                    .catch(err => {
+                        this.setState({ errorState: true, errorMsg: err.message });
+                    });
+
             } else {
                 let p = this.props;
                 if (p.name === o.name && p.symbol === o.symbol) {
                     //no need to modify
                     this.setState({ successState: true });
                 } else {
-                    MakePostFetch(End.master.unit.modify, form).then(r => { });
+                    //Handler for modification
+                    MakePostFetch(End.master.unit.modify, form, true).then(r => { });
                 }
             }
 
@@ -93,14 +102,14 @@ export class UnitForm extends Component {
 
     render() {
         let form = <Form id='unitForm' error={this.state.errorState}>
-            <Header header={(this.props.create) ? "Create Unit" : "Modify Unit"} dividing></Header>
+            <Header dividing>{(this.props.create) ? "Create Unit" : "Modify Unit"}</Header>
             <Form.Input required name="name" title="Unit Name" type="text" label="Unit Name" placeholder='e.g. Meter' />
             <Form.Input required name="symbol" tilte="Unit Symbol" type="text" label="Unit Symbol" placeholder="e.g. Mtr" />
             <Message error header="There is a Problem!!" content={this.state.errorMsg}></Message>
             <Button onClick={this.handleSubmit.bind(this)} primary loading={this.state.btnLoading} disabled={this.state.btnDisable} >{this.props.create ? "Create" : "Modify"}</Button>
         </Form>;
 
-        return (this.state.successState) ? <SuccessMessage name={this.state.name} symbol={this.state.symbol} /> : form;
+        return (this.state.successState) ? <SuccessMessage name={this.state.name} symbol={this.state.symbol}  create={this.props.create}  /> : form;
 
     }
 }

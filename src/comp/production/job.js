@@ -149,7 +149,7 @@ export class JobForm extends Component{
             <Form.Group>
            
                 <Form.Input required name="qty" placeholder="Quantity to be produces against this Job Card" id="qty" label="For Quantity" />
-                <Form.Input required label="Post Date" name="post_date" type="datetime" id="post_date" />  
+                <Form.Input required label="Post Date" name="post_date" type="datetime-local" id="post_date" />  
         
             </Form.Group>
           {/**   <Form.Field required>

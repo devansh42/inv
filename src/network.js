@@ -12,12 +12,12 @@ import { IdProofs } from "./Fixed";
  */
 export let MakePostFetch = (path, body, auth) => {
     let opt = {
-        body: (typeof body === "string" || body instanceof FormData)? body : new FormData(body),
+        body: (typeof body === "string" || body instanceof FormData) ? body : new FormData(body),
         method: "post",
         'credentials': "include",
         headers: {
             "Access-Control-Allow-Origin": "http://localhost:3001",
-        
+
         }
     };
 
@@ -42,6 +42,26 @@ export let MakePostFetch = (path, body, auth) => {
  */
 export function FormErrorHandler(err) {
     this.setState({ errorState: true, errorMsg: err.message });
+}
+
+/**
+ * This function does some regular stuff , like it disable btn loading and disable status
+ * @param {Any} r, value tp resolved against form submission response
+ *  
+ */
+export async function FormResponseHandlerWithLoadingDisabler(r) {
+    return Promise.resolve(r)
+        .then(r => {
+            this.setState({ btnLoading: false, btnDisable: false });
+            if (r.status === 200) return r.json();
+            else throw Error("Couldn't complete your request");
+        })
+        .then(r => {
+            if (r.error) {
+                throw Error(r.errorMsg); //This will return the final promise
+            } else return r.result; //This also will return the final promise
+        })
+
 }
 
 

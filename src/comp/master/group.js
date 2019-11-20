@@ -2,7 +2,7 @@
 import React, { Component } from "react";
 import { Icon, Select, Form, Button, Message, Header, Card, Table } from "semantic-ui-react";
 import End from "../../end";
-import { MakePostFetch } from "../../network";
+import { MakePostFetch, FormResponseHandlerWithLoadingDisabler, FormErrorHandler } from "../../network";
 
 import { Link } from 'react-router-dom';
 
@@ -84,9 +84,11 @@ export class GroupForm extends Component {
             if (this.props.create) {
 
                 MakePostFetch(End.master.group.create, form)
-                    .then(r => {
-
+                    .then(FormResponseHandlerWithLoadingDisabler.bind(this))
+                    .then(r=>{
+                        this.setState({successState:true});
                     })
+                    .catch(FormErrorHandler.bind(this));
 
 
             } else {

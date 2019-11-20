@@ -2,7 +2,7 @@
 import React, { Component } from "react";
 import { Card, Icon, Table, Form, Header, Select, Message, Button } from "semantic-ui-react";
 import { Genders, IdProofs, GroupTypes } from "../../Fixed";
-import { MakePostFetch, Get } from "../../network";
+import { MakePostFetch, Get, FormResponseHandlerWithLoadingDisabler, FormErrorHandler } from "../../network";
 import { Link } from 'react-router-dom';
 import { RecordList } from "../common/recordList";
 import End from "../../end";
@@ -158,7 +158,14 @@ export class AccountForm extends Component {
             this.setState({ btnDisable: true, btnLoading: true, errorState: false });
             if (this.props.create) {
                 //create new account;
-                MakePostFetch(End.master.account.create, form).then(r => r);
+                MakePostFetch(End.master.account.create, form,true)
+                .then(FormResponseHandlerWithLoadingDisabler.bind(this))
+                .then(r=>{
+                    this.setState({successState:true});
+
+                })
+                .catch(FormErrorHandler.bind(this));
+
             } else {
                 //non creat request
                 let p = this.props;
@@ -198,6 +205,7 @@ export class AccountForm extends Component {
                 {this.props.create ? "Create Account" : "Modify Account"}
             </Header>
             <Form.Input id="name" name="name" required label="Name" placeholder="Name" />
+            <Form.Group>
             <Form.Field required>
                 <label>Group</label>
                 <Select id="gid" name="gid" placeholder="Choose Group.." options={this.state.AccountGroup}></Select>
@@ -206,16 +214,25 @@ export class AccountForm extends Component {
                 <label>Gender</label>
                 <Select name="gender" options={Genders} required id='gender' placeholder="Choose Gender"></Select>
             </Form.Field>
+            
             <Form.Input name="dob" id="dob" label="Date of Birth" type="date" />
-            <Form.Input name="email" id="email" label="Email" type="email" />
-            <Form.Input required name="mobile_no" type="tel" id='mobile_no' label="Mobile No." />
+            </Form.Group>
+            <Form.Group>
+            <Form.Input name="email" placeholder="e.g. hello@web.com" id="email" label="Email" type="email" />
+            <Form.Input required name="mobile_no" placeholder="9412xxxxxx" type="tel" id='mobile_no' label="Mobile No." />
+            </Form.Group>
             <Form.Input id="addr" name="addr" required label="Address" placeholder="Address" />
             <Form.Input id="town" name="town" label="Town" placeholder="Town" />
             <Form.Input id='pincode' name="pincode" label="Pincode" placeholder="Pincode" />
-
+            <Form.Group> 
             <Form.Input name="join_date" id='join_date' type="date" label="Joining Date" />
-            <Select name="id_proof" id="id_proof" options={IdProofs} placeholder="Choose Id Proof Type"></Select>
-            <Form.Input name="id_proof_no" id="id_proof_no" type="tel" label="Id Proof No." />
+           
+            <Form.Field>
+            <label>Id Proof Type</label>
+            <Select name="id_proof" id="id_proof" label="Id Proof Type" options={IdProofs} placeholder="Choose Id Proof Type"></Select>
+            </Form.Field>
+            <Form.Input name="id_proof_no" placeholder="Id Proof No." id="id_proof_no" type="tel" label="Id Proof No." />
+            </Form.Group>
             <Message error header="There is something wrong!!" content={this.state.errorMsg} />
 
             <Button primary onClick={this.handleSubmit.bind(this)} loading={this.state.btnLoading} disabled={this.state.btnDisable}>

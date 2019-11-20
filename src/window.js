@@ -1,5 +1,5 @@
 //This file contains code to render window related to master menu
-import React, {  } from "react";
+import React, { } from "react";
 import { Grid, Menu } from "semantic-ui-react";
 import { Switch, Route, Link } from "react-router-dom";
 import { AccountForm, AccountList } from "./comp/master/account";
@@ -10,8 +10,10 @@ import { GroupForm, GroupList } from "./comp/master/group";
 import PropTypes from "prop-types";
 import { BomList, BomForm } from "./comp/production/bom";
 import { WorkOrderForm, WorkOrderList } from "./comp/production/workorder";
-import { JobForm, JobCardList } from "./comp/production/job";
-import { UserForm } from "./comp/master/user";
+import { JobCardList, JobForm } from "./comp/production/job";
+import { UserForm, UserList } from "./comp/master/user";
+import {OperationForm,OperationList} from "./comp/master/operation";
+import {RouteForm,RouteList} from "./comp/master/route";
 
 
 export function ProductionWindowResolver(props) {
@@ -20,35 +22,37 @@ export function ProductionWindowResolver(props) {
     const j = "/app/production/job";
     const f = (x, y) => x.concat(y);
     return <Switch>
-        <Route path={f(b,"/*")}>
+        <Route path={f(b, "/*")}>
             <Window>
-                <WindowItem name="Create" path={f(b,"/create")}>
+                <WindowItem name="Create" path={f(b, "/create")}>
                     <BomForm create />
                 </WindowItem>
-                <WindowItem name="List" path={f(b,"/read")}>
+                <WindowItem name="List" path={f(b, "/read")}>
                     <BomList />
                 </WindowItem>
             </Window>
         </Route>
-        <Route path={f(w,"/*")}>
+        <Route path={f(w, "/*")}>
             <Window>
-                <WindowItem name='Create' path={f(w,"/create")}>
+                <WindowItem name='Create' path={f(w, "/create")}>
                     <WorkOrderForm create />
                 </WindowItem>
 
-                <WindowItem name='List' path={f(w,"/read")}>
+                <WindowItem name='List' path={f(w, "/read")}>
                     <WorkOrderList />
                 </WindowItem>
             </Window>
         </Route>
-        <Route path={f(j,"/*")}>
+        <Route path={f(j, "/*")}>
             <Window>
-                <WindowItem name="Create" path={f(j,"/create")}>
+            <WindowItem name="List" path={f(j, "/create")}>
                     <JobForm create />
                 </WindowItem>
-                <WindowItem name="List" path={f(j,"/read")}>
+                
+                <WindowItem name="List" path={f(j, "/read")}>
                     <JobCardList />
                 </WindowItem>
+
             </Window>
         </Route>
     </Switch>
@@ -57,18 +61,20 @@ export function ProductionWindowResolver(props) {
 
 
 export function Window(props) {
-    const f = (v,i) => {
+    const f = (v, i) => {
         return <Menu.Item key={i}> <Link to={v.props.path}>{v.props.name}</Link></Menu.Item>
     }
-    const f1 = (v,i) => {
+    const f1 = (v, i) => {
         return <Route key={i} path={v.props.path}>{v.props.children}</Route>
     }
-    
+
+    const ar = props.children instanceof Array ? props.children : [props.children]
+
     return <div>
         <Grid centered columns={2}>
             <Grid.Column width={"1"}>
                 <Menu vertical>
-                    {props.children.map(f)}
+                    {ar.map(f)}
                 </Menu>
             </Grid.Column>
             <Grid.Column width={"5"} >
@@ -76,7 +82,7 @@ export function Window(props) {
             </Grid.Column>
             <Grid.Column width={"10"}>
                 <Switch>
-                    {props.children.map(f1)}
+                    {ar.map(f1)}
                 </Switch>
             </Grid.Column>
         </Grid>
@@ -100,7 +106,9 @@ export function MasterWindowResolver(props) {
     let i = "/app/master/item";
     let w = "/app/master/workplace";
     let g = "/app/master/group";
-    let us= "/app/master/user";
+    let us = "/app/master/user";
+    let o= '/app/master/operation';
+    let r="/app/master/route";
     return <Switch>
 
         <Route path={a.concat("/*")}  >
@@ -162,12 +170,33 @@ export function MasterWindowResolver(props) {
                 <WindowItem name="Create" path={us.concat("/create")} >
                     <UserForm create />
                 </WindowItem>
-                <WindowItem name="Create" path={us.concat("/create")} >
-                    <UserForm create />
-                </WindowItem>
+        <WindowItem name="List" path={us.concat("/read")}>
+                <UserList/>
+        </WindowItem>
             </Window>
         </Route>
+    <Route path={o.concat("/*")}>
+        <Window>
+            <WindowItem name="Create" path={o.concat('/create')}>
+                <OperationForm create />
+            </WindowItem>
+            <WindowItem name="Read" path={o.concat('/read')}>
+                <OperationList />
+            </WindowItem>
+            
+        </Window>
+    </Route>
 
-
+    <Route path={r.concat("/*")}>
+        <Window>
+            <WindowItem name="Create" path={r.concat('/create')}>
+                <RouteForm create />
+            </WindowItem>
+            <WindowItem name="Read" path={r.concat('/read')}>
+                <RouteList />
+            </WindowItem>
+            
+        </Window>
+    </Route>
     </Switch>
 }

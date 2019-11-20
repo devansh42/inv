@@ -3,7 +3,7 @@
 
 import React, { Component } from "react";
 import { Button, Select, Form, Message, Table, Header, Icon } from "semantic-ui-react";
-import { MakePostFetch, Get } from "../../network";
+import { MakePostFetch, Get, FormResponseHandlerWithLoadingDisabler, FormErrorHandler } from "../../network";
 import End from "../../end";
 import { GroupTypes } from "../../Fixed";
 import { Link } from 'react-router-dom';
@@ -128,12 +128,17 @@ export class WorkplaceForm extends Component {
 
         if (valid) {
             let form = d("formWorkplace");
-
+            this.setState({ btnLoading: true, btnDisable: true, name: o.name.trim(), gid: o.gid.trim(), cl_time: o.cl_time.trim(), addr: o.addr.trim(), op_time: o.op_time.trim() });
             if (this.props.create) {
                 MakePostFetch(End.master.workplace.create, form)
-                    .then(r => { });
+                    .then(FormResponseHandlerWithLoadingDisabler.bind(this))
+                    .then(r => {
+                        this.setState({ successState: true });
+                    })
+                    .catch(FormErrorHandler.bind(this));
 
             } else {
+                //Handler for modification state
                 let p = this.props;
                 //no change of content
                 if (p.name === o.name && p.addr === o.addr && p.op_time === o.op_time && p.cl_time === o.cl_time && p.gid === o.gid) {
@@ -151,22 +156,22 @@ export class WorkplaceForm extends Component {
 
     render() {
         let form = <Form id="formWorkplace" error={this.state.errorState}>
-            <Header header={(this.props.create) ? "Create Workplace" : "Modify Workplace"} dividing></Header>
+            <Header dividing>{(this.props.create) ? "Create Workplace" : "Modify Workplace"}</Header>
             <Form.Input required title="Name of Workplace e.g. Factory-1" label="Name" name="name" type="text" id="wrk_name" placeholder="WorkPlace Name" />
             <Form.Input required name="addr" label="Address" type="text" id="wrk_addr" placeholder="WorkPlace Address" />
             <Form.Field required>
                 <label>Group</label>
                 <Select id="gid" required placeholder="Choose Group" options={this.state.GroupOptions} ></Select>
             </Form.Field>
-            
+
             <Form.Group>
-            <Form.Input required id="op_time" name="op_time" title="Opening Time e.g. 08:15:00" type="time" label="Opening Time" />
-            <Form.Input required id="cl_time" name="cl_time" title="Opening Time e.g. 22:15:00" type="time" label="Closing Time" />
+                <Form.Input required id="op_time" name="op_time" title="Opening Time e.g. 08:15:00" type="time" label="Opening Time" />
+                <Form.Input required id="cl_time" name="cl_time" title="Opening Time e.g. 22:15:00" type="time" label="Closing Time" />
             </Form.Group>
             <Message error header="There is a Problem!!" content={this.state.errorMsg}></Message>
             <Button primary onClick={this.handleSubmit.bind(this)} loading={this.state.btnLoading} disabled={this.state.btnDisable} >{this.props.create ? "Create" : 'Modify'}</Button>
         </Form>;
-        return (this.state.successState) ? <SuccessMessage group={getGroupname(this.state.GroupOptions, this.state.gid)} name={this.state.name} cl_time={this.state.cl_time} op_time={this.state.op_time} addr={this.state.addr} /> :form;
+        return (this.state.successState) ? <SuccessMessage group={getGroupname(this.state.GroupOptions, this.state.gid)} name={this.state.name} cl_time={this.state.cl_time} op_time={this.state.op_time} addr={this.state.addr} /> : form;
     }
 
 }

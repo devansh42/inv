@@ -18,15 +18,14 @@ import PropTypes from "prop-types";
             {props.errorMsg}
       </Message>
       
-      return (props.errorState)?<errMsg/>:<Table sortable={"sortable" in props}>
+      return (props.errorState)?errMsg:<Table sortable={"sortable" in props}>
                 <Table.Header>
                     <Table.Row>
                         {props.headers.map(hf)}
                     </Table.Row>
                 </Table.Header>
-                <Table.Body>
                {props.children}
-                </Table.Body>
+               
         </Table>;
     
 

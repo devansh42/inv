@@ -37,7 +37,7 @@ export function RecordList(props) {
                 setErrorState(true);
             })
 
-        });
+        },[props]);
     return <>
         <Header dividing>{props.title} <Label color="teal" horizontal>{recordCount}</Label> </Header>
         <MasterEntity.List errorState={errorState} errorMsg={errorMsg} sortable headers={props.headers}>

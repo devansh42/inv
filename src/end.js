@@ -64,7 +64,7 @@ const End={
         },operation:{
             create:p+"/app/master/operation/create",
             modify:p+"/app/master/operation/modify",
-            read:p+"/app/master/operation/create",
+            read:p+"/app/master/operation/read",
         },route:{
             create:p+"/app/master/route/create",
             modify:p+"/app/master/route/modify",

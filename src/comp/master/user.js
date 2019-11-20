@@ -2,10 +2,45 @@
 
 
 import React, { Component } from "react";
-import { Form, Header, Message, Select, Icon, Button, Card } from "semantic-ui-react";
+import { Form, Header,Table, Message, Select, Icon, Button, Card, Divider } from "semantic-ui-react";
 import { MakePostFetch } from "../../network";
 import End from "../../end";
+import {Link} from "react-router-dom";
 import { UserPermTree } from "./userperms";
+import Apm from "../../apm";
+import {RecordList} from "../common/recordList";
+
+
+export function UserList(props){
+    const mapFn = (v, i) => {
+        const { username, uid, aid,account_name } = v;
+        return <Table.Row key={i}>
+            <Table.Cell>
+                <Link title="Edit this Record" to={End.master.user.modify + "/" + uid}>
+                    <Icon name="edit"></Icon>
+                </Link>
+            </Table.Cell>
+            <Table.Cell>
+                {username}
+            </Table.Cell>
+            <Table.Cell>
+               <Link to={Apm.master.account.concat("/id/").concat(aid)}> {account_name}</Link>
+            </Table.Cell>
+
+        </Table.Row>
+    }
+
+    const fetcher = () => {
+        return MakePostFetch(End.master.user.read, new FormData(), true)
+    }
+    const headers = [
+        "", "Username", "Account Name"
+    ];
+
+    return <RecordList headers={headers} title="User(s)" mapFn={mapFn} fetchPromise={fetcher} />
+
+}
+
 
 export class UserForm extends Component {
     constructor(props) {
@@ -77,6 +112,7 @@ export class UserForm extends Component {
             const p = End.master.user;
             const form = d("userForm");
             this.setState({ username: o.username });
+            
             MakePostFetch((this.props.create) ? p.create : p.modify, form, true)
                 .then(r => {
                     switch (r.status) {
@@ -105,20 +141,29 @@ export class UserForm extends Component {
             <Header dividing>
                 {props.create ? "Create User" : "Modify User"}
             </Header>
+            <Form.Group>
 
             <Form.Input required name="username" id="username" placeholder="Username" label="Username" />
-            <Form.Input required name="password" id="password" placeholder="Password" label="Password" />
-            <Form.Input required name="cpassword" id="cpassword" placeholder="Confirm Password" label="Confirm Password" />
             <Form.Field required>
                 <label>Account Holder</label>
                 <Select placeholder="Choose Account" name="aid" id="aid" options={this.state.AccountOptions} ></Select>
             </Form.Field>
+           
+            </Form.Group>
+            <Form.Group>
+            <Form.Input required name="password" id="password" placeholder="Password" label="Password" />
+            <Form.Input required name="cpassword" id="cpassword" placeholder="Confirm Password" label="Confirm Password" />
+            </Form.Group>
+            <Divider/>
             <Form.Field>
-                <Header.Subheader>
-                    <Icon name="user" />  User Permissions
-                    </Header.Subheader>
+                <Header dividing>
+                   User Permissions
+                    </Header>
                 <Message info>
+                    <Message.Header><Icon name="info" />   Info</Message.Header>
+                    <Message.Content>
                     Check menu options you want to give to this user
+                    </Message.Content>
                     </Message>
                 <UserPermTree />
             </Form.Field>
@@ -127,21 +172,21 @@ export class UserForm extends Component {
             <Message error header="There is something wrong!!" content={this.state.errorMsg} />
 
             <Button primary onClick={this.handleSubmit.bind(this)} loading={this.state.btnLoading} disabled={this.state.btnDisable}>
-                {props.create ? "Create" : "Modify"}
+                {props.create ? "Create" : "Modify"} User
             </Button>
         </Form>;
-        return form;
+        return (this.state.successState)?   <SuccessMessage create={this.props.create} username={this.state.username}  /> :   form;
     }
 }
 
 
-function SuccessMessage(props) {
+function SuccessMessage({create,username,...props}) {
     return (
         <>
-            <Message header="Success!!" content={(props.create) ? 'User Added' : "User Modified"} />
+            <Message header="Success!!" content={(create) ? 'User Added' : "User Modified"} />
             <Card>
                 <Card.Content>
-                    <Card.Header>{props.username}</Card.Header>
+                    <Card.Header>{username}</Card.Header>
                     <Card.Meta>User</Card.Meta>
                 </Card.Content>
             </Card>

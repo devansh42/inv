@@ -137,7 +137,7 @@ export function JobCardAlteration({ jid, iid, ...props }) {
             <Header dividing>{"#".concat(props.jid)}</Header>
             <Form.Group>
                 <Form.Input disabled label="WorkOrder No." value={payload.workorder} />
-                <Form.Input disabled label="Post Time" type="datetime" value={payload.post_time} />
+                <Form.Input disabled label="Post Time" type="datetime-local" value={payload.post_time} />
                 <Form.Input label="Quantity" disabled defaultValue={payload.qty} type="number" />
                 <Form.Input label="Serial No." disabled defaultValue={(payload.sn == null) ? "" : payload.serial_no} />
             </Form.Group>

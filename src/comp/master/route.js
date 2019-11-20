@@ -2,7 +2,7 @@
 
 import React, { Component } from 'react';
 import { Form, Select, Header, Message, Card, Button, Table, Icon } from 'semantic-ui-react';
-import { Get, MakePostFetch } from '../../network';
+import { Get, MakePostFetch, FormResponseHandlerWithLoadingDisabler, FormErrorHandler } from '../../network';
 import { GroupTypes } from '../../Fixed';
 import End from '../../end';
 import PropTypes from 'prop-types';
@@ -57,8 +57,10 @@ export class RouteForm extends Component {
             btnLoading: false,
             btnDisable: false,
             successState: false,
-            operations: []
+            operations: [],
+            GroupOptions: []
         };
+        this.selectedOperations = [];
         this.pullResources();
 
     }
@@ -69,23 +71,18 @@ export class RouteForm extends Component {
             .then(GroupOptions => {
                 this.setState({ GroupOptions });
             })
-            .catch(err => {
-                this.setState({ errorState: true, errorMsg: "Couldn't fetch groups" });
-
-            });
-
-        MakePostFetch(End.master.route.read, new FormData(), true)
-            .then(r => {
-                if (r.status === 200) {
-                    return r.result
-                } else {
-                    throw Error("Couldn't fetch Operations");
-                }
-            })
-            .catch(err => {
-                this.setState({ errorState: true, errorMsg: err.message });
-            });
-
+            .catch(FormErrorHandler.bind(this));
+        /*
+    MakePostFetch(End.master.route.read, new FormData(), true)
+        .then(r => {
+            if (r.status === 200) {
+                return r.result
+            } else {
+                throw Error("Couldn't fetch Operations");
+            }
+        })
+        .catch(FormErrorHandler.bind(this));
+*/
 
         MakePostFetch(End.master.operation.read, new FormData(), true)
             .then(r => {
@@ -107,28 +104,81 @@ export class RouteForm extends Component {
 
 
     handleClick(e) {
+        let errorState = false;
+        let errorMsg = null;
+        const d = x => document.getElementById(x);
+        const x = {
+            name: [d("name").value.trim(), /^\w+$/],
+            gid: [d("gid").value.trim(), /^\d+$/],
+            description: [d('description').value.trim()]
 
+        }
+        if (x.name[0].match(x.name[1]) === null) {
+            errorMsg = "Please enter a valid Route Name";
+        }
+        else if (x.gid[0].match(x.gid[1]) === null) {
+            errorMsg = "Please choose a valid Group";
+        }
+        else if (this.state.GroupOptions.filter(v => v.value === x.gid[0]).length < 1) {
+            errorMsg = "Please choose group from list";
+        }
+        errorState = errorMsg !== null;
+        if (errorState) {
+            this.setState({ errorState, errorMsg });
+        } else {
+            //No error
+            this.setState({ btnDisable: true, btnLoading: true, name: x.name[0], count: this.selectedOperations.length });
+            if (this.props.create) {
+                let payload = {
+                    name: x.name[0],
+                    gid: x.gid[0],
+                    description: x.description[0],
+                    operation: this.selectedOperations.map(v => v.value)
+                };
+
+                MakePostFetch(End.master.route.create, JSON.stringify(payload), true)
+                    .then(FormResponseHandlerWithLoadingDisabler.bind(this))
+                    .then(r => {
+                        //Success state
+                        this.setState({ successState: true });
+                    })
+                    .catch(FormErrorHandler.bind(this));
+            } else {
+                //Modification case
+            }
+        }
+    }
+    /**
+     * Sets selected operation list
+     * @param {Array} opers is the array, which contains choosen operations in the ordered manner 
+     */
+    setSelectedOperations(opers) {
+        this.selectedOperations = opers;
     }
 
     render() {
-        const { create, successState, errorState, btnDisable, btnLoading } = this.state;
+        const { successState, errorState, btnDisable, btnLoading } = this.state;
+        const { create } = this.props;
         const form = <Form error={errorState} id="routeForm">
+
             <Header dividing>{(create) ? "Add Route" : "Modify Route"}</Header>
             <Form.Input name="name" id="name" label="Name" placeholder="Name of Route" />
             <Form.Field required>
+                <label>Group</label>
                 <Select placeholder="Choose Group" name="gid" id="gid" options={this.state.GroupOptions}></Select>
             </Form.Field>
             <Form.Field>
-                <OperationListChooser operations={this.state.operations} />
+                <OperationListChooser setSelectedOperations={this.setSelectedOperations.bind(this)} operations={this.state.operations} />
             </Form.Field>
             <Form.Field required>
+                <label>Add some Note</label>
                 <textarea name="description" placeholder="Add some notes or Description" rows="5" id="description"></textarea>
             </Form.Field>
             <Message error header="There is something wrong!!" content={this.state.errorMsg} />
             <Button primary loading={btnLoading} disabled={btnDisable} onClick={this.handleClick.bind(this)} >{(create) ? "Add" : "Modify"}</Button>
         </Form>;
 
-        return (successState) ? <SuccessCard /> : form;
+        return (successState) ? <SuccessCard create={this.props.create} name={this.state.name} count={this.state.count} /> : form;
     }
 
 }
@@ -157,7 +207,7 @@ export class OperationListChooser extends Component {
         let br = this.state.seletedOperations;
         br.push(ar) //assuming only one match
         this.setState({ seletedOperations: br });
-
+        this.props.setSelectedOperations(br);
     }
 
     rowFn(v, i) {
@@ -219,7 +269,7 @@ export class OperationListChooser extends Component {
                 <Table.Body>
                     {this.readonly ? <></> : <Table.Row>
                         <Table.Cell>
-                            <Button primary onClick={this.handleChooseClick} >
+                            <Button primary onClick={this.handleChooseClick.bind(this)} >
                                 Add New
                  </Button>
                         </Table.Cell>
@@ -253,8 +303,14 @@ OperationListChooser.propTypes = {
     /**
      * List of all available Operations
      */
-    operations: PropTypes.array
+    operations: PropTypes.array,
+    /**
+     * This is the render prop to set choosen operations
+     */
+    setSelectedOperations: PropTypes.func
+
 }
+
 
 
 function SuccessCard({ name, count, create }) {

@@ -3,7 +3,7 @@
 import React, { Component } from "react";
 import { Message, Card, Header, Icon, Button, Form, Select, Table, Divider } from "semantic-ui-react";
 import { Link } from "react-router-dom";
-import { Get, MakePostFetch } from "../../network";
+import { Get, MakePostFetch, FormErrorHandler, FormResponseHandlerWithLoadingDisabler } from "../../network";
 import End from "../../end";
 import { RecordList } from "../common/recordList";
 import { OperationListChooser } from "../master/route";
@@ -43,7 +43,7 @@ export function BomList(_) {
         return MakePostFetch(End.production.bom.read, new FormData(), true)
     }
 
-    return <RecordList headers={headers} title="Bill of Material(s)" mapFn={mapFn}  fetchPromise={fetcher} />
+    return <RecordList headers={headers} title="Bill of Material(s)" mapFn={mapFn} fetchPromise={fetcher} />
 
 }
 
@@ -101,6 +101,50 @@ export class BomForm extends Component {
                 this.setState({ errorState: true, errorMsg: err.message });
             })
     }
+    handleClick(e) {
+        const d = x => document.getElementById(x);
+        let errorState = false;
+        let errorMsg = null;
+        const o = {
+            name: [d("name".value.trim()), /^\w+$/],
+            item: [d("item").value.trim(), /^\d+$/],
+            route: [d("route").value.trim(), /^\d+$/],
+            qty: [d("qty").value.trim(), /^\d+$/]
+        }
+        if (o.name[0].match(o.name[1]) == null) {
+            errorMsg = "Please enter a valid name";
+        }
+        else if (o.item[0].match(o.item[1]) == null) {
+            errorMsg = "Please choose a valid Item to Produce";
+        }
+        else if (this.state.ItemOptions.filter(v => v.value ===  Number(o.item[0])).length < 1) {
+            errorMsg = "Please choose Items from the list";
+        }
+        else if(o.qty[0].match(o.qty[1])===null || Number(o.qty[0])<=0 ){
+            errorMsg="Please enter a valid Qty to produce";
+        }
+        else if (o.route[0].match(o.route[1]) === null) {
+            errorMsg = "Please choose valid Route for Production"
+        }
+        else if (this.state.RouteOptions.filter(v => v.value === Number(o.route[0])).length < 1) {
+            errorMsg = "Please route from the list";
+        }
+        errorState = errorMsg !== null;
+        if(errorState){
+            this.setState({errorMsg,errorState});
+        }else{
+                this.setState({btnLoading:true,btnDisable:true});
+            if(this.props.create){
+                MakePostFetch(End.production.bom.create,d("bomForm"),true)
+                .then(FormResponseHandlerWithLoadingDisabler.bind(this))
+                .then(r=>{
+                    //Handling success
+                    this.setState({successState:true});
+                })
+                .catch(FormErrorHandler.bind(this)); //Handling any kind of faliure
+            }
+        }
+    }
 
     render() {
         const { create } = this.props;
@@ -118,27 +162,26 @@ export class BomForm extends Component {
                 <RequireItemListChooser items={this.state.ItemOptions} />
             </Form.Field>
             <Divider />
-            
+
             <Form.Field required>
                 <label>Route</label>
                 <Select name="route" options={this.state.RouteOptions} id="route" placeholder="Choose from Routes" />
-                <OperationListChooser readonly  selectedOperations={this.state.RouteOperations} />
+                <OperationListChooser readonly selectedOperations={this.state.RouteOperations} />
             </Form.Field>
             <Divider />
-            
-            <Form.Field required>
+
+            <Form.Field >
+            <label>Description</label>
                 <textarea name="description" id="description" rows="5" placeholder="Add some description" ></textarea>
             </Form.Field>
             <Divider />
-            
+
             <Button primary onClick={this.handleClick.bind(this)} >{(create) ? "Add BOM" : "Modify BOM"}</Button>
         </Form>;
         return (this.state.successState) ? <SuccessCard /> : form;
     }
 
-    handleClick(e) {
 
-    }
 
 }
 
@@ -211,16 +254,16 @@ export class RequireItemListChooser extends Component {
                 </Table.Cell>}
             </Table.Row>
         })
-        const rowAdder = (this.readonly)?<></>:<Table.Row>
+        const rowAdder = (this.readonly) ? <></> : <Table.Row>
             <Table.Cell>
                 <Select options={this.props.items} id="cur_item" placeholder='Choose Item/Sub Assembly' >
                 </Select>
             </Table.Cell>
             <Table.Cell>
-                <Form.Input type="number" id="cur_qty"  name="qty" placeholder="Quantity Required" />
+                <Form.Input type="number" id="cur_qty" name="qty" placeholder="Quantity Required" />
             </Table.Cell>
             <Table.Cell>
-                <Form.Input type="number" id="cur_rate"  name="rate" placeholder="Rate" />
+                <Form.Input type="number" id="cur_rate" name="rate" placeholder="Rate" />
             </Table.Cell>
             <Table.Cell></Table.Cell>
             <Table.Cell>
@@ -230,21 +273,21 @@ export class RequireItemListChooser extends Component {
 
 
         return <Table><Table.Header>
-                <Table.Row>
-                    <Table.HeaderCell>
-                        Item
+            <Table.Row>
+                <Table.HeaderCell>
+                    Item
                     </Table.HeaderCell>
-                    <Table.HeaderCell>
-                        Qty
+                <Table.HeaderCell>
+                    Qty
                     </Table.HeaderCell>
-                    <Table.HeaderCell>
-                        Rate
+                <Table.HeaderCell>
+                    Rate
                     </Table.HeaderCell>
-                    <Table.HeaderCell>
-                        Amount
+                <Table.HeaderCell>
+                    Amount
                     </Table.HeaderCell>
 
-                </Table.Row> </Table.Header>
+            </Table.Row> </Table.Header>
             <Table.Body>
                 {(this.readonly) ? <></> : rowAdder}
                 {rows}
