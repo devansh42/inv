@@ -1,19 +1,19 @@
 //This contains code to Different Activities for group
 import React, { Component } from "react";
-import { Icon,  Form, Button, Message, Header, Card, Table } from "semantic-ui-react";
+import { Icon,  Form, Button, Message, Header, Card, Table, Segment } from "semantic-ui-react";
 import End from "../../end";
 import { MakePostFetch, FormResponseHandlerWithLoadingDisabler, FormErrorHandler } from "../../network";
 
 import { Link } from 'react-router-dom';
-import {CustomSelect} from "../common/select"
+import {CustomSelect, $,$$} from "../common/form"
 
 import { RecordList } from '../common/recordList';
 
 export function GroupList(props) {
     const mapFn = (v, i) => {
-        const { name, text, id } = v;
+        const { name, type_name, id } = v;
         return <Table.Row key={i}>
-            <Table.Cell>
+            <Table.Cell width={1}>
                 <Link title="Edit this Record" to={End.master.group.modify + "/" + id}>
                     <Icon name="edit"></Icon>
                 </Link>
@@ -22,7 +22,7 @@ export function GroupList(props) {
                 {name}
             </Table.Cell>
             <Table.Cell>
-                {text}
+                {type_name}
             </Table.Cell>
         </Table.Row>
     };
@@ -57,15 +57,10 @@ export class GroupForm extends Component {
         };
     }
 
-    handleClick(e) {
-        this.handleSubmit(e);
-    }
-
     handleSubmit(e) {
         let valid = true;
         let errorMsg = "";
-        let d = i => document.getElementById(i);
-        let o = { name: d("group_name").value, type: d("group_type").value };
+        let o = { name: $("name").value, type: $("type").value };
         let or = { name: /[a-zA-Z0-9]{2,100}/, type: /\d{1,2}/ };
         if (o.name.trim().match(or.name) === null) {
             valid = false;
@@ -80,10 +75,10 @@ export class GroupForm extends Component {
 
         if (valid) {
             this.setState({ name: o.name, type: o.type, btnDisable: true, btnLoading: true, errorState: false });
-            let form = d("groupForm");
+            let form = $("groupForm");
             if (this.props.create) {
 
-                MakePostFetch(End.master.group.create, form)
+                MakePostFetch(End.master.group.create, form,true)
                     .then(FormResponseHandlerWithLoadingDisabler.bind(this))
                     .then(r => {
                         this.setState({ successState: true });
@@ -110,23 +105,19 @@ export class GroupForm extends Component {
             this.setState({ errorState: true, errorMsg });
         }
     }
-    handleSelectionChange(e,d){
-        console.log(e,d);
-    }
-
     render() {
-        let formEle = <Form id="groupForm" error={this.state.errorState}>
+        let formEle = <Form name="groupForm" id="groupForm" error={this.state.errorState}>
             <Header dividing>
                 {this.props.create ? "Create Group" : "Modify Group"}
             </Header>
             <Form.Input required id="group_name" placeholder="Group Name" name="name" title="Group Name" label="Group Name" autoFocus />
             <Form.Field required>
                 <label>Group Type</label>
-                <CustomSelect onChange={this.handleSelectionChange.bind(this)} placeholder="Select Group Type" name="type" id="group_type" options={GroupType}></CustomSelect>
+                <CustomSelect placeholder="Select Group Type" name="type" id="group_type" options={GroupType}></CustomSelect>
             </Form.Field>
             <Message error header="There is something wrong!!" content={this.state.errorMsg} />
 
-            <Button primary onClick={this.handleClick.bind(this)} loading={this.state.btnLoading} disabled={this.state.btnDisable}>
+            <Button primary onClick={this.handleSubmit.bind(this)} loading={this.state.btnLoading} disabled={this.state.btnDisable}>
                 {this.props.create ? "Create" : "Modify"}
             </Button>
         </Form>;
@@ -137,9 +128,10 @@ export class GroupForm extends Component {
 }
 
 function SuccessMessage(props) {
-    return (<>
-        <Message header="Success!!" content={(props.create) ? 'Group Added' : "Group Modified"} />
-        <Card>
+    return (<Segment compact>
+      <Header content={(props.create) ? 'Group Added' : "Group Modified"} />
+    
+        <Card color="green">
             <Card.Content>
                 <Card.Header>{props.name}</Card.Header>
                 <Card.Meta>Group</Card.Meta>
@@ -148,7 +140,7 @@ function SuccessMessage(props) {
                 </Card.Description>
             </Card.Content>
         </Card>
-    </>
+    </Segment>
     );
 }
 

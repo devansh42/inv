@@ -1,16 +1,17 @@
 //This file contains code for unit createion
 
 import React, { Component } from "react";
-import { Form, Icon, Message, Button, Card, Header, Table } from "semantic-ui-react";
+import { Form, Icon, Message, Button, Card, Header, Table, Segment } from "semantic-ui-react";
 import { Link } from 'react-router-dom';
 import { MakePostFetch, FormResponseHandlerWithLoadingDisabler } from "../../network";
 import End from "../../end";
 import { RecordList } from '../common/recordList';
+import { $ } from "../common/form";
 export function UnitList(props) {
     const mapFn = (v, i) => {
         const { name, symbol, id } = v;
         return <Table.Row key={i}>
-            <Table.Cell>
+            <Table.Cell width={1}>
                 <Link title="Edit this Record" to={End.master.unit.modify + "/" + id}>
                     <Icon name="edit"></Icon>
                 </Link>
@@ -54,10 +55,9 @@ export class UnitForm extends Component {
 
     handleSubmit(e) {
         let valid, errorMsg = null;
-        let d = c => document.getElementById(c);
-        let o = {
-            name: d("name").value,
-            symbol: d("symbol").value
+       let o = {
+            name: $("name").value,
+            symbol: $("symbol").value
         };
         let oe = {
             name: /\w{2,30}/,
@@ -71,7 +71,7 @@ export class UnitForm extends Component {
         }
         valid = errorMsg === null;
         if (valid) {
-            let form = d("unitForm");
+            let form = $("unitForm");
             this.setState({btnLoading:true,btnDisable:true,  name: o.name, symbol: o.symbol });
 
             if (this.props.create) {
@@ -101,7 +101,7 @@ export class UnitForm extends Component {
     }
 
     render() {
-        let form = <Form id='unitForm' error={this.state.errorState}>
+        let form = <Form id='unitForm' name="unitForm" error={this.state.errorState}>
             <Header dividing>{(this.props.create) ? "Create Unit" : "Modify Unit"}</Header>
             <Form.Input required name="name" title="Unit Name" type="text" label="Unit Name" placeholder='e.g. Meter' />
             <Form.Input required name="symbol" tilte="Unit Symbol" type="text" label="Unit Symbol" placeholder="e.g. Mtr" />
@@ -116,8 +116,8 @@ export class UnitForm extends Component {
 
 function SuccessMessage(props) {
     return (
-        <>
-            <Message header="Success!!" content={this.props.create ? "Unit Created" : 'Unit Modified'}></Message>
+        <Segment compact >
+            <Header   content={props.create ? "Unit Created" : 'Unit Modified'} />
             <Card>
                 <Card.Content>
                     <Card.Header>
@@ -131,6 +131,6 @@ function SuccessMessage(props) {
                     </Card.Description>
                 </Card.Content>
             </Card>
-        </>
+        </Segment>
     )
 }

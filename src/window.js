@@ -180,7 +180,7 @@ export function MasterWindowResolver(props) {
             <WindowItem name="Create" path={o.concat('/create')}>
                 <OperationForm create />
             </WindowItem>
-            <WindowItem name="Read" path={o.concat('/read')}>
+            <WindowItem name="List" path={o.concat('/read')}>
                 <OperationList />
             </WindowItem>
             
@@ -192,7 +192,7 @@ export function MasterWindowResolver(props) {
             <WindowItem name="Create" path={r.concat('/create')}>
                 <RouteForm create />
             </WindowItem>
-            <WindowItem name="Read" path={r.concat('/read')}>
+            <WindowItem name="List" path={r.concat('/read')}>
                 <RouteList />
             </WindowItem>
             

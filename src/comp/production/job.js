@@ -6,7 +6,7 @@ import { MakePostFetch, FormErrorHandler } from "../../network";
 import End from '../../end';
 import Apm from '../../apm';
 import { RecordList } from '../common/recordList';
-import { CustomSelect } from "../common/select";
+import { CustomSelect } from "../common/form";
 
 export function JobCardList(props) {
 

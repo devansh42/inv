@@ -7,7 +7,7 @@ import { Get } from "../../network";
 import { GroupTypes } from "../../Fixed";
 import { Link } from "react-router-dom";
 import { RecordList } from "../common/recordList";
-import {CustomSelect} from "../common/select";
+import { CustomSelect, CustomCheckbox } from "../common/form";
 export function ItemList(props) {
     const mapFn = (v, i) => {
         const { name, group_name, unit, id } = v;
@@ -141,8 +141,8 @@ export class ItemForm extends Component {
         ];
         const serialCreator = <>  <Header>Serial No. Sequence</Header>
             <Form.Group>
-                <Form.Input label="Serial Prefix" placeholder="e.g. ABDxxxxx"  maxLength="20" name="ser_prefix" id="ser_prefix" />
-                <Form.Input label="Serial Suffix" placeholder="e.g. xxxxxxABD"  maxLength="20" name="ser_suffix" id="ser_suffix" />
+                <Form.Input label="Serial Prefix" placeholder="e.g. ABDxxxxx" maxLength="20" name="ser_prefix" id="ser_prefix" />
+                <Form.Input label="Serial Suffix" placeholder="e.g. xxxxxxABD" maxLength="20" name="ser_suffix" id="ser_suffix" />
             </Form.Group>
             <Form.Group>
                 <Form.Input label="Serial Intial Value" placeholder="e.g. 1" type="number" name="ser_ini" id="ser_ini" />
@@ -165,17 +165,17 @@ export class ItemForm extends Component {
         let form = <Form id='itemForm' error={this.state.errorState}>
             <Header content={this.props.create ? "Create Item" : "Modify Item"} />
             <Form.Input required type="text" id="name" name="name" label="Item Name" placeholder="Name" />
-                <Form.Group>  
-            <Form.Field required>
-                <label>Unit</label>
-                <CustomSelect placeholder="Choose Unit" id="unit" name="unit" options={this.state.UnitOptions} ></CustomSelect>
-            </Form.Field>
-            <Form.Field required>
-                <label>Group</label>
-                <CustomSelect placeholder="Choose Group" id="group" name="group" options={this.state.GroupOptions} ></CustomSelect>
-            </Form.Field>
+            <Form.Group>
+                <Form.Field required>
+                    <label>Unit</label>
+                    <CustomSelect placeholder="Choose Unit" id="unit" name="unit" options={this.state.UnitOptions} ></CustomSelect>
+                </Form.Field>
+                <Form.Field required>
+                    <label>Group</label>
+                    <CustomSelect placeholder="Choose Group" id="group" name="group" options={this.state.GroupOptions} ></CustomSelect>
+                </Form.Field>
             </Form.Group>
-            <Form.Checkbox inline label="Has Serial Code" type="checkbox" name='hser' id="hser" onChange={this.handleChange.bind(this)} title="Check, if this item have a serial no." />
+            <CustomCheckbox inline label="Has Serial Code" name='hser' id="hser" onChange={this.handleChange.bind(this)} title="Check, if this item have a serial no." />
             {this.state.hser ? <><Divider /> {serialCreator}</> : <></>}
             <Message error header="There is a Problem!!" content={this.state.errorMsg}></Message>
             <Button primary onClick={this.handleSubmit.bind(this)} loading={this.state.btnLoading} disabled={this.state.btnDisable} >{this.props.create ? "Create" : 'Modify'} Item</Button>

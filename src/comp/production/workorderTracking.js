@@ -119,14 +119,15 @@ function WorkorderTracker({ workorderId }) {
                 <Form.Input disabled label="Post Date" defaultValue={toStr(payload.post_date)} />
                 <Form.Input disabled label="Start Time" defaultValue={toStr(payload.st_date)} />
                 <Form.Input disabled label="Due Time" defaultValue={toStr(payload.de_date)} />
-
+            </Form.Group>
+            <Form.Group>
                 <Form.Input disabled label="Quantity" defaultValue={payload.qty} />
                 <Statistic>
                     <Statistic.Label>Completed Qty.</Statistic.Label>
                     <Statistic.Value >{payload.com_qty}</Statistic.Value>
                 </Statistic>
-
             </Form.Group>
+
         </Form>
         <div>
 
@@ -272,7 +273,7 @@ function itemProps({ entityId, ...props }) {
             .then(r => r.result)
             .catch(err => {
                 //Handle Error
-            },[true]);
+            }, [true]);
     })
 
     return <Route path={"/app/production/workorder/item/".concat(entityId)}>

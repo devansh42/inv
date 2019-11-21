@@ -6,7 +6,7 @@ import { MakePostFetch, Get, FormResponseHandlerWithLoadingDisabler, FormErrorHa
 import { Link } from 'react-router-dom';
 import { RecordList } from "../common/recordList";
 import End from "../../end";
-import {CustomSelect} from "../common/select";
+import {CustomSelect} from "../common/form";
 export function AccountList(props) {
     const mapFn = (v, i) => {
         const { name, group_name, id } = v;

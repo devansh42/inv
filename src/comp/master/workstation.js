@@ -2,13 +2,13 @@
 
 
 import React, { Component } from "react";
-import { Button, Form, Message, Table, Header, Icon } from "semantic-ui-react";
+import { Button, Form, Message, Table, Header, Icon, Segment } from "semantic-ui-react";
 import { MakePostFetch, Get, FormResponseHandlerWithLoadingDisabler, FormErrorHandler } from "../../network";
 import End from "../../end";
 import { GroupTypes } from "../../Fixed";
 import { Link } from 'react-router-dom';
 import { RecordList } from '../common/recordList';
-import {CustomSelect} from "../common/select";
+import {CustomSelect, $} from "../common/form";
 export function WorkplaceList(props) {
 
     function timeSecToString(s) {
@@ -26,7 +26,7 @@ export function WorkplaceList(props) {
     const mapFn = v => {
         const { name, addr, op_time, id, cl_time, group_name } = v;
         return <Table.Row key={id}>
-            <Table.Cell>
+            <Table.Cell width={1}>
                 <Link title="Modify this Record" to={End.master.workplace.modify + "/" + id}>
                     <Icon name="edit" ></Icon>
                 </Link>
@@ -92,13 +92,12 @@ export class WorkplaceForm extends Component {
 
 
     handleSubmit(e) {
-        let d = document.getElementById;
         let o = {
-            name: d("wrk_name").value,
-            addr: d("wrk_addr").value,
-            op_time: d("op_time").value,
-            cl_time: d("cl_time").value,
-            gid: d("gid").value
+            name: $("name").value,
+            addr: $("addr").value,
+            op_time: $("op_time").value,
+            cl_time: $("cl_time").value,
+            gid: $("gid").value
         };
         let oe = {
             name: /\w{2,200}/,
@@ -128,10 +127,10 @@ export class WorkplaceForm extends Component {
         valid = errorMsg === null;
 
         if (valid) {
-            let form = d("formWorkplace");
+            let form = $("formWorkplace");
             this.setState({ btnLoading: true, btnDisable: true, name: o.name.trim(), gid: o.gid.trim(), cl_time: o.cl_time.trim(), addr: o.addr.trim(), op_time: o.op_time.trim() });
             if (this.props.create) {
-                MakePostFetch(End.master.workplace.create, form)
+                MakePostFetch(End.master.workplace.create, form,true)
                     .then(FormResponseHandlerWithLoadingDisabler.bind(this))
                     .then(r => {
                         this.setState({ successState: true });
@@ -156,13 +155,13 @@ export class WorkplaceForm extends Component {
     }
 
     render() {
-        let form = <Form id="formWorkplace" error={this.state.errorState}>
+        let form = <Form name="formWorkplace" id="formWorkplace" error={this.state.errorState}>
             <Header dividing>{(this.props.create) ? "Create Workplace" : "Modify Workplace"}</Header>
             <Form.Input required title="Name of Workplace e.g. Factory-1" label="Name" name="name" type="text" id="wrk_name" placeholder="WorkPlace Name" />
             <Form.Input required name="addr" label="Address" type="text" id="wrk_addr" placeholder="WorkPlace Address" />
             <Form.Field required>
                 <label>Group</label>
-                <CustomSelect id="gid" required placeholder="Choose Group" options={this.state.GroupOptions} ></CustomSelect>
+                <CustomSelect id="gid" required placeholder="Choose Group" name="gid" options={this.state.GroupOptions} ></CustomSelect>
             </Form.Field>
 
             <Form.Group>
@@ -179,16 +178,28 @@ export class WorkplaceForm extends Component {
 
 
 function getGroupname(ar, value) {
-    let x = ar.filter((v, i) => v.value === value)
+    console.log(value,ar);
+    let x = ar.filter(v => v.value == value)
+    console.log(x);
     return (x.length > 0) ? x[0].text : ""
 }
 
 
 function SuccessMessage(props) {
     return (
-        <>
-            <Message success header="Success!!" content={(props.create) ? "Workplace Created" : "Workplace Modified"} />
+        <Segment>
+            <Header content={(props.create) ? "Workplace Created" : "Workplace Modified"} />
             <Table>
+                <Table.Header>
+                    <Table.Row>
+                        <Table.HeaderCell>Name</Table.HeaderCell>
+                        <Table.HeaderCell>Location</Table.HeaderCell>
+                        <Table.HeaderCell>Opening Time</Table.HeaderCell>
+                        <Table.HeaderCell>Closing Time</Table.HeaderCell>
+                        <Table.HeaderCell>Group</Table.HeaderCell>
+                   
+                    </Table.Row>
+                </Table.Header>
                 <Table.Row>
                     <Table.Cell>
                         {props.name}
@@ -207,6 +218,6 @@ function SuccessMessage(props) {
                     </Table.Cell>
                 </Table.Row>
             </Table>
-        </>
+        </Segment>
     )
 }

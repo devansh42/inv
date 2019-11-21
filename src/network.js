@@ -17,8 +17,7 @@ export let MakePostFetch = (path, body, auth) => {
         'credentials': "include",
         headers: {
             "Access-Control-Allow-Origin": "http://localhost:3001",
-
-        }
+         }
     };
 
     if (auth) {

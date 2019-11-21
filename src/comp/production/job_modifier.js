@@ -9,7 +9,7 @@ import { Get, MakePostFetch } from "../../network";
 import End from "../../end";
 import { KVTable } from "./kv";
 import { ProcessStates } from '../../Fixed';
-import { CustomSelect } from "../common/select";
+import { CustomSelect } from "../common/form";
 export function JobCardAlteration({ jid, iid, ...props }) {
 
     const [errorState, setErrorState] = useState(false);

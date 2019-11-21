@@ -9,7 +9,7 @@ import { ProcessStates } from "../../Fixed";
 import { Link } from "react-router-dom";
 import { RecordList } from "../common/recordList";
 import { RequireItemListChooser } from "./bom";
-import { CustomSelect } from "../common/select";
+import { CustomSelect,CustomCheckbox } from "../common/form";
 export function WorkOrderList(props) {
 
 
@@ -236,7 +236,7 @@ export class WorkOrderForm extends Component {
 
             <Form.Group>
                 <Form.Input required name="post_date" label="Post Date/Time" id="post_date" type="datetime-local" title="Work order Post date" />
-                <Form.Checkbox label="Enable Multilevel BOM" name="nbom" id="nbom" inline />
+                <CustomCheckbox label="Enable Multilevel BOM" name="nbom" id="nbom" inline />
 
             </Form.Group>
 

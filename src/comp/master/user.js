@@ -9,7 +9,7 @@ import {Link} from "react-router-dom";
 import { UserPermTree } from "./userperms";
 import Apm from "../../apm";
 import {RecordList} from "../common/recordList";
-import {CustomSelect} from "../common/select";
+import {CustomSelect} from "../common/form";
 
 export function UserList(props){
     const mapFn = (v, i) => {

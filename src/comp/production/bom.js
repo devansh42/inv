@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { Get, MakePostFetch, FormErrorHandler, FormResponseHandlerWithLoadingDisabler } from "../../network";
 import End from "../../end";
 import { RecordList } from "../common/recordList";
-import {CustomSelect} from "../common/select";
+import {CustomSelect} from "../common/form";
 import { OperationListChooser } from "../master/route";
 import PropTypes from "prop-types";
 

@@ -8,7 +8,7 @@ import End from '../../end';
 import PropTypes from 'prop-types';
 import { Link } from "react-router-dom";
 import { RecordList } from '../common/recordList';
-import { CustomSelect } from "../common/select";
+import { CustomSelect, $, SuccessMessage, $$ } from "../common/form";
 /**
 * This component renders List of Route List
 * @param {ReactProp} props 
@@ -17,7 +17,7 @@ export function RouteList(props) {
     const mapFn = (v, i) => {
         const { name, group_name, description, id } = v;
         return <Table.Row key={i}>
-            <Table.Cell>
+            <Table.Cell width={1}>
                 <Link title="Edit this Record" to={End.master.route.modify + "/" + id}>
                     <Icon name="edit"></Icon>
                 </Link>
@@ -93,7 +93,7 @@ export class RouteForm extends Component {
                 else throw Error("Couldn't fetch operations")
             })
             .then(r => {
-                this.setState({ operations: r.result });
+                this.setState({ operations: r.result.map((v,i)=>{return {key:i,value:v.id,text:v.name,...v }}) });
 
             })
             .catch(err => {
@@ -107,20 +107,20 @@ export class RouteForm extends Component {
     handleClick(e) {
         let errorState = false;
         let errorMsg = null;
-        const d = x => document.getElementById(x);
+        const d = $;
         const x = {
             name: [d("name").value.trim(), /^\w+$/],
             gid: [d("gid").value.trim(), /^\d+$/],
-            description: [d('description').value.trim()]
+            description: [$$('description').value.trim()]
 
         }
-        if (x.name[0].match(x.name[1]) === null) {
+        if (x.name[0].length < 1) {
             errorMsg = "Please enter a valid Route Name";
         }
         else if (x.gid[0].match(x.gid[1]) === null) {
             errorMsg = "Please choose a valid Group";
         }
-        else if (this.state.GroupOptions.filter(v => v.value === x.gid[0]).length < 1) {
+        else if (this.state.GroupOptions.filter(v => v.value === Number(x.gid[0])).length < 1) {
             errorMsg = "Please choose group from list";
         }
         errorState = errorMsg !== null;
@@ -132,7 +132,7 @@ export class RouteForm extends Component {
             if (this.props.create) {
                 let payload = {
                     name: x.name[0],
-                    gid: x.gid[0],
+                    gid: Number(x.gid[0]),
                     description: x.description[0],
                     operation: this.selectedOperations.map(v => v.value)
                 };
@@ -163,15 +163,16 @@ export class RouteForm extends Component {
         const form = <Form error={errorState} id="routeForm">
 
             <Header dividing>{(create) ? "Add Route" : "Modify Route"}</Header>
-            <Form.Input name="name" id="name" label="Name" placeholder="Name of Route" />
+            <Form.Input required name="name" id="name" label="Name" placeholder="Name of Route" />
             <Form.Field required>
                 <label>Group</label>
                 <CustomSelect placeholder="Choose Group" name="gid" id="gid" options={this.state.GroupOptions}></CustomSelect>
             </Form.Field>
             <Form.Field>
+            <label>Choose Operations to Add</label>
                 <OperationListChooser setSelectedOperations={this.setSelectedOperations.bind(this)} operations={this.state.operations} />
             </Form.Field>
-            <Form.Field required>
+            <Form.Field >
                 <label>Add some Note</label>
                 <textarea name="description" placeholder="Add some notes or Description" rows="5" id="description"></textarea>
             </Form.Field>
@@ -195,8 +196,8 @@ export class OperationListChooser extends Component {
         this.readonly = ('readonly' in props);
     }
 
-    handleOnChange(e) {
-        this.currentChoice = Number(e.target.value);
+    handleOnChange(_,d) {
+        this.currentChoice = Number(d.value);
     }
 
     handleChooseClick(e) {
@@ -215,7 +216,7 @@ export class OperationListChooser extends Component {
 
         const removeRow = e => {
             const op = this.state.seletedOperations;
-            const x = op.filter((v, ix) => {
+            const x = op.filter((_, ix) => {
                 return ix !== i;
             });
             this.setState({ seletedOperations: x });
@@ -224,6 +225,9 @@ export class OperationListChooser extends Component {
 
         return <Table.Row key={i}>
             {(this.readonly) ? <input name="operation" hidden value={v.id} /> : <></>}
+            <Table.Cell width={1}>
+                {i+1}
+            </Table.Cell>
             <Table.Cell>
                 {v.name}
             </Table.Cell>
@@ -250,9 +254,9 @@ export class OperationListChooser extends Component {
         const rows = this.state.seletedOperations.map(this.rowFn.bind(this));
 
         return <>
-            <Table><Table.Header>
+            <Table selectable><Table.Header>
                 <Table.Row>
-
+                    <Table.HeaderCell/>
                     <Table.HeaderCell>
                         Name
                     </Table.HeaderCell>
@@ -270,12 +274,12 @@ export class OperationListChooser extends Component {
                 <Table.Body>
                     {this.readonly ? <></> : <Table.Row>
                         <Table.Cell>
-                            <Button primary onClick={this.handleChooseClick.bind(this)} >
+                            <Button  onClick={this.handleChooseClick.bind(this)} >
                                 Add New
                  </Button>
                         </Table.Cell>
                         <Table.Cell>
-                            <CustomSelect placeholder="Choose Operation" onChange={this.handleOnChange} options={this.props.operations} ></CustomSelect>
+                            <CustomSelect  placeholder="Choose Operation" name="operation" onChange={this.handleOnChange.bind(this)} options={this.props.operations} ></CustomSelect>
                         </Table.Cell>
                     </Table.Row>}
 
@@ -315,8 +319,7 @@ OperationListChooser.propTypes = {
 
 
 function SuccessCard({ name, count, create }) {
-    return <>
-        <Message success content={(create) ? "Route Added" : "Route Modified"} />
+    return <SuccessMessage header={(create) ? "Route Added" : "Route Modified"} >
         <Card>
             <Card.Content>
                 <Card.Header>{name}</Card.Header>
@@ -326,5 +329,6 @@ function SuccessCard({ name, count, create }) {
                 </Card.Description>
             </Card.Content>
         </Card>
-    </>
+    </SuccessMessage>
+
 }
