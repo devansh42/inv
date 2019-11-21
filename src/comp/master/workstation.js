@@ -2,12 +2,13 @@
 
 
 import React, { Component } from "react";
-import { Button, Select, Form, Message, Table, Header, Icon } from "semantic-ui-react";
+import { Button, Form, Message, Table, Header, Icon } from "semantic-ui-react";
 import { MakePostFetch, Get, FormResponseHandlerWithLoadingDisabler, FormErrorHandler } from "../../network";
 import End from "../../end";
 import { GroupTypes } from "../../Fixed";
 import { Link } from 'react-router-dom';
 import { RecordList } from '../common/recordList';
+import {CustomSelect} from "../common/select";
 export function WorkplaceList(props) {
 
     function timeSecToString(s) {
@@ -161,7 +162,7 @@ export class WorkplaceForm extends Component {
             <Form.Input required name="addr" label="Address" type="text" id="wrk_addr" placeholder="WorkPlace Address" />
             <Form.Field required>
                 <label>Group</label>
-                <Select id="gid" required placeholder="Choose Group" options={this.state.GroupOptions} ></Select>
+                <CustomSelect id="gid" required placeholder="Choose Group" options={this.state.GroupOptions} ></CustomSelect>
             </Form.Field>
 
             <Form.Group>

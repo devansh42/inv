@@ -1,12 +1,12 @@
 //code for handling account form
 import React, { Component } from "react";
-import { Card, Icon, Table, Form, Header, Select, Message, Button } from "semantic-ui-react";
+import { Card, Icon, Table, Form, Header,  Message, Button } from "semantic-ui-react";
 import { Genders, IdProofs, GroupTypes } from "../../Fixed";
 import { MakePostFetch, Get, FormResponseHandlerWithLoadingDisabler, FormErrorHandler } from "../../network";
 import { Link } from 'react-router-dom';
 import { RecordList } from "../common/recordList";
 import End from "../../end";
-
+import {CustomSelect} from "../common/select";
 export function AccountList(props) {
     const mapFn = (v, i) => {
         const { name, group_name, id } = v;
@@ -208,11 +208,11 @@ export class AccountForm extends Component {
             <Form.Group>
             <Form.Field required>
                 <label>Group</label>
-                <Select id="gid" name="gid" placeholder="Choose Group.." options={this.state.AccountGroup}></Select>
+                <CustomSelect id="gid" name="gid" placeholder="Choose Group.." options={this.state.AccountGroup}></CustomSelect>
             </Form.Field>
             <Form.Field required>
                 <label>Gender</label>
-                <Select name="gender" options={Genders} required id='gender' placeholder="Choose Gender"></Select>
+                <CustomSelect name="gender" options={Genders} required id='gender' placeholder="Choose Gender"></CustomSelect>
             </Form.Field>
             
             <Form.Input name="dob" id="dob" label="Date of Birth" type="date" />
@@ -229,7 +229,7 @@ export class AccountForm extends Component {
            
             <Form.Field>
             <label>Id Proof Type</label>
-            <Select name="id_proof" id="id_proof" label="Id Proof Type" options={IdProofs} placeholder="Choose Id Proof Type"></Select>
+            <CustomSelect name="id_proof" id="id_proof" label="Id Proof Type" options={IdProofs} placeholder="Choose Id Proof Type"></CustomSelect>
             </Form.Field>
             <Form.Input name="id_proof_no" placeholder="Id Proof No." id="id_proof_no" type="tel" label="Id Proof No." />
             </Form.Group>

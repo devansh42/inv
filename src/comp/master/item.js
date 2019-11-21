@@ -1,12 +1,13 @@
 //code of item form
 import React, { Component } from "react";
-import { Header, Select, Icon, Form, List, Message, Button, Table, Divider, } from "semantic-ui-react";
+import { Header, Icon, Form, List, Message, Button, Table, Divider, } from "semantic-ui-react";
 import { MakePostFetch, FormResponseHandlerWithLoadingDisabler, FormErrorHandler } from "../../network";
 import End from "../../end";
 import { Get } from "../../network";
 import { GroupTypes } from "../../Fixed";
 import { Link } from "react-router-dom";
 import { RecordList } from "../common/recordList";
+import {CustomSelect} from "../common/select";
 export function ItemList(props) {
     const mapFn = (v, i) => {
         const { name, group_name, unit, id } = v;
@@ -167,11 +168,11 @@ export class ItemForm extends Component {
                 <Form.Group>  
             <Form.Field required>
                 <label>Unit</label>
-                <Select placeholder="Choose Unit" id="unit" name="unit" options={this.state.UnitOptions} ></Select>
+                <CustomSelect placeholder="Choose Unit" id="unit" name="unit" options={this.state.UnitOptions} ></CustomSelect>
             </Form.Field>
             <Form.Field required>
                 <label>Group</label>
-                <Select placeholder="Choose Group" id="group" name="group" options={this.state.GroupOptions} ></Select>
+                <CustomSelect placeholder="Choose Group" id="group" name="group" options={this.state.GroupOptions} ></CustomSelect>
             </Form.Field>
             </Form.Group>
             <Form.Checkbox inline label="Has Serial Code" type="checkbox" name='hser' id="hser" onChange={this.handleChange.bind(this)} title="Check, if this item have a serial no." />

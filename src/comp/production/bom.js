@@ -1,11 +1,12 @@
 //This file contains bom of an product to manufacture
 
 import React, { Component } from "react";
-import { Message, Card, Header, Icon, Button, Form, Select, Table, Divider } from "semantic-ui-react";
+import { Message, Card, Header, Icon, Button, Form,  Table, Divider } from "semantic-ui-react";
 import { Link } from "react-router-dom";
 import { Get, MakePostFetch, FormErrorHandler, FormResponseHandlerWithLoadingDisabler } from "../../network";
 import End from "../../end";
 import { RecordList } from "../common/recordList";
+import {CustomSelect} from "../common/select";
 import { OperationListChooser } from "../master/route";
 import PropTypes from "prop-types";
 
@@ -153,7 +154,7 @@ export class BomForm extends Component {
             <Form.Input required name="name" id="name" label="Name" placeholder="BOM Name" title="Unique name of your BOM" />
             <Form.Field required>
                 <label>Item</label>
-                <Select name="item" id="item" placeholder="Choose from Items" options={this.state.ItemOptions}></Select>
+                <CustomSelect name="item" id="item" placeholder="Choose from Items" options={this.state.ItemOptions}></CustomSelect>
             </Form.Field>
             <Form.Input required name="qty" id="qty" label="Quantity" placeholder="Quantity to Manufacture" type="number" />
             <Divider />
@@ -165,7 +166,7 @@ export class BomForm extends Component {
 
             <Form.Field required>
                 <label>Route</label>
-                <Select name="route" options={this.state.RouteOptions} id="route" placeholder="Choose from Routes" />
+                <CustomSelect name="route" options={this.state.RouteOptions} id="route" placeholder="Choose from Routes" />
                 <OperationListChooser readonly selectedOperations={this.state.RouteOperations} />
             </Form.Field>
             <Divider />
@@ -256,8 +257,8 @@ export class RequireItemListChooser extends Component {
         })
         const rowAdder = (this.readonly) ? <></> : <Table.Row>
             <Table.Cell>
-                <Select options={this.props.items} id="cur_item" placeholder='Choose Item/Sub Assembly' >
-                </Select>
+                <CustomSelect options={this.props.items} id="cur_item" placeholder='Choose Item/Sub Assembly' >
+                </CustomSelect>
             </Table.Cell>
             <Table.Cell>
                 <Form.Input type="number" id="cur_qty" name="qty" placeholder="Quantity Required" />

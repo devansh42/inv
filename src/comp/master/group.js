@@ -1,11 +1,11 @@
 //This contains code to Different Activities for group
 import React, { Component } from "react";
-import { Icon, Select, Form, Button, Message, Header, Card, Table } from "semantic-ui-react";
+import { Icon,  Form, Button, Message, Header, Card, Table } from "semantic-ui-react";
 import End from "../../end";
 import { MakePostFetch, FormResponseHandlerWithLoadingDisabler, FormErrorHandler } from "../../network";
 
 import { Link } from 'react-router-dom';
-
+import {CustomSelect} from "../common/select"
 
 import { RecordList } from '../common/recordList';
 
@@ -64,7 +64,7 @@ export class GroupForm extends Component {
     handleSubmit(e) {
         let valid = true;
         let errorMsg = "";
-        let d = i =>document.getElementById(i);
+        let d = i => document.getElementById(i);
         let o = { name: d("group_name").value, type: d("group_type").value };
         let or = { name: /[a-zA-Z0-9]{2,100}/, type: /\d{1,2}/ };
         if (o.name.trim().match(or.name) === null) {
@@ -85,8 +85,8 @@ export class GroupForm extends Component {
 
                 MakePostFetch(End.master.group.create, form)
                     .then(FormResponseHandlerWithLoadingDisabler.bind(this))
-                    .then(r=>{
-                        this.setState({successState:true});
+                    .then(r => {
+                        this.setState({ successState: true });
                     })
                     .catch(FormErrorHandler.bind(this));
 
@@ -110,6 +110,9 @@ export class GroupForm extends Component {
             this.setState({ errorState: true, errorMsg });
         }
     }
+    handleSelectionChange(e,d){
+        console.log(e,d);
+    }
 
     render() {
         let formEle = <Form id="groupForm" error={this.state.errorState}>
@@ -118,8 +121,8 @@ export class GroupForm extends Component {
             </Header>
             <Form.Input required id="group_name" placeholder="Group Name" name="name" title="Group Name" label="Group Name" autoFocus />
             <Form.Field required>
-                <label>Group</label>
-                <Select placeholder="Select Group Type" name="type" id="group_type" options={GroupType}></Select>
+                <label>Group Type</label>
+                <CustomSelect onChange={this.handleSelectionChange.bind(this)} placeholder="Select Group Type" name="type" id="group_type" options={GroupType}></CustomSelect>
             </Form.Field>
             <Message error header="There is something wrong!!" content={this.state.errorMsg} />
 
@@ -163,5 +166,7 @@ const GroupType = [
     { key: 1, value: 1, text: "Account" },
     { key: 2, value: 2, text: "User" },
     { key: 3, value: 3, text: "Workplace" },
-    { key: 4, value: 4, text: "Item" }
+    { key: 4, value: 4, text: "Item" },
+    { key: 5, value: 5, text: "Operation" },
+    { key: 6, value: 6, text: "Route" }
 ];

@@ -3,13 +3,13 @@
 
 "use strict";
 import React, { useState, useEffect } from 'react';
-import { Form, Select, Header, Table, TextArea, Icon, Button, Message, Label } from "semantic-ui-react"
+import { Form, Header, Table, TextArea, Icon, Button, Message, Label } from "semantic-ui-react"
 import PropTypes from "prop-types";
 import { Get, MakePostFetch } from "../../network";
 import End from "../../end";
 import { KVTable } from "./kv";
 import { ProcessStates } from '../../Fixed';
-
+import { CustomSelect } from "../common/select";
 export function JobCardAlteration({ jid, iid, ...props }) {
 
     const [errorState, setErrorState] = useState(false);
@@ -352,7 +352,7 @@ function TableRow({ saveRow, recorded, removeRow, accountList, key, ...payload }
 
     return <Table.Row>
         <Table.Cell>
-            <Select placeholder="Choose Worker" onChange={v => setWorker(v.target.value)} name="worker" defaultValue={worker} options={accountList} ></Select>
+            <CustomSelect placeholder="Choose Worker" onChange={v => setWorker(v.target.value)} name="worker" defaultValue={worker} options={accountList} ></CustomSelect>
         </Table.Cell>
         <Table.Cell>
             {key + 1} {(started) ? <Icon name="circle" tiny color={(!finished) ? "green" : "black"} /> : <></>}

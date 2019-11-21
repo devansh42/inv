@@ -1,13 +1,13 @@
 //This file contains code to present an operation 
 
 import React, { Component } from "react";
-import { Form,Table,Icon,Header,Select, Card, Message, Button } from "semantic-ui-react";
-import {Link} from "react-router-dom";
+import { Form, Table, Icon, Header, Card, Message, Button } from "semantic-ui-react";
+import { Link } from "react-router-dom";
 import { Get, MakePostFetch, FormErrorHandler, FormResponseHandlerWithLoadingDisabler } from "../../network";
 import { GroupTypes } from "../../Fixed";
 import { RecordList } from "../common/recordList";
 import End from "../../end";
-
+import { CustomSelect } from "../common/select";
 
 /**
  * This component renders operations list
@@ -61,9 +61,9 @@ export class OperationForm extends Component {
             btnDisable: false,
             btnLoading: false,
             successState: false,
-            GroupOptions:[],
-            WorkplaceOptions:[]
-            
+            GroupOptions: [],
+            WorkplaceOptions: []
+
         }
         this.pullResources();
     }
@@ -116,20 +116,20 @@ export class OperationForm extends Component {
             this.setState({ errorState, errorMsg });//Showing Current Error States
         } else {
             //No Error, We can proceed Further, for now we are just considering just creation option and not modify action
-            this.setState({name:xe.name[0],workplace_name:this.state.WorkplaceOptions.filter(x=>x.value==xe.gid)[0].text})
-                 
+            this.setState({ name: xe.name[0], workplace_name: this.state.WorkplaceOptions.filter(x => x.value == xe.gid)[0].text })
+
             if (this.props.create) {
-                this.setState({btnLoading:true,btnDisable:true});
+                this.setState({ btnLoading: true, btnDisable: true });
                 MakePostFetch(End.master.operation.create, d("operationForm"), true)
-                   .then(FormResponseHandlerWithLoadingDisabler.bind(this))
+                    .then(FormResponseHandlerWithLoadingDisabler.bind(this))
                     .then(r => {
                         //the result
                         //changing state to success state
-                        this.setState({successState:true});
+                        this.setState({ successState: true });
                     })
                     .catch(FormErrorHandler.bind(this))
             } else {
-                    //Case to handle Modification
+                //Case to handle Modification
             }
         }
     }
@@ -143,14 +143,14 @@ export class OperationForm extends Component {
             <Header dividing>{(create) ? "Add Operation" : "Modify Operation"}</Header>
             <Form.Input required name="name" label="Name" placeholder="Operation Name" title="Name of the operation to be performed" id="name" />
             <Form.Group>
-            <Form.Field required >
-                <label>Group</label>
-                <Select name="gid" placeholder="Choose Group" id="gid" options={this.state.GroupOptions} ></Select>
-            </Form.Field>
-            <Form.Field required >
-                <label>Workplace</label>
-                <Select name="workplace" placeholder="Choose Workplace" id="workplace" options={this.state.WorkplaceOptions} ></Select>
-            </Form.Field>
+                <Form.Field required >
+                    <label>Group</label>
+                    <CustomSelect name="gid" placeholder="Choose Group" id="gid" options={this.state.GroupOptions} ></CustomSelect>
+                </Form.Field>
+                <Form.Field required >
+                    <label>Workplace</label>
+                    <CustomSelect name="workplace" placeholder="Choose Workplace" id="workplace" options={this.state.WorkplaceOptions} ></CustomSelect>
+                </Form.Field>
             </Form.Group>
             <Form.Field required>
                 <label>Description</label>

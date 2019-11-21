@@ -1,17 +1,18 @@
 //This file contains code for Route
 
 import React, { Component } from 'react';
-import { Form, Select, Header, Message, Card, Button, Table, Icon } from 'semantic-ui-react';
+import { Form, Header, Message, Card, Button, Table, Icon } from 'semantic-ui-react';
 import { Get, MakePostFetch, FormResponseHandlerWithLoadingDisabler, FormErrorHandler } from '../../network';
 import { GroupTypes } from '../../Fixed';
 import End from '../../end';
 import PropTypes from 'prop-types';
 import { Link } from "react-router-dom";
 import { RecordList } from '../common/recordList';
+import { CustomSelect } from "../common/select";
 /**
- * This component renders List of Route List
- * @param {ReactProp} props 
- */
+* This component renders List of Route List
+* @param {ReactProp} props 
+*/
 export function RouteList(props) {
     const mapFn = (v, i) => {
         const { name, group_name, description, id } = v;
@@ -165,7 +166,7 @@ export class RouteForm extends Component {
             <Form.Input name="name" id="name" label="Name" placeholder="Name of Route" />
             <Form.Field required>
                 <label>Group</label>
-                <Select placeholder="Choose Group" name="gid" id="gid" options={this.state.GroupOptions}></Select>
+                <CustomSelect placeholder="Choose Group" name="gid" id="gid" options={this.state.GroupOptions}></CustomSelect>
             </Form.Field>
             <Form.Field>
                 <OperationListChooser setSelectedOperations={this.setSelectedOperations.bind(this)} operations={this.state.operations} />
@@ -274,7 +275,7 @@ export class OperationListChooser extends Component {
                  </Button>
                         </Table.Cell>
                         <Table.Cell>
-                            <Select placeholder="Choose Operation" onChange={this.handleOnChange} options={this.props.operations} ></Select>
+                            <CustomSelect placeholder="Choose Operation" onChange={this.handleOnChange} options={this.props.operations} ></CustomSelect>
                         </Table.Cell>
                     </Table.Row>}
 

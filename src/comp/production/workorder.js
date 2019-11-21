@@ -1,7 +1,7 @@
 //This file contains code for workorder creation
 
 import React, { Component } from "react";
-import { Form, Table, Icon,Message,Card, Header, Select, Button, Divider } from "semantic-ui-react";
+import { Form, Table, Icon, Message, Card, Header, Button, Divider } from "semantic-ui-react";
 import { Get, MakePostFetch, FormErrorHandler, FormResponseHandlerWithLoadingDisabler } from "../../network";
 import End from "../../end";
 import { OperationListChooser } from "../master/route";
@@ -9,6 +9,7 @@ import { ProcessStates } from "../../Fixed";
 import { Link } from "react-router-dom";
 import { RecordList } from "../common/recordList";
 import { RequireItemListChooser } from "./bom";
+import { CustomSelect } from "../common/select";
 export function WorkOrderList(props) {
 
 
@@ -164,11 +165,11 @@ export class WorkOrderForm extends Component {
         if (o.item[0].match(o.item[1]) == null) {
             errorMsg = "Please choose an item";
         }
-        else if (this.state.ItemOptions.filter(v => v.value ===  Number(o.item[0])).length < 1) {
+        else if (this.state.ItemOptions.filter(v => v.value === Number(o.item[0])).length < 1) {
             errorMsg = "Please choose an item from List";
 
         }
-        else if (o.qty[0].match(o.qty[1]) || isNaN( Number(o.qty[0]))) {
+        else if (o.qty[0].match(o.qty[1]) || isNaN(Number(o.qty[0]))) {
             errorMsg = "Please enter valid quantity";
         }
         else if (o.bom[0].match(o.bom[1]) === null) {
@@ -177,32 +178,32 @@ export class WorkOrderForm extends Component {
         else if (this.state.BomOptions.filter(v => v.value === Number(o.bom[0])).length < 1) {
             errorMsg = "Please choose BOM from given List"
         }
-        else if ( isNaN(Number( o.postdate[0]))) {
+        else if (isNaN(Number(o.postdate[0]))) {
             errorMsg = "Please set a Workorder Posting Date";
         }
-        else if ( isNaN(Number( o.stDate[0]))) {
+        else if (isNaN(Number(o.stDate[0]))) {
             errorMsg = "Please set a starting Date";
         }
-        else if (  isNaN(Number(o.deDate[0]))) {
+        else if (isNaN(Number(o.deDate[0]))) {
             errorMsg = "Please set delivery Date";
         }
         errorState = errorMsg !== null;
         if (errorState) {
             this.setState({ errorState, errorMsg });
         } else {
-            this.setState({btnDisable:true,btnLoading:true});
+            this.setState({ btnDisable: true, btnLoading: true });
             if (this.props.create) {
-                    MakePostFetch(End.production.workorder.create,d("woForm"),true)
+                MakePostFetch(End.production.workorder.create, d("woForm"), true)
                     .then(FormResponseHandlerWithLoadingDisabler.bind(this))
-                    .then(r=>{
-                        this.setState({successState:true});
+                    .then(r => {
+                        this.setState({ successState: true });
                     })
                     .catch(FormErrorHandler.bind(this));
 
                 //
 
             } else {
-                
+
                 //Modification case
             }
         }
@@ -214,13 +215,13 @@ export class WorkOrderForm extends Component {
             <Header dividing> {(create) ? 'Add WorkOrder' : "Modify Workorder"} </Header>
             <Form.Field required>
                 <label>Item to Manufacture</label>
-                <Select name="item" onChange={this.handleItemSelection} id='item' placeholder="Choose Item to manufacture" options={this.state.ItemOptions}></Select>
+                <CustomSelect name="item" onChange={this.handleItemSelection} id='item' placeholder="Choose Item to manufacture" options={this.state.ItemOptions}></CustomSelect>
             </Form.Field>
             <Divider />
             <Form.Input required name="qty" label="Quantity" type="number" placeholder="Quantity to Manage" id="qty" />
             <Form.Field required>
                 <label>Bill of Material</label>
-                <Select name="bom" id="bom" onChange={this.bomChanger} options={this.state.BomOptions} placeholder="Choose BOM"></Select>
+                <CustomSelect name="bom" id="bom" onChange={this.bomChanger} options={this.state.BomOptions} placeholder="Choose BOM"></CustomSelect>
             </Form.Field>
             <Form.Field>
                 <label>Sub Assembly/Required Item</label>
@@ -249,7 +250,7 @@ export class WorkOrderForm extends Component {
                 {(create) ? "Add" : "Modify"} WorkOrder
             </Button>
         </Form>
-        return (this.state.successState)? <SuccessCard create={this.props.create} />: form;
+        return (this.state.successState) ? <SuccessCard create={this.props.create} /> : form;
     }
 
 }

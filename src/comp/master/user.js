@@ -2,14 +2,14 @@
 
 
 import React, { Component } from "react";
-import { Form, Header,Table, Message, Select, Icon, Button, Card, Divider } from "semantic-ui-react";
+import { Form, Header,Table, Message, Icon, Button, Card, Divider } from "semantic-ui-react";
 import { MakePostFetch } from "../../network";
 import End from "../../end";
 import {Link} from "react-router-dom";
 import { UserPermTree } from "./userperms";
 import Apm from "../../apm";
 import {RecordList} from "../common/recordList";
-
+import {CustomSelect} from "../common/select";
 
 export function UserList(props){
     const mapFn = (v, i) => {
@@ -146,7 +146,7 @@ export class UserForm extends Component {
             <Form.Input required name="username" id="username" placeholder="Username" label="Username" />
             <Form.Field required>
                 <label>Account Holder</label>
-                <Select placeholder="Choose Account" name="aid" id="aid" options={this.state.AccountOptions} ></Select>
+                <CustomSelect placeholder="Choose Account" name="aid" id="aid" options={this.state.AccountOptions} ></CustomSelect>
             </Form.Field>
            
             </Form.Group>
