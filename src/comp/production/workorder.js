@@ -9,7 +9,8 @@ import { ProcessStates } from "../../Fixed";
 import { Link } from "react-router-dom";
 import { RecordList } from "../common/recordList";
 import { RequireItemListChooser } from "./bom";
-import { CustomSelect,CustomCheckbox } from "../common/form";
+import { CustomSelect,CustomCheckbox, HeaderLink, $, SuccessMessage } from "../common/form";
+import Apm from "../../apm";
 export function WorkOrderList(props) {
 
 
@@ -23,7 +24,7 @@ export function WorkOrderList(props) {
     const mapFn = (v, i) => {
         const { item_name, qty, bom_name, state, id } = v;
         return <Table.Row key={i}>
-            <Table.Cell>
+            <Table.Cell width={1}>
                 <Link title="Edit this Record" to={End.production.workorder.modify + "/" + id}>
                     <Icon name="edit"></Icon>
                 </Link>
@@ -46,7 +47,11 @@ export function WorkOrderList(props) {
         </Table.Row>
     };
     const headers = [
-        "", "Id", "Item", "Quantity", "Bill of Matreial", "State"
+        "", "Id", 
+            <HeaderLink header="Item" link={Apm.master.item.concat("/read")} />
+        , "Quantity", 
+        <HeaderLink header="Bill of Matreial" link={Apm.production.bom.concat("/read")} />
+        , "State"
     ];
     const fetcher = () => {
         return MakePostFetch(End.production.workorder.read, new FormData(), true)
@@ -87,8 +92,8 @@ export class WorkOrderForm extends Component {
             })
     }
 
-    handleItemSelection(e) {
-        const v = Number(e.target.value);
+    handleItemSelection(e,d) {
+     const v = Number(d.value);
         const f = new FormData();
         f.append("item", v);
 
@@ -102,7 +107,7 @@ export class WorkOrderForm extends Component {
             })
             .then(r => {
                 return r.result.map(v => {
-                    return { key: v.id, value: v.id, ...v }
+                    return { key: v.id, text:v.name ,value: v.id, ...v }
                 });
 
             })
@@ -112,8 +117,8 @@ export class WorkOrderForm extends Component {
             .catch(FormErrorHandler.bind(this))
     }
 
-    bomChanger(e) {
-        const v = Number(e.target.value);
+    bomChanger(e,d) {
+        const v = Number(d.value);
 
         const f = new FormData();
         f.append("bom_material", v);
@@ -132,7 +137,7 @@ export class WorkOrderForm extends Component {
         f.delete("bom_material");
 
         const [bom] = this.state.BomOptions.filter(x => {
-            return v === x.id;
+            return v == x.id;
         });
 
         f.append("route_operations", bom.routing);
@@ -152,7 +157,7 @@ export class WorkOrderForm extends Component {
     handleClick(e) {
         let errorState = false;
         let errorMsg = null;
-        const d = x => document.getElementById(x);
+        const d = $;
         const number = /^\d+$/
         const o = {
             item: [d("item").value.trim(), number],
@@ -169,7 +174,7 @@ export class WorkOrderForm extends Component {
             errorMsg = "Please choose an item from List";
 
         }
-        else if (o.qty[0].match(o.qty[1]) || isNaN(Number(o.qty[0]))) {
+        else if ( isNaN(Number(o.qty[0]))) {
             errorMsg = "Please enter valid quantity";
         }
         else if (o.bom[0].match(o.bom[1]) === null) {
@@ -196,7 +201,7 @@ export class WorkOrderForm extends Component {
                 MakePostFetch(End.production.workorder.create, d("woForm"), true)
                     .then(FormResponseHandlerWithLoadingDisabler.bind(this))
                     .then(r => {
-                        this.setState({ successState: true });
+                        this.setState({ successState: true,id:r.wid });
                     })
                     .catch(FormErrorHandler.bind(this));
 
@@ -211,17 +216,20 @@ export class WorkOrderForm extends Component {
 
     render() {
         const { create } = this.props;
-        const form = <Form id='woForm'>
+        const form = <Form error={this.state.errorState} name="woForm" id='woForm'>
             <Header dividing> {(create) ? 'Add WorkOrder' : "Modify Workorder"} </Header>
             <Form.Field required>
                 <label>Item to Manufacture</label>
-                <CustomSelect name="item" onChange={this.handleItemSelection} id='item' placeholder="Choose Item to manufacture" options={this.state.ItemOptions}></CustomSelect>
+                <CustomSelect name="item" onChange={this.handleItemSelection.bind(this)} id='item' placeholder="Choose Item to manufacture" options={this.state.ItemOptions}></CustomSelect>
             </Form.Field>
             <Divider />
-            <Form.Input required name="qty" label="Quantity" type="number" placeholder="Quantity to Manage" id="qty" />
+                <Form.Group>
+            <Form.Input width={8} required name="qty" label="Quantity" type="number" placeholder="Quantity to Manage" id="qty" />
+            <Form.Input required width={8} name="post_date" label="Post Date/Time" id="post_date" type="datetime-local" title="Work order Post date" />
+            </Form.Group>
             <Form.Field required>
                 <label>Bill of Material</label>
-                <CustomSelect name="bom" id="bom" onChange={this.bomChanger} options={this.state.BomOptions} placeholder="Choose BOM"></CustomSelect>
+                <CustomSelect name="bom" id="bom"  onChange={this.bomChanger.bind(this)} options={this.state.BomOptions} placeholder="Choose BOM"></CustomSelect>
             </Form.Field>
             <Form.Field>
                 <label>Sub Assembly/Required Item</label>
@@ -234,38 +242,39 @@ export class WorkOrderForm extends Component {
             </Form.Field>
             <Divider />
 
-            <Form.Group>
-                <Form.Input required name="post_date" label="Post Date/Time" id="post_date" type="datetime-local" title="Work order Post date" />
-                <CustomCheckbox label="Enable Multilevel BOM" name="nbom" id="nbom" inline />
+                 <CustomCheckbox label="Enable Multilevel BOM" name="nbom" id="nbom" inline />
 
-            </Form.Group>
+
+                 <Divider />
 
             <Form.Group>
                 <Form.Input label="Expected Start Date" type='datetime-local' name="st_date" id="st_date" />
                 <Form.Input label="Expected Delivery Date" name="de_date" type='datetime-local' id="de_date" />
             </Form.Group>
+            
+                <Message error header="There is a problem!!" content={this.state.errorMsg} />
+            
             <Divider />
 
-            <Button onClick={this.handleClick.bind(this)} primary>
+            <Button onClick={this.handleClick.bind(this)} loading={this.state.btnLoading} disabled={this.state.btnDisable} primary>
                 {(create) ? "Add" : "Modify"} WorkOrder
             </Button>
         </Form>
-        return (this.state.successState) ? <SuccessCard create={this.props.create} /> : form;
+        return (this.state.successState) ? <SuccessC id={this.state.id}  create={this.props.create} /> : form;
     }
 
 }
 
 
 
-function SuccessCard({ id, create }) {
-    return <>
-        <Message success content={(create) ? "BOM Added" : "BOM Modified"}>
-
-        </Message>
+function SuccessC({ id, create }) {
+    return <SuccessMessage header={(create) ? "Workorder Added" : "Workorder Modified"}>
         <Card>
             <Card.Content>
+                <Card.Header>{"#".concat(id)}</Card.Header>
                 <Card.Meta>WorkOrder</Card.Meta>
+
             </Card.Content>
         </Card>
-    </>
+    </SuccessMessage>
 }

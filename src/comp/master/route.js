@@ -1,14 +1,16 @@
 //This file contains code for Route
 
 import React, { Component } from 'react';
-import { Form, Header, Message, Card, Button, Table, Icon } from 'semantic-ui-react';
+import { Form, Header, Message, Card, Button, Table, Icon, Divider } from 'semantic-ui-react';
 import { Get, MakePostFetch, FormResponseHandlerWithLoadingDisabler, FormErrorHandler } from '../../network';
 import { GroupTypes } from '../../Fixed';
 import End from '../../end';
 import PropTypes from 'prop-types';
 import { Link } from "react-router-dom";
 import { RecordList } from '../common/recordList';
-import { CustomSelect, $, SuccessMessage, $$ } from "../common/form";
+import { CustomSelect, $, SuccessMessage, $$, HeaderLink } from "../common/form";
+import Apm from '../../apm';
+import { thisExpression } from '@babel/types';
 /**
 * This component renders List of Route List
 * @param {ReactProp} props 
@@ -26,7 +28,7 @@ export function RouteList(props) {
                 {name}
             </Table.Cell>
             <Table.Cell>
-                <small>{group_name}</small>
+                {group_name}
             </Table.Cell>
 
             <Table.Cell>
@@ -39,7 +41,9 @@ export function RouteList(props) {
         return MakePostFetch(End.master.route.read, new FormData(), true)
     }
     const headers = [
-        "", "Name", "Group", "Workplace", "Description"
+        "", "Name", 
+        <HeaderLink header='Group' link={Apm.master.group.concat("/read")} />
+        ,  "Description"
     ];
 
     return <RecordList headers={headers} title="Route(s)" mapFn={mapFn} fetchPromise={fetcher} />
@@ -93,7 +97,7 @@ export class RouteForm extends Component {
                 else throw Error("Couldn't fetch operations")
             })
             .then(r => {
-                this.setState({ operations: r.result.map((v,i)=>{return {key:i,value:v.id,text:v.name,...v }}) });
+                this.setState({ operations: r.result.map((v, i) => { return { key: i, value: v.id, text: v.name, ...v } }) });
 
             })
             .catch(err => {
@@ -115,6 +119,7 @@ export class RouteForm extends Component {
 
         }
         if (x.name[0].length < 1) {
+
             errorMsg = "Please enter a valid Route Name";
         }
         else if (x.gid[0].match(x.gid[1]) === null) {
@@ -160,16 +165,19 @@ export class RouteForm extends Component {
     render() {
         const { successState, errorState, btnDisable, btnLoading } = this.state;
         const { create } = this.props;
-        const form = <Form error={errorState} id="routeForm">
+        const form = <Form error={errorState} name='routeForm' id="routeForm">
 
             <Header dividing>{(create) ? "Add Route" : "Modify Route"}</Header>
-            <Form.Input required name="name" id="name" label="Name" placeholder="Name of Route" />
-            <Form.Field required>
+            <Form.Group>
+            <Form.Input width={8} required name="name" id="name" label="Name" placeholder="Name of Route" />
+            <Form.Field width={8} required>
                 <label>Group</label>
                 <CustomSelect placeholder="Choose Group" name="gid" id="gid" options={this.state.GroupOptions}></CustomSelect>
             </Form.Field>
-            <Form.Field>
-            <label>Choose Operations to Add</label>
+            </Form.Group>
+            <Divider/>
+            <Form.Field required>
+                <label>Choose Operations to Add</label>
                 <OperationListChooser setSelectedOperations={this.setSelectedOperations.bind(this)} operations={this.state.operations} />
             </Form.Field>
             <Form.Field >
@@ -191,22 +199,26 @@ export class OperationListChooser extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            seletedOperations: ('selectedOperations' in props) ? props.selectedOperations : []
+            selectedOperations: ('selectedOperations' in props) ? props.selectedOperations : []
         };
         this.readonly = ('readonly' in props);
+        console.log(props);
+        console.log("selected op",props.selectedOperations);
     }
 
-    handleOnChange(_,d) {
+    handleOnChange(_, d) {
         this.currentChoice = Number(d.value);
     }
 
     handleChooseClick(e) {
+
         const value = this.currentChoice;
+        if (value == undefined || isNaN(value)) return; //Return if there is an invalid choice
         const { operations } = this.props;
         let [ar] = operations.filter(({ id }) => {
             return id === value;
         });
-        let br = this.state.seletedOperations;
+        let br = this.state.selectedOperations;
         br.push(ar) //assuming only one match
         this.setState({ seletedOperations: br });
         this.props.setSelectedOperations(br);
@@ -214,19 +226,20 @@ export class OperationListChooser extends Component {
 
     rowFn(v, i) {
 
-        const removeRow = e => {
-            const op = this.state.seletedOperations;
+        const removeRow = () => {
+            const op = this.state.selectedOperations;
             const x = op.filter((_, ix) => {
                 return ix !== i;
             });
             this.setState({ seletedOperations: x });
 
         };
+        console.log("row",v);
 
         return <Table.Row key={i}>
-            {(this.readonly) ? <input name="operation" hidden value={v.id} /> : <></>}
+            {(this.readonly) ?<></>: <input name="operation" hidden value={v.id} /> }
             <Table.Cell width={1}>
-                {i+1}
+                {i + 1}
             </Table.Cell>
             <Table.Cell>
                 {v.name}
@@ -250,13 +263,13 @@ export class OperationListChooser extends Component {
 
 
     render() {
-
-        const rows = this.state.seletedOperations.map(this.rowFn.bind(this));
-
+        const opts=(this.props.readonly)?this.props.selectedOperations : this.state.selectedOperations;
+        const rows =  opts.map(this.rowFn.bind(this));
+       
         return <>
             <Table selectable><Table.Header>
                 <Table.Row>
-                    <Table.HeaderCell/>
+                    <Table.HeaderCell />
                     <Table.HeaderCell>
                         Name
                     </Table.HeaderCell>
@@ -274,12 +287,12 @@ export class OperationListChooser extends Component {
                 <Table.Body>
                     {this.readonly ? <></> : <Table.Row>
                         <Table.Cell>
-                            <Button  onClick={this.handleChooseClick.bind(this)} >
+                            <Button onClick={this.handleChooseClick.bind(this)} >
                                 Add New
                  </Button>
                         </Table.Cell>
                         <Table.Cell>
-                            <CustomSelect  placeholder="Choose Operation" name="operation" onChange={this.handleOnChange.bind(this)} options={this.props.operations} ></CustomSelect>
+                            <CustomSelect placeholder="Choose Operation" name="operation" onChange={this.handleOnChange.bind(this)} options={this.props.operations} ></CustomSelect>
                         </Table.Cell>
                     </Table.Row>}
 

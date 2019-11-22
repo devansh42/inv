@@ -8,7 +8,8 @@ import End from "../../end";
 import { GroupTypes } from "../../Fixed";
 import { Link } from 'react-router-dom';
 import { RecordList } from '../common/recordList';
-import {CustomSelect, $} from "../common/form";
+import { CustomSelect, $, SuccessMessage, HeaderLink } from "../common/form";
+import Apm from "../../apm";
 export function WorkplaceList(props) {
 
     function timeSecToString(s) {
@@ -54,7 +55,9 @@ export function WorkplaceList(props) {
     }
 
     const headers = [
-        "", "Name", "Group", "Opeing Time", "Closing Time", "Location"
+        "", "Name", 
+        <HeaderLink header="Group" link={Apm.master.group.concat("/read")} />
+        , "Opening Time", "Closing Time", "Location"
     ];
 
     return <RecordList headers={headers} title="WorkPlace(s)" mapFn={mapFn} fetchPromise={fetcher} />
@@ -130,7 +133,7 @@ export class WorkplaceForm extends Component {
             let form = $("formWorkplace");
             this.setState({ btnLoading: true, btnDisable: true, name: o.name.trim(), gid: o.gid.trim(), cl_time: o.cl_time.trim(), addr: o.addr.trim(), op_time: o.op_time.trim() });
             if (this.props.create) {
-                MakePostFetch(End.master.workplace.create, form,true)
+                MakePostFetch(End.master.workplace.create, form, true)
                     .then(FormResponseHandlerWithLoadingDisabler.bind(this))
                     .then(r => {
                         this.setState({ successState: true });
@@ -171,24 +174,23 @@ export class WorkplaceForm extends Component {
             <Message error header="There is a Problem!!" content={this.state.errorMsg}></Message>
             <Button primary onClick={this.handleSubmit.bind(this)} loading={this.state.btnLoading} disabled={this.state.btnDisable} >{this.props.create ? "Create" : 'Modify'}</Button>
         </Form>;
-        return (this.state.successState) ? <SuccessMessage group={getGroupname(this.state.GroupOptions, this.state.gid)} name={this.state.name} cl_time={this.state.cl_time} op_time={this.state.op_time} addr={this.state.addr} /> : form;
+        return (this.state.successState) ? <SuccessC group={getGroupname(this.state.GroupOptions, this.state.gid)} name={this.state.name} cl_time={this.state.cl_time} op_time={this.state.op_time} addr={this.state.addr} /> : form;
     }
 
 }
 
 
 function getGroupname(ar, value) {
-    console.log(value,ar);
+    console.log(value, ar);
     let x = ar.filter(v => v.value == value)
     console.log(x);
     return (x.length > 0) ? x[0].text : ""
 }
 
 
-function SuccessMessage(props) {
+function SuccessC(props) {
     return (
-        <Segment>
-            <Header content={(props.create) ? "Workplace Created" : "Workplace Modified"} />
+        <SuccessMessage header={(props.create) ? "Workplace Created" : "Workplace Modified"} >
             <Table>
                 <Table.Header>
                     <Table.Row>
@@ -197,27 +199,29 @@ function SuccessMessage(props) {
                         <Table.HeaderCell>Opening Time</Table.HeaderCell>
                         <Table.HeaderCell>Closing Time</Table.HeaderCell>
                         <Table.HeaderCell>Group</Table.HeaderCell>
-                   
+
                     </Table.Row>
                 </Table.Header>
-                <Table.Row>
-                    <Table.Cell>
-                        {props.name}
-                    </Table.Cell>
-                    <Table.Cell>
-                        {props.addr}
-                    </Table.Cell>
-                    <Table.Cell>
-                        {props.op_time}
-                    </Table.Cell>
-                    <Table.Cell>
-                        {props.cl_time}
-                    </Table.Cell>
-                    <Table.Cell>
-                        {props.group}
-                    </Table.Cell>
-                </Table.Row>
+                <Table.Body>
+                    <Table.Row>
+                        <Table.Cell>
+                            {props.name}
+                        </Table.Cell>
+                        <Table.Cell>
+                            {props.addr}
+                        </Table.Cell>
+                        <Table.Cell>
+                            {props.op_time}
+                        </Table.Cell>
+                        <Table.Cell>
+                            {props.cl_time}
+                        </Table.Cell>
+                        <Table.Cell>
+                            {props.group}
+                        </Table.Cell>
+                    </Table.Row>
+                </Table.Body>
             </Table>
-        </Segment>
+        </SuccessMessage>
     )
 }

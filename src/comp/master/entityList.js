@@ -18,7 +18,7 @@ import PropTypes from "prop-types";
             {props.errorMsg}
       </Message>
       
-      return (props.errorState)?errMsg:<Table selectable sortable={"sortable" in props}>
+      return (props.errorState)?errMsg:<Table celled sortable={"sortable" in props}>
                 <Table.Header>
                     <Table.Row>
                         {props.headers.map(hf)}

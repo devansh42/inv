@@ -7,12 +7,13 @@ import { Get } from "../../network";
 import { GroupTypes } from "../../Fixed";
 import { Link } from "react-router-dom";
 import { RecordList } from "../common/recordList";
-import { CustomSelect, CustomCheckbox } from "../common/form";
+import { CustomSelect, CustomCheckbox, $, SuccessMessage, HeaderLink } from "../common/form";
+import Apm from "../../apm";
 export function ItemList(props) {
     const mapFn = (v, i) => {
-        const { name, group_name, unit, id } = v;
+        const { name, group_name, unit_name, id } = v;
         return <Table.Row key={i}>
-            <Table.Cell>
+            <Table.Cell width={1} >
                 <Link title="Edit this Record" to={End.master.item.modify + "/" + id}>
                     <Icon name="edit"></Icon>
                 </Link>
@@ -21,10 +22,10 @@ export function ItemList(props) {
                 {name}
             </Table.Cell>
             <Table.Cell>
-                <small>{group_name}</small>
+            <small>{group_name}</small>
             </Table.Cell>
             <Table.Cell>
-                {unit}
+                {unit_name}
             </Table.Cell>
         </Table.Row>
     }
@@ -33,8 +34,12 @@ export function ItemList(props) {
         return MakePostFetch(End.master.item.read, new FormData(), true)
     }
     const headers = [
-        "", "Name", "Group", "Unit"
-    ];
+        "",
+        "Name",
+        <HeaderLink header="Group" link={Apm.master.group.concat("/read")} />,
+        <HeaderLink header="Unit" link={Apm.master.unit.concat("/read")} />,
+        
+      ];
 
     return <RecordList headers={headers} title="Item(s)" mapFn={mapFn} fetchPromise={fetcher} />
 
@@ -75,19 +80,20 @@ export class ItemForm extends Component {
     }
 
     handleSubmit(e) {
-        let valid, errorMsg;
-        let d = x => document.getElementById(x);
+        let valid = false, errorMsg = null;
+        let d = $;
         let o = {
             name: d("name").value.trim(),
             unit: d("unit").value.trim(),
-            gid: d("group").value.trim()
+            gid: d("gid").value.trim(),
+            hser: d("hser").checked
         };
         let oe = {
             name: /\w{2,100}/,
             unit: /^\d{1,}$/,
             gid: /^\d{1,}$/
         }
-        if (o.name.match(oe.name) === null) {
+        if (o.name.length < 1) {
             errorMsg = "Invalid Item Name";
         }
         else if (o.unit.match(oe.unit) === null) {
@@ -98,8 +104,42 @@ export class ItemForm extends Component {
         }
         valid = errorMsg === null;
         if (valid) {
+            //Form is valid so far
+            if (o.hser) {
+                const n = /^\d+$/;
+                const p = {
+                    pre: [d("ser_prefix").value.trim(), /^\w*$/],
+                    suf: [d("ser_suffix").value.trim(), /^\w*$/],
+                    ini: [d("ser_ini").value.trim(), n],
+                    step: [d("ser_step").value.trim(), n],
+                    digit: [d("ser_digit").value.trim(), n]
+                };
+                if (p.pre[0].match(p.pre[1]) == null) {
+                    errorMsg = "Please enter a valid Prefix, it can include alpha numeric characters and underscore(_)";
+                }
+
+                else if (p.suf[0].match(p.suf[1]) == null) {
+                    errorMsg = "Please enter a valid Suffix, it can include alpha numeric characters and underscore(_)";
+                }
+                else if (p.ini[0].match(p.ini[1]) == null || isNaN(Number(p.ini[0])) || Number(p.ini[0]) <= 0) {
+                    errorMsg = "Please enter a valid initial serial number to start with, it should be non zero integer, e.g. 1";
+
+                }
+                else if (p.step[0].match(p.step[1]) == null || isNaN(Number(p.step[0])) || Number(p.step[0]) <= 0) {
+                    errorMsg = "Please enter a valid step, it should be non zero integer, e.g. 1";
+
+                } else if (p.digit[0].match(p.digit[1]) == null || isNaN(Number(p.digit[0])) || Number(p.digit[0]) <= 0) {
+                    errorMsg = "Please enter a valid no of  serial number digits, it should be non zero integer, e.g. 5";
+
+                }
+
+            }
+
+        }
+        valid = errorMsg === null;
+        if (valid) {
             let form = d("itemForm");
-            this.setState({ btnDisable: true, btnLoading: true, name: o.name, unit: o.unit, gid: o.gid });
+            this.setState({ btnDisable: true, btnLoading: true, name: o.name, unit: o.unit, group: o.gid });
             if (this.props.create) {
                 MakePostFetch(End.master.item.create, form, true)
                     .then(FormResponseHandlerWithLoadingDisabler.bind(this))
@@ -162,7 +202,7 @@ export class ItemForm extends Component {
 
 
 
-        let form = <Form id='itemForm' error={this.state.errorState}>
+        let form = <Form id='itemForm' name="itemForm" error={this.state.errorState}>
             <Header content={this.props.create ? "Create Item" : "Modify Item"} />
             <Form.Input required type="text" id="name" name="name" label="Item Name" placeholder="Name" />
             <Form.Group>
@@ -172,7 +212,7 @@ export class ItemForm extends Component {
                 </Form.Field>
                 <Form.Field required>
                     <label>Group</label>
-                    <CustomSelect placeholder="Choose Group" id="group" name="group" options={this.state.GroupOptions} ></CustomSelect>
+                    <CustomSelect placeholder="Choose Group" id="gid" name="gid" options={this.state.GroupOptions} ></CustomSelect>
                 </Form.Field>
             </Form.Group>
             <CustomCheckbox inline label="Has Serial Code" name='hser' id="hser" onChange={this.handleChange.bind(this)} title="Check, if this item have a serial no." />
@@ -180,23 +220,27 @@ export class ItemForm extends Component {
             <Message error header="There is a Problem!!" content={this.state.errorMsg}></Message>
             <Button primary onClick={this.handleSubmit.bind(this)} loading={this.state.btnLoading} disabled={this.state.btnDisable} >{this.props.create ? "Create" : 'Modify'} Item</Button>
         </Form>;
-        return (this.state.successState) ? <SuccessMessage unit={getfromArray(this.state.UnitOptions, this.state.unit)} group={getfromArray(this.state.GroupOptions, this.state.group)} create={this.props.create} /> : form;
+        return (this.state.successState) ? <SuccessC name={this.state.name} unit={getfromArray(this.state.UnitOptions, this.state.unit)} group={getfromArray(this.state.GroupOptions, this.state.group)} create={this.props.create} /> : form;
 
     }
 }
 
 
 function getfromArray(ar, y) {
-    let x = ar.filter((v, i) => v.value === y);
+    let x = ar.filter((v, i) => v.value == y);
     return x.length > 0 ? x[0].text : "";
 }
 
 
-function SuccessMessage(props) {
-    return (
-        <>
-            <Message success header="Success!!" content={(props.create) ? "Item Created" : "Item Modified"} />
-            <Table>
+function SuccessC(props) {
+    return <SuccessMessage header={(props.create) ? "Item Created" : "Item Modified"} >
+        <Table>
+            <Table.Header>
+                <Table.Row>
+                    {["Name", "Unit", "Group"].map((v, i) => <Table.HeaderCell content={v} key={i} />)}
+                </Table.Row>
+            </Table.Header>
+            <Table.Body>
                 <Table.Row>
                     <Table.Cell>
                         {props.name}
@@ -208,8 +252,9 @@ function SuccessMessage(props) {
                         {props.group}
                     </Table.Cell>
                 </Table.Row>
-            </Table>
-        </>
-    )
+            </Table.Body>
+        </Table>
+    </SuccessMessage>
+
 }
 

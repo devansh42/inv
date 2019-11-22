@@ -85,7 +85,7 @@ async function getunits() {
     const r = await MakePostFetch(End.master.unit.read, new FormData(), true);
     if (r.status === 200) {
         let json = await r.json();
-        return json.result.map(v => { return { id: v.id, key: v.id, text: v.name, symbol: v.symbol } })
+        return json.result.map(v => { return { value: v.id, key: v.id, text: v.name, symbol: v.symbol } })
     } else {
         throw Error("unable to fetch units");
     }
@@ -154,7 +154,7 @@ async function getitem(type) {
     const r = await MakePostFetch(End.master.item.read, f, true)
     if (r.status === 200) {
         const json = await r.json();
-        return json.result.map(v => { return { key: v.id, value: v.id, text: v.name, gid: v.gid, name: v.name, unit: v.unit, unit_name: v.unit_name, group_name: v.group_name } });
+        return json.result.map(v => { return { key: v.id, value: v.id, text: v.name, gid: v.gid, name: v.name, unit: v.unit, unit_name: v.unit_name, group_name: v.group_name,...v } });
     }
     else throw Error("unable to fullfill this request");
 }
@@ -170,7 +170,7 @@ async function getroute(type) {
     const r = await MakePostFetch(End.master.route.read, f, true);
     if (r.status === 200) {
         const json = await r.json();
-        return json.result.map(v => { return { key: v.id, value: v.id, text: v.name, gid: v.gid, group_name: v.group_name, name: v.name, description: v.description } });
+        return json.result.map((v,i) => { return { key:i, value: v.id, text: v.name, gid: v.gid, group_name: v.group_name, name: v.name, description: v.description } });
     }
     else throw Error("unable to fullfill this request");
 }

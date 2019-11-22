@@ -7,7 +7,8 @@ import { Get, MakePostFetch, FormErrorHandler, FormResponseHandlerWithLoadingDis
 import { GroupTypes } from "../../Fixed";
 import { RecordList } from "../common/recordList";
 import End from "../../end";
-import { CustomSelect, $ } from "../common/form";
+import { CustomSelect, $, HeaderLink } from "../common/form";
+import Apm from "../../apm";
 
 /**
  * This component renders operations list
@@ -42,7 +43,10 @@ export function OperationList(props) {
         return MakePostFetch(End.master.operation.read, new FormData(), true)
     }
     const headers = [
-        "", "Name", "Group", "Workplace", "Description"
+        "", "Name", 
+        <HeaderLink header="Group" link={Apm.master.group.concat("/read")} />,
+        <HeaderLink header="Workplace" link={Apm.master.workplace.concat("/read")} />
+       , "Description"
     ];
 
     return <RecordList headers={headers} title="Operation" mapFn={mapFn} fetchPromise={fetcher} />

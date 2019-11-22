@@ -9,7 +9,7 @@ import { MasterEntity } from "../master/entityList";
  */
 export function RecordList(props) {
 
-
+    const fetchResult=true;
     const [contentLoaded, setContentLoaded] = useState(false);
     const [recordCount, setRecordCount] = useState(0);
     const [errorState, setErrorState] = useState(false);
@@ -37,7 +37,7 @@ export function RecordList(props) {
                 setErrorState(true);
             })
 
-        },[props]);
+        },[fetchResult]);
     return <>
         <Header dividing>{props.title} <Label color="teal" horizontal>{recordCount}</Label> </Header>
         <MasterEntity.List errorState={errorState} errorMsg={errorMsg} sortable headers={props.headers}>
@@ -58,7 +58,7 @@ RecordList.propTypes = {
     /**
      * Header of column names of record List
      */
-    headers: PropTypes.arrayOf(PropTypes.string).isRequired,
+    headers: PropTypes.array,
     /**
      * map function to map over fetched records
      */

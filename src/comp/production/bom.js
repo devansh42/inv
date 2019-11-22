@@ -1,22 +1,22 @@
 //This file contains bom of an product to manufacture
 
 import React, { Component } from "react";
-import { Message, Card, Header, Icon, Button, Form,  Table, Divider } from "semantic-ui-react";
+import { Message, Card, Header, Icon, Button, Form, Table, Divider } from "semantic-ui-react";
 import { Link } from "react-router-dom";
 import { Get, MakePostFetch, FormErrorHandler, FormResponseHandlerWithLoadingDisabler } from "../../network";
 import End from "../../end";
 import { RecordList } from "../common/recordList";
-import {CustomSelect} from "../common/form";
+import { CustomSelect, HeaderLink, $$, $, SuccessMessage } from "../common/form";
 import { OperationListChooser } from "../master/route";
 import PropTypes from "prop-types";
-
+import Apm from "../../apm";
 export function BomList(_) {
 
     const mapFn = (v, i) => {
         const { name, item_name, qty, route_name, description, id } = v;
         return <Table.Row key={i}>
-            <Table.Cell>
-                <Link title="Edit this Record" to={End.production.bom.modify + "/" + id}>
+            <Table.Cell width={1}>
+                <Link title="Edit this Record" to={Apm.production.bom + "/modify/" + id}>
                     <Icon name="edit"></Icon>
                 </Link>
             </Table.Cell>
@@ -38,7 +38,13 @@ export function BomList(_) {
         </Table.Row>
     };
     const headers = [
-        "", "Name", "Item", "Quantity", "Route", "Description"
+        "", "Name",
+        <HeaderLink header="Item" link={Apm.master.item.concat("/read")} />
+
+        , "Quantity",
+        , <HeaderLink header="Route" link={Apm.master.route.concat("/read")} />
+
+        , "Description"
     ];
     const fetcher = () => {
         return MakePostFetch(End.production.bom.read, new FormData(), true)
@@ -63,7 +69,7 @@ export class BomForm extends Component {
             RouteOptions: []
 
         };
-
+        this.requiredMaterialList = [];
         this.pullResources();
     }
 
@@ -71,6 +77,7 @@ export class BomForm extends Component {
         Get.Item()
             .then(r => {
                 this.setState({ ItemOptions: r });
+
             })
             .catch(err => {
                 this.setState({ errorState: true, errorMsg: "Couldn't fetch Items" });
@@ -88,41 +95,47 @@ export class BomForm extends Component {
 
     }
 
-    handleRouteChange(e) {
-        const v = Number(e.target.value);
+    setRequiredMaterialList(ar) {
+        this.requiredMaterialList = ar;
+    }
+    handleRouteChange(e, d) {
+        const v = Number(d.value);
         const f = new FormData();
         f.append("route_operations", v);
         MakePostFetch(End.master.operation.read, f, true)
             .then(r => {
                 if (r.status === 200) {
-                    this.setState({ RouteOperations: r.result });
+                    return r.json();
                 } else throw Error("Couldn't fetch Route Operations");
             })
-            .catch(err => {
-                this.setState({ errorState: true, errorMsg: err.message });
+            .then(r => {
+                console.log(r.result);
+                this.setState({ RouteOperations: r.result });
+
             })
+            .catch(FormErrorHandler.bind(this))
     }
     handleClick(e) {
-        const d = x => document.getElementById(x);
+        const d = $;
         let errorState = false;
         let errorMsg = null;
         const o = {
-            name: [d("name".value.trim()), /^\w+$/],
+            name: [d("name").value.trim(), /^\w+$/],
             item: [d("item").value.trim(), /^\d+$/],
             route: [d("route").value.trim(), /^\d+$/],
             qty: [d("qty").value.trim(), /^\d+$/]
         }
-        if (o.name[0].match(o.name[1]) == null) {
+        if (o.name[0].length < 1) {
             errorMsg = "Please enter a valid name";
         }
-        else if (o.item[0].match(o.item[1]) == null) {
+        else if (isNaN(Number(o.item[0]))) {
             errorMsg = "Please choose a valid Item to Produce";
         }
-        else if (this.state.ItemOptions.filter(v => v.value ===  Number(o.item[0])).length < 1) {
+        else if (this.state.ItemOptions.filter(v => v.value === Number(o.item[0])).length < 1) {
             errorMsg = "Please choose Items from the list";
         }
-        else if(o.qty[0].match(o.qty[1])===null || Number(o.qty[0])<=0 ){
-            errorMsg="Please enter a valid Qty to produce";
+        else if (o.qty[0].match(o.qty[1]) === null || Number(o.qty[0]) <= 0) {
+            errorMsg = "Please enter a valid Qty to produce";
         }
         else if (o.route[0].match(o.route[1]) === null) {
             errorMsg = "Please choose valid Route for Production"
@@ -131,55 +144,69 @@ export class BomForm extends Component {
             errorMsg = "Please route from the list";
         }
         errorState = errorMsg !== null;
-        if(errorState){
-            this.setState({errorMsg,errorState});
-        }else{
-                this.setState({btnLoading:true,btnDisable:true});
-            if(this.props.create){
-                MakePostFetch(End.production.bom.create,d("bomForm"),true)
-                .then(FormResponseHandlerWithLoadingDisabler.bind(this))
-                .then(r=>{
-                    //Handling success
-                    this.setState({successState:true});
-                })
-                .catch(FormErrorHandler.bind(this)); //Handling any kind of faliure
+        if (errorState) {
+            this.setState({ errorMsg, errorState });
+            console.log("Error");
+        } else {
+            this.setState({ btnLoading: true, name: o.name[0], btnDisable: true });
+            if (this.props.create) {
+                const l = {
+                    name: o.name[0],
+                    item: Number(o.item[0]),
+                    qty: Number(o.qty[0]),
+                    route: Number(o.route[0]),
+                    description: $$("description").value.trim(),
+                    materialList: this.requiredMaterialList
+                };
+                MakePostFetch(End.production.bom.create, JSON.stringify(l), true)
+                    .then(FormResponseHandlerWithLoadingDisabler.bind(this))
+                    .then(r => {
+                        //Handling success
+                        this.setState({ successState: true });
+                    })
+                    .catch(FormErrorHandler.bind(this)); //Handling any kind of faliure
             }
         }
     }
 
+
     render() {
         const { create } = this.props;
-        const form = <Form id="bomForm">
+        const form = <Form error={this.state.errorState} noValidate id="bomForm" name="bomForm"  >
             <Header dividing>{(create) ? "Add BOM" : "Modify BOM"}</Header>
+
             <Form.Input required name="name" id="name" label="Name" placeholder="BOM Name" title="Unique name of your BOM" />
-            <Form.Field required>
-                <label>Item</label>
-                <CustomSelect name="item" id="item" placeholder="Choose from Items" options={this.state.ItemOptions}></CustomSelect>
-            </Form.Field>
-            <Form.Input required name="qty" id="qty" label="Quantity" placeholder="Quantity to Manufacture" type="number" />
+            <Form.Group>
+                <Form.Field width={8} required>
+                    <label>Item</label>
+                    <CustomSelect name="item" id="item" placeholder="Choose from Items" options={this.state.ItemOptions}></CustomSelect>
+                </Form.Field>
+                <Form.Input width={8} required name="qty" id="qty" label="Quantity" placeholder="Quantity to Manufacture" type="number" />
+            </Form.Group>
+
             <Divider />
-            <Form.Field>
+            <Form.Field required>
                 <label>Material Required</label>
-                <RequireItemListChooser items={this.state.ItemOptions} />
+                <RequireItemListChooser setError={this.setState.bind(this)} setRequiredMaterialList={this.setRequiredMaterialList.bind(this)} items={this.state.ItemOptions} />
             </Form.Field>
             <Divider />
 
             <Form.Field required>
                 <label>Route</label>
-                <CustomSelect name="route" options={this.state.RouteOptions} id="route" placeholder="Choose from Routes" />
+                <CustomSelect name="route" onChange={this.handleRouteChange.bind(this)} options={this.state.RouteOptions} id="route" placeholder="Choose from Routes" />
                 <OperationListChooser readonly selectedOperations={this.state.RouteOperations} />
             </Form.Field>
             <Divider />
 
             <Form.Field >
-            <label>Description</label>
+                <label>Description</label>
                 <textarea name="description" id="description" rows="5" placeholder="Add some description" ></textarea>
             </Form.Field>
             <Divider />
-
-            <Button primary onClick={this.handleClick.bind(this)} >{(create) ? "Add BOM" : "Modify BOM"}</Button>
+            <Message header="There is something wrong!!" error content={this.state.errorMsg}></Message>
+            <Button primary disabled={this.state.btnDisable} loading={this.state.btnLoading} onClick={this.handleClick.bind(this)} >{(create) ? "Add BOM" : "Modify BOM"}</Button>
         </Form>;
-        return (this.state.successState) ? <SuccessCard /> : form;
+        return (this.state.successState) ? <SuccessC create={this.props.create} name={this.state.name} /> : form;
     }
 
 
@@ -198,18 +225,36 @@ export class RequireItemListChooser extends Component {
     }
 
     handleAdd(e) {
-        const d = document.getElementById;
+        const d = $;
         const o = {
             item: Number(d("cur_item").value),
             qty: Number(d("cur_qty").value),
             rate: Number(d("cur_rate").value)
         };
+        let errorMsg = null;
+        if (isNaN(o.item) || o.item < 1 || this.props.items.filter((v, i) => v.id == o.item).length < 1) {
+            errorMsg = "Please choose valid item from List";
+        }
+        else if (isNaN(o.qty) || o.qty < 0) {
+            errorMsg = "Please enter valid Qty.";
+        }
+        else if (isNaN(o.rate) || o.rate < 0) {
+            errorMsg = "Please enter valid rate of item";
+        }
+        if (errorMsg !== null) {
+            this.props.setError({ errorMsg, errorState: true });
+            return;
+
+        } else {
+            this.props.setError({ errorState: false });
+        }
+
         const ar = this.state.selections;
 
         const [i] = this.props.items.filter((v, i) => {
-            return v.id === o.item
-        });
 
+            return v.value === Number(o.item)
+        });
         const x = {
             qty: o.qty, rate: o.rate,
             item_name: i.name,
@@ -217,6 +262,7 @@ export class RequireItemListChooser extends Component {
         };
         ar.push(x); //appending new entry
         this.setState({ selections: ar });
+        this.props.setRequiredMaterialList(ar);
         d("cur_item").value = "";
         d("cur_qty").value = "";
         d("cur_rate").value = "";
@@ -225,8 +271,8 @@ export class RequireItemListChooser extends Component {
     }
 
     render() {
-
-        const rows = this.state.selections.map((v, i) => {
+        const ar = (this.props.readonly) ? this.props.materialList : this.state.selections;
+        const rows = ar.map((v, i) => {
 
             const handleRemove = x => {
                 const ar = this.state.selections.filter((_, yx) => {
@@ -236,12 +282,15 @@ export class RequireItemListChooser extends Component {
                 this.setState({ selections: ar });
             }
 
-            return <Table.Row key={i}>
+            return <Table.Row key={v.id}>
                 <Table.Cell>
                     {v.item_name}
                 </Table.Cell>
-                <Table.Cell>
+                <Table.Cell >
                     {v.qty}
+                </Table.Cell>
+                <Table.Cell>
+                    {v.unit_name}
                 </Table.Cell>
                 <Table.Cell>
                     {v.rate}
@@ -251,24 +300,24 @@ export class RequireItemListChooser extends Component {
                 </Table.Cell>
 
                 {(this.readonly) ? <></> : <Table.Cell>
-                    <Icon name="times" onClick={handleRemove} />
+                    <Icon name="times" color="red" onClick={handleRemove} />
                 </Table.Cell>}
             </Table.Row>
         })
         const rowAdder = (this.readonly) ? <></> : <Table.Row>
             <Table.Cell>
-                <CustomSelect options={this.props.items} id="cur_item" placeholder='Choose Item/Sub Assembly' >
+                <CustomSelect options={this.props.items} name="cur_item" id="cur_item" placeholder='Choose Item/Sub Assembly' >
                 </CustomSelect>
             </Table.Cell>
             <Table.Cell>
-                <Form.Input type="number" id="cur_qty" name="qty" placeholder="Quantity Required" />
+                <Form.Input type="number" id="cur_qty" name="cur_qty" placeholder="Quantity Required" />
             </Table.Cell>
             <Table.Cell>
-                <Form.Input type="number" id="cur_rate" name="rate" placeholder="Rate" />
+                <Form.Input type="number" id="cur_rate" name="cur_rate" placeholder="Rate" />
             </Table.Cell>
             <Table.Cell></Table.Cell>
             <Table.Cell>
-                <Button onClick={this.handleAdd} primary>Add</Button>
+                <Button onClick={this.handleAdd.bind(this)} color={"grey"}  >Add</Button>
             </Table.Cell>
         </Table.Row>
 
@@ -278,12 +327,16 @@ export class RequireItemListChooser extends Component {
                 <Table.HeaderCell>
                     Item
                     </Table.HeaderCell>
-                <Table.HeaderCell>
+                <Table.HeaderCell >
                     Qty
                     </Table.HeaderCell>
                 <Table.HeaderCell>
+                    Unit
+                </Table.HeaderCell>
+                <Table.HeaderCell>
                     Rate
                     </Table.HeaderCell>
+
                 <Table.HeaderCell>
                     Amount
                     </Table.HeaderCell>
@@ -312,7 +365,13 @@ RequireItemListChooser.propTypes = {
     /**
      * List of Required Material Required List
      */
-    materialList: PropTypes.array
+    materialList: PropTypes.array,
+    /**
+     * sets required material list
+     */
+    setRequiredMaterialList: PropTypes.func
+
+    , setError: PropTypes.func,
 
 
 }
@@ -324,16 +383,13 @@ RequireItemListChooser.propTypes = {
 
 
 
-function SuccessCard({ name, create }) {
-    return <>
-        <Message success content={(create) ? "BOM Added" : "BOM Modified"}>
-
-        </Message>
+function SuccessC({ name, create }) {
+    return <SuccessMessage header={(create) ? "BOM Added" : "BOM Modified"} >
         <Card>
             <Card.Content>
                 <Card.Header>{name}</Card.Header>
                 <Card.Meta>Bill of Materials</Card.Meta>
             </Card.Content>
         </Card>
-    </>
+    </SuccessMessage>
 }
