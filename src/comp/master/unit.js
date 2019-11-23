@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { MakePostFetch, FormResponseHandlerWithLoadingDisabler } from "../../network";
 import End from "../../end";
 import { RecordList } from '../common/recordList';
-import { $ } from "../common/form";
+import { SuccessMessage ,$ } from "../common/form";
 export function UnitList(props) {
     const mapFn = (v, i) => {
         const { name, symbol, id } = v;
@@ -109,15 +109,14 @@ export class UnitForm extends Component {
             <Button onClick={this.handleSubmit.bind(this)} primary loading={this.state.btnLoading} disabled={this.state.btnDisable} >{this.props.create ? "Create" : "Modify"}</Button>
         </Form>;
 
-        return (this.state.successState) ? <SuccessMessage name={this.state.name} symbol={this.state.symbol}  create={this.props.create}  /> : form;
+        return (this.state.successState) ? <SuccessC name={this.state.name} symbol={this.state.symbol}  create={this.props.create}  /> : form;
 
     }
 }
 
-function SuccessMessage(props) {
+function SuccessC(props) {
     return (
-        <Segment compact >
-            <Header   content={props.create ? "Unit Created" : 'Unit Modified'} />
+        <SuccessMessage header={props.create ? "Unit Created" : 'Unit Modified'}>
             <Card>
                 <Card.Content>
                     <Card.Header>
@@ -131,6 +130,6 @@ function SuccessMessage(props) {
                     </Card.Description>
                 </Card.Content>
             </Card>
-        </Segment>
+        </SuccessMessage>
     )
 }

@@ -12,8 +12,10 @@ import { BomList, BomForm } from "./comp/production/bom";
 import { WorkOrderForm, WorkOrderList } from "./comp/production/workorder";
 import { JobCardList, JobForm } from "./comp/production/job";
 import { UserForm, UserList } from "./comp/master/user";
-import {OperationForm,OperationList} from "./comp/master/operation";
-import {RouteForm,RouteList} from "./comp/master/route";
+import { OperationForm, OperationList } from "./comp/master/operation";
+import { RouteForm, RouteList } from "./comp/master/route";
+import { WorkorderTracker, WorkorderTrackerWrapper } from "./comp/production/workorderTracking";
+import { JobCardAlterationWrapper } from "./comp/production/job_modifier";
 
 
 export function ProductionWindowResolver(props) {
@@ -32,6 +34,9 @@ export function ProductionWindowResolver(props) {
                 </WindowItem>
             </Window>
         </Route>
+
+        <Route path={f(w, "/track/:wid")} component={WorkorderTrackerWrapper}    />
+
         <Route path={f(w, "/*")}>
             <Window>
                 <WindowItem name='Create' path={f(w, "/create")}>
@@ -43,18 +48,21 @@ export function ProductionWindowResolver(props) {
                 </WindowItem>
             </Window>
         </Route>
+        <Route  path={f(j, "/track/:jid/")} component={JobCardAlterationWrapper} />
         <Route path={f(j, "/*")}>
             <Window>
-            <WindowItem name="List" path={f(j, "/create")}>
+                <WindowItem name="List" path={f(j, "/create")}>
                     <JobForm create />
                 </WindowItem>
-                
+
                 <WindowItem name="List" path={f(j, "/read")}>
                     <JobCardList />
                 </WindowItem>
 
             </Window>
         </Route>
+       
+
     </Switch>
 }
 
@@ -107,8 +115,8 @@ export function MasterWindowResolver(props) {
     let w = "/app/master/workplace";
     let g = "/app/master/group";
     let us = "/app/master/user";
-    let o= '/app/master/operation';
-    let r="/app/master/route";
+    let o = '/app/master/operation';
+    let r = "/app/master/route";
     return <Switch>
 
         <Route path={a.concat("/*")}  >
@@ -170,33 +178,33 @@ export function MasterWindowResolver(props) {
                 <WindowItem name="Create" path={us.concat("/create")} >
                     <UserForm create />
                 </WindowItem>
-        <WindowItem name="List" path={us.concat("/read")}>
-                <UserList/>
-        </WindowItem>
+                <WindowItem name="List" path={us.concat("/read")}>
+                    <UserList />
+                </WindowItem>
             </Window>
         </Route>
-    <Route path={o.concat("/*")}>
-        <Window>
-            <WindowItem name="Create" path={o.concat('/create')}>
-                <OperationForm create />
-            </WindowItem>
-            <WindowItem name="List" path={o.concat('/read')}>
-                <OperationList />
-            </WindowItem>
-            
-        </Window>
-    </Route>
+        <Route path={o.concat("/*")}>
+            <Window>
+                <WindowItem name="Create" path={o.concat('/create')}>
+                    <OperationForm create />
+                </WindowItem>
+                <WindowItem name="List" path={o.concat('/read')}>
+                    <OperationList />
+                </WindowItem>
 
-    <Route path={r.concat("/*")}>
-        <Window>
-            <WindowItem name="Create" path={r.concat('/create')}>
-                <RouteForm create />
-            </WindowItem>
-            <WindowItem name="List" path={r.concat('/read')}>
-                <RouteList />
-            </WindowItem>
-            
-        </Window>
-    </Route>
+            </Window>
+        </Route>
+
+        <Route path={r.concat("/*")}>
+            <Window>
+                <WindowItem name="Create" path={r.concat('/create')}>
+                    <RouteForm create />
+                </WindowItem>
+                <WindowItem name="List" path={r.concat('/read')}>
+                    <RouteList />
+                </WindowItem>
+
+            </Window>
+        </Route>
     </Switch>
 }

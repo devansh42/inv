@@ -188,7 +188,7 @@ async function getaccount(aid) {
     if (r.status === 200) {
         const json = await r.json();
         return json.result.map((v, i) => {
-            return { key: i, text: v.account_name, ...v }
+            return { key: i,value:v.id, text: v.name, ...v }
         });
     }
     else throw Error("unable to fullfill this request");

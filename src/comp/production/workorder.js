@@ -30,8 +30,11 @@ export function WorkOrderList(props) {
                 </Link>
             </Table.Cell>
             <Table.Cell>
-                {"#".concat(id)}
+                    <Link to={Apm.production.workorder.concat("/track/").concat(id)} >
+                 {"#".concat(id)}
+                 </Link>
             </Table.Cell>
+            
             <Table.Cell>
                 {item_name}
             </Table.Cell>
@@ -164,8 +167,6 @@ export class WorkOrderForm extends Component {
             qty: [d("qty").value.trim(), number],
             bom: [d("bom").value.trim(), number],
             postdate: [d("post_date").valueAsNumber],
-            stDate: [d("st_date").valueAsNumber],
-            deDate: [d("de_date").valueAsNumber]
         }
         if (o.item[0].match(o.item[1]) == null) {
             errorMsg = "Please choose an item";
@@ -185,12 +186,6 @@ export class WorkOrderForm extends Component {
         }
         else if (isNaN(Number(o.postdate[0]))) {
             errorMsg = "Please set a Workorder Posting Date";
-        }
-        else if (isNaN(Number(o.stDate[0]))) {
-            errorMsg = "Please set a starting Date";
-        }
-        else if (isNaN(Number(o.deDate[0]))) {
-            errorMsg = "Please set delivery Date";
         }
         errorState = errorMsg !== null;
         if (errorState) {
@@ -247,11 +242,6 @@ export class WorkOrderForm extends Component {
 
                  <Divider />
 
-            <Form.Group>
-                <Form.Input label="Expected Start Date" type='datetime-local' name="st_date" id="st_date" />
-                <Form.Input label="Expected Delivery Date" name="de_date" type='datetime-local' id="de_date" />
-            </Form.Group>
-            
                 <Message error header="There is a problem!!" content={this.state.errorMsg} />
             
             <Divider />

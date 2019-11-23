@@ -7,7 +7,7 @@ import { MasterEntity } from "../master/entityList";
  * RecordList, is the generic component to render of given list to the backend
  * @param {ReactProps} props 
  */
-export function RecordList(props) {
+export function RecordList({fetchPromise,mapFn,...props}) {
 
     const fetchResult=true;
     const [contentLoaded, setContentLoaded] = useState(false);
@@ -16,14 +16,14 @@ export function RecordList(props) {
     const [errorMsg, setErrorMsg] = useState(null);
     const [dataList,setDataList]=useState([]);
     useEffect(() => {
-        props.fetchPromise()
+       fetchPromise()
             .then(r => {
                 if (r.status === 200) return r.json();
                 else throw Error("Couldn't fetch the content");
             })
             .then(r=>r.result)
             .then(r => {
-                const dataList = r.map(props.mapFn); //performs map operation on fetched content
+                const dataList = r.map(mapFn); //performs map operation on fetched content
               
                 return [true, dataList.length,dataList]; //return true (i.e. content is loaded from the background), and length of fetched content
             })
@@ -37,7 +37,7 @@ export function RecordList(props) {
                 setErrorState(true);
             })
 
-        },[fetchResult]);
+        },[fetchResult,fetchPromise,mapFn]);
     return <>
         <Header dividing>{props.title} <Label color="teal" horizontal>{recordCount}</Label> </Header>
         <MasterEntity.List errorState={errorState} errorMsg={errorMsg} sortable headers={props.headers}>

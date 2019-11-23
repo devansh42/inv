@@ -3,14 +3,20 @@
 
 "use strict";
 import React, { useState, useEffect } from 'react';
-import { Form, Header, Table, TextArea, Icon, Button, Message, Label } from "semantic-ui-react"
+import { Form, Header, Table, TextArea, Icon, Button, Message, Label, Loader, Segment } from "semantic-ui-react"
 import PropTypes from "prop-types";
 import { Get, MakePostFetch } from "../../network";
 import End from "../../end";
 import { KVTable } from "./kv";
-import { ProcessStates } from '../../Fixed';
+import { ProcessStates, GetProcessStateColor, GetProcessStateText } from '../../Fixed';
 import { CustomSelect } from "../common/form";
-export function JobCardAlteration({ jid, iid, ...props }) {
+
+export function JobCardAlterationWrapper(props) {
+    const { match: { params } } = props;
+    return <JobCardAlteration jid={params.jid} />
+}
+
+function JobCardAlteration({ jid, iid, ...props }) {
 
     const [errorState, setErrorState] = useState(false);
     const [errorMsg, setErrorMsg] = useState(null);
@@ -19,11 +25,15 @@ export function JobCardAlteration({ jid, iid, ...props }) {
     const [started, setStarted] = useState(false);
     const [finished, setFinished] = useState(false);
     const [process_state, setProcessState] = useState(ProcessStates[0]);
+    const [payload, setPayload] = useState({});
+    const [payloadLoaded, setpayloadLoaded] = useState(false);
+    const [kvPairs, setKvPairs] = useState([]);
 
-    const payload = useEffect(() => {
+    const fetched = true;
+    useEffect(() => {
         const f = new FormData();
-        f.append("id", props.jid);
-        return MakePostFetch(End.production.jobModifier.read, f, true)
+        f.append("id", jid);
+        MakePostFetch(End.production.jobModifier.read, f, true)
             .then(r => {
                 if (r.status == 200) {
                     return r.json();
@@ -31,6 +41,9 @@ export function JobCardAlteration({ jid, iid, ...props }) {
             })
             .then(r => {
                 return r.result;
+            })
+            .then(r => {
+                return { ...r.job_card, job_logs: r.job_logs }
             })
             .then(r => {
                 //Process result Payload
@@ -43,32 +56,33 @@ export function JobCardAlteration({ jid, iid, ...props }) {
                     setFinishTime(r.fi_time);
                 }
                 setProcessState(ProcessStates.filter(v => v.key == r.state)[0]);
-
+                setPayload(r);
+                setpayloadLoaded(true);
             })
             .catch(err => {
                 setErrorState(true);
                 setErrorMsg(err.message);
 
             })
-    }, [true]);
+    }, [fetched, jid]);
 
-    const kvPairs = useEffect(() => {
+    useEffect(() => {
         const f = new FormData();
-        f.append("id", props.iid);
-        return MakePostFetch(End.master.kv.read, f, true)
+        f.append("id", iid);
+        MakePostFetch(End.master.kv.read, f, true)
             .then(r => {
                 if (r.status == 200) {
                     return r.json();
                 } else throw Error("Couldn't load Attributes of Item to be produced");
             })
             .then(r => {
-                return r.result;
+                setKvPairs(r.result);
             })
             .catch(err => {
                 setErrorState(true);
                 setErrorMsg(err.message);
             })
-    }, [true]);
+    }, [fetched, iid]);
 
     const handleStart = e => {
         e.target.disabled = true;
@@ -126,41 +140,45 @@ export function JobCardAlteration({ jid, iid, ...props }) {
 
     }
 
-    const handleSubmit = e => {
-        //Submits the job card and changes operation status from processing to completed
-
-    };
 
 
-    return (
-        <Form id="jobcardform" error={errorState}>
-            <Header dividing>{"#".concat(props.jid)}</Header>
-            <Form.Group>
-                <Form.Input disabled label="WorkOrder No." value={payload.workorder} />
-                <Form.Input disabled label="Post Time" type="datetime-local" value={payload.post_time} />
-                <Form.Input label="Quantity" disabled defaultValue={payload.qty} type="number" />
-                <Form.Input label="Serial No." disabled defaultValue={(payload.sn == null) ? "" : payload.serial_no} />
-            </Form.Group>
-            <Form.Input disabled value={payload.operation_name} />
-            <Label color={process_state.color} >{process_state.text}</Label>
-            <Form.Group>
+console.log(payload.state);
+    return (payloadLoaded) ? <Segment> <Form id="jobcardform" error={errorState}>
 
-                <Form.Field>
-                    {(started) ? new Date(startTime).toLocaleString() : <Button onClick={handleStart}>Start</Button>}
-                </Form.Field>
-                <Form.Field>
-                    {(finished) ? new Date(finishTime).toLocaleString() : <Button onClick={handleFinish}>Finish</Button>}
-                </Form.Field>
-            </Form.Group>
-            <Form.Group>
-                <JobLogTable job_card={jid} setErrorMsg={setErrorMsg} header="Job Card Logs" setErrorState={setErrorState} logRecord={payload.job_logs} />
-            </Form.Group>
-            <Form.Group>
+        <Segment.Group horizontal>
+            <Segment>
+                <Header dividing>{"JOB Status -  #".concat(jid)}   <Label color={GetProcessStateColor(payload.state)} >{GetProcessStateText(payload.state)}</Label>
+                </Header>
+                <Form.Group>
+                    <Form.Input readOnly label="WorkOrder No." value={"#".concat(payload.workorder)} />
+                    <Form.Input label="Post Time" readOnly  value={payload.post_time} />
+                    </Form.Group>
+                   <Form.Group>
+                    <Form.Input label="Quantity" readOnly defaultValue={payload.qty} type="number" />
+                    <Form.Input label="Serial No." readOnly defaultValue={(payload.sn == null) ? "" : payload.serial_no} />
+                    </Form.Group>
+                <Form.Group>
+                    <Form.Input label="Operation" readOnly value={payload.name} />
+                    <Form.Field>
+                        {(started) ? new Date(startTime).toLocaleString() : <Button primary onClick={handleStart}>Start</Button>}
+                    </Form.Field>
+                    <Form.Field>
+                        {(finished) ? new Date(finishTime).toLocaleString() : <Button primary onClick={handleFinish}>Finish</Button>}
+                    </Form.Field>
+                </Form.Group>
+            </Segment>
+            <Segment>
                 <KVTable kv_pairs={kvPairs} entity={(payload.entityId == null) ? payload.plId : payload.entityId} header="Properties" />
-            </Form.Group>
-            <Message error>{errorMsg}</Message>
-        </Form>
-    );
+            </Segment>
+
+        </Segment.Group>
+        <Segment>
+            <JobLogTable job_card={jid} setErrorMsg={setErrorMsg} header="Job Card Logs" setErrorState={setErrorState} logRecord={payload.job_logs} />
+        </Segment>
+
+        <Message error>{errorMsg}</Message>
+    </Form></Segment>
+        : <Loader />;
 }
 
 
@@ -182,19 +200,21 @@ JobCardAlteration.propTypes = {
 function JobLogTable({ job_card, logRecord, setErrorMsg, setErrorState, header }) {
 
     logRecord = logRecord.map(v => { return { recorded: true, ...v } });
+    console.log(logRecord);
     const [logs, setLogs] = useState(logRecord);
+    const [accountList, setAccountList] = useState([]);
+    const fetched = true;
 
-
-    const accountList = useEffect(() => {
-        return Get.Account()
+    useEffect(() => {
+        Get.Account()
             .then(r => {
-                return r //returning array of account holders
+                setAccountList(r) //returning array of account holders
             })
             .catch(err => {
                 setErrorState(true);
                 setErrorMsg("Couldn't load Account list");
             })
-    }, [true]);
+    }, [fetched, setErrorMsg, setErrorState]);
 
 
     const addRow = e => {
@@ -208,7 +228,7 @@ function JobLogTable({ job_card, logRecord, setErrorMsg, setErrorState, header }
                 .then(r => {
                     if (r.status == 200) {
                         setLogs(logs.filter((v, ix) => i != ix));
-                    } else throw Error("Couldn't delete Job Lo   g");
+                    } else throw Error("Couldn't delete Job Log");
                 })
                 .catch(err => {
                     setErrorState(true);
@@ -221,12 +241,12 @@ function JobLogTable({ job_card, logRecord, setErrorMsg, setErrorState, header }
     };
     const saveRow = (index, worker, startTime, finishTime, desc) => {
         const o = {
-            logs: {
+            logs: [{
                 worker,
                 st_time: startTime,
                 en_time: finishTime,
                 description: desc
-            },
+            }],
             job_card
         };
         MakePostFetch(End.production.jobModifier.add, JSON.stringify(o), true)
@@ -235,7 +255,7 @@ function JobLogTable({ job_card, logRecord, setErrorMsg, setErrorState, header }
                     //Log is successfully persisted in database
                     logs[index] = {
                         recorded: true,
-                        ...o.logs
+                        ...o.logs[0]
                     }
                     setLogs(logs);
                     //Rendering component
@@ -252,30 +272,34 @@ function JobLogTable({ job_card, logRecord, setErrorMsg, setErrorState, header }
 
 
     return <>
-        <Header content={header} />
+        <Header dividing content={header} />
 
-        <Table>
-            <Table.Row>
-                <Table.Header>
-                    <Table.Cell />
-                    <Table.Cell>
+        <Table celled>
+            <Table.Header>
+
+                <Table.Row>
+                    <Table.HeaderCell />
+                    <Table.HeaderCell>
                         Worker
-               </Table.Cell>
-                    <Table.Cell>
+               </Table.HeaderCell>
+                    <Table.HeaderCell>
                         Start-Time
-            </Table.Cell>
-                    <Table.Cell>
+            </Table.HeaderCell>
+                    <Table.HeaderCell>
                         Finish-Time
-            </Table.Cell>
-                    <Table.Cell>
+            </Table.HeaderCell>
+                    <Table.HeaderCell>
                         Description
-            </Table.Cell>
-                    <Table.Cell>
+            </Table.HeaderCell>
+                    <Table.HeaderCell>
                         <Button primary onClick={addRow}>Add Row</Button>
-                    </Table.Cell>
-                </Table.Header>
-            </Table.Row>
-            {logs.map((v, i) => <TableRow saveRow={saveRow} {...v} accountList={accountList} removeRow={removeRow} key={i} setErrorMsg={setErrorMsg} setErrorState={setErrorState} />)}
+                    </Table.HeaderCell>
+
+                </Table.Row>
+            </Table.Header>
+            <Table.Body>
+                {logs.map((v, i) => <TableRow index={i} {...v} saveRow={saveRow} {...v} accountList={accountList} removeRow={removeRow} key={i} setErrorMsg={setErrorMsg} setErrorState={setErrorState} />)}
+            </Table.Body>
         </Table> </>
 }
 
@@ -307,7 +331,7 @@ JobLogTable.propTypes = {
  * This element render table row of job logs
  * @param {object} React Props 
  */
-function TableRow({ saveRow, recorded, removeRow, accountList, key, ...payload }) {
+function TableRow({ saveRow,index, setErrorState, setErrorMsg, recorded, removeRow, accountList, key, ...payload }) {
     const [startTime, setStartTime] = useState(Date.now());
     const [finishTime, setFinishTime] = useState(Date.now());
     const [started, setStarted] = useState(false);
@@ -326,54 +350,58 @@ function TableRow({ saveRow, recorded, removeRow, accountList, key, ...payload }
         setFinished(true);
     }
 
-    if (recorded) {
-        if (payload.st_time != null) {
-            setStarted(true);
-            setStartTime(payload.st_time);
+       useEffect(()=>{ //Prevents infinite render loop
+        if (recorded) {
+            if (payload.st_time != null) {
+                setStarted(true);
+                setStartTime(payload.st_time);
+            }
+            if (payload.en_time != null) {
+                setFinished(true);
+                setFinishTime(payload.en_time);
+            }
+            if (payload.description.length > 0) {
+                setDesc(payload.description);
+            }
+            setWorker(payload.worker);
         }
-        if (payload.en_time != null) {
-            setFinished(true);
-            setFinishTime(payload.en_time);
-        }
-        if (payload.description.length > 0) {
-            setDesc(payload.description);
-        }
-        setWorker(payload.worker);
-    }
-
+    
+       },[payload,recorded]); 
+   
     const handleSave = e => {
         //validation required
         if (isNaN(startTime) || isNaN(finishTime)) {
             setErrorState(true);
             setErrorMsg("Start or Finish time is invalid");
         }
-        else saveRow(worker, startTime, finishTime, desc);
+        else saveRow(index,worker, startTime, finishTime, desc);
     }
 
     return <Table.Row>
-        <Table.Cell>
-            <CustomSelect placeholder="Choose Worker" onChange={v => setWorker(v.target.value)} name="worker" defaultValue={worker} options={accountList} ></CustomSelect>
+          <Table.Cell>
+         {(started) ? <Icon name="circle" tiny color={(!finished) ? "green" : "black"} /> : <></>}
         </Table.Cell>
         <Table.Cell>
-            {key + 1} {(started) ? <Icon name="circle" tiny color={(!finished) ? "green" : "black"} /> : <></>}
+      {(recorded)?payload.worker_name:<CustomSelect placeholder="Choose Worker" onChange={(_,d)=>setWorker(d.value)} name="worker"  options={accountList} ></CustomSelect>
+      }  </Table.Cell>
+      
+        <Table.Cell>
+            {(started) ? new Date(startTime).toLocaleString() : <Button onClick={handleStart}>Start</Button>}
         </Table.Cell>
         <Table.Cell>
-            {(started) ? <><Form.Input onChange={v => setStartTime(v.target.valueAsNumber)} name="st_time" value={startTime} />   {new Date(startTime).toLocaleString()}</> : <Button onClick={handleStart}>Start</Button>}
-        </Table.Cell>
-        <Table.Cell>
-            {(finished) ? <><Form.Input onChange={v => setFinishTime(v.target.valueAsNumber)} name="en_time" value={finishTime} />   {new Date(finishTime).toLocaleString()} </> : <Button onClick={handleFinish}>Finish</Button>}
-        </Table.Cell>
-
-        <Table.Cell>
-            <TextArea defaultValue={desc} onInput={v => setDesc(v.target.value)} name="description" rows={2} maxLength="250" placeholder="Details..." />
+            {(finished) ? new Date(finishTime).toLocaleString() : <Button onClick={handleFinish}>Finish</Button>}
         </Table.Cell>
 
         <Table.Cell>
-            <Icon.Group>
-                <Icon name="save" onClick={handleSave} />
-                <Icon name="times" onClick={(e) => { removeRow(key, recorded) }} />
+            <Form.Input readOnly={recorded} defaultValue={desc} onInput={v => setDesc(v.target.value)} name="description"  maxLength="250" placeholder="Details..." />
+        </Table.Cell>
 
-            </Icon.Group>
+        <Table.Cell>
+          
+               {(recorded)?<></>:<Icon circular name="save" title="Save Time Log" onClick={handleSave} />}
+                <Icon circular  name="times" color="red" title="Remove Time Log" onClick={(e) => { removeRow(index, recorded) }} />
+
+           
         </Table.Cell>
     </Table.Row>;
 };

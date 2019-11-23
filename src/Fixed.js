@@ -21,14 +21,30 @@ export const IdProofs = [
 
 ]
 export const ProcessStates = [
-    { key: 1, color: "black", text: "Not Started" },
+    { key: 1, color: "grey", text: "Not Started" },
     { key: 2, color: "orange", text: "Processing" },
     { key: 3, color: "blue", text: "Processed" },
     { key: 4, color: "green", text: "Completed" },
     { key: 6, color: "red", text: "Interrupted" },
 
-
 ]
+
+export function GetProcessStateColor(x) {
+    const c = getprocessstate(x);
+    return c == undefined ? "grey" : c.color;
+}
+export function GetProcessStateText(x) {
+    const c = getprocessstate(x);
+    return c == undefined ? "Not Started" : c.text;
+
+}
+
+function getprocessstate(x) {
+    const c= ProcessStates.filter(v=>v.key==x);
+    return (x == undefined || x == null || c.length < 1) ? undefined : c.length > 0 ? c[0] : undefined;
+
+}
+
 
 
 export const MenuTree = [

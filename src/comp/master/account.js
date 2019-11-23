@@ -1,17 +1,18 @@
 //code for handling account form
 import React, { Component } from "react";
-import { Card, Icon, Table, Form, Header,  Message, Button } from "semantic-ui-react";
+import { Card, Icon, Table, Form, Header,  Message, Button, Divider } from "semantic-ui-react";
 import { Genders, IdProofs, GroupTypes } from "../../Fixed";
 import { MakePostFetch, Get, FormResponseHandlerWithLoadingDisabler, FormErrorHandler } from "../../network";
 import { Link } from 'react-router-dom';
 import { RecordList } from "../common/recordList";
 import End from "../../end";
-import {CustomSelect} from "../common/form";
+import Apm from "../../apm";
+import {CustomSelect, HeaderLink,SuccessMessage, $} from "../common/form";
 export function AccountList(props) {
     const mapFn = (v, i) => {
         const { name, group_name, id } = v;
         return <Table.Row key={i}>
-            <Table.Cell>
+            <Table.Cell width={1} >
                 <Link title="Edit this Record" to={End.master.account.modify + "/" + id}>
                     <Icon name="edit"></Icon>
                 </Link>
@@ -25,7 +26,9 @@ export function AccountList(props) {
         </Table.Row>
     };
     const headers = [
-        "", "Name", "Group"
+        "", "Name", 
+        <HeaderLink header="Group"  link={Apm.master.group.concat("/read")} />
+    
     ];
     const fetcher = () => {
         return MakePostFetch(End.master.account.read, new FormData(), true)
@@ -78,7 +81,7 @@ export class AccountForm extends Component {
 
 
     handleSubmit(e) {
-        let d = document.getElementById;
+        let d = $;
         let o = {
             name: d("name").value.trim(),
             addr: d("addr").value.trim(),
@@ -109,7 +112,7 @@ export class AccountForm extends Component {
             email: /.{,100}/
         };
         let valid, errorMsg = "";
-        if (o.name.match(oe.name) === null) {
+        if (o.name.length<1) {
             errorMsg = "Invalid Name (2-100 Characters)";
         }
         else if (o.gender.match(oe.gender) === null) {
@@ -133,25 +136,26 @@ export class AccountForm extends Component {
         else if (o.dob.length > 0 && o.dob.match(oe.dob) === null) {
             errorMsg = "Invalid Date of Birth (Choose a date before today)";
         }
-        else if (o.email.length > 0 && o.email.match(oe.email) === null) {
+      /*  else if (o.email.length > 0 && o.email.match(oe.email) === null) {
             errorMsg = "Invalid Email, try another";
         }
+        */
         else if (o.join_date.length > 0 && o.join_date.match(oe.join_date) === null) {
             errorMsg = "Invalid Joining Date";
         }
         else if (o.id_proof_no.length > 0 && o.id_proof_type.match(oe.id_proof_type) === null) {
             errorMsg = "Choose Valid Id Proof";
         }
-        else if (o.id_proof_no.length > 0 && o.id_proof_no.match(oe.id_proof_no) === null) {
+        else if (o.id_proof_no.length > 0 && o.id_proof_no.length<1) {
             errorMsg = "Invalid Id Proof No."
         }
-        else if (o.id_proof_type.length > 0 && o.id_proof_type.match(oe.id_proof_type) === null) {
+       else if (o.id_proof_type.length > 0 && o.id_proof_type.match(oe.id_proof_type) === null) {
             errorMsg = "Choose Valid Id Proof";
         }
-        else if (o.id_proof_type.length > 0 && o.id_proof_no.match(oe.id_proof_no) === null) {
+        else if (o.id_proof_type.length > 0 && o.id_proof_no.length<1) {
             errorMsg = "Enter Id Proof No.";
         }
-        valid = errorMsg === "";
+         valid = errorMsg === "";
 
         if (valid) {
             let form = d("accountForm");
@@ -200,61 +204,64 @@ export class AccountForm extends Component {
     }
 
     render() {
-        let form = <Form id="accountForm" error={this.state.errorState}>
+        const {create}=this.props;
+        let form = <Form  id="accountForm" name="accountForm" error={this.state.errorState}>
             <Header dividing>
-                {this.props.create ? "Create Account" : "Modify Account"}
+                {create ? "Create Account" : "Modify Account"}
             </Header>
             <Form.Input id="name" name="name" required label="Name" placeholder="Name" />
             <Form.Group>
-            <Form.Field required>
+            <Form.Field width={7} required>
                 <label>Group</label>
                 <CustomSelect id="gid" name="gid" placeholder="Choose Group.." options={this.state.AccountGroup}></CustomSelect>
             </Form.Field>
-            <Form.Field required>
+            <Form.Field width={3} required>
                 <label>Gender</label>
                 <CustomSelect name="gender" options={Genders} required id='gender' placeholder="Choose Gender"></CustomSelect>
             </Form.Field>
-            
-            <Form.Input name="dob" id="dob" label="Date of Birth" type="date" />
+            <Form.Input width={6}  name="dob" id="dob" label="Date of Birth" type="date" />
             </Form.Group>
+            <Divider/>
             <Form.Group>
-            <Form.Input name="email" placeholder="e.g. hello@web.com" id="email" label="Email" type="email" />
-            <Form.Input required name="mobile_no" placeholder="9412xxxxxx" type="tel" id='mobile_no' label="Mobile No." />
+            <Form.Input width={8}  name="email" placeholder="e.g. hello@web.com" id="email" label="Email" type="email" />
+            <Form.Input width={8} required name="mobile_no" placeholder="9412xxxxxx" type="tel" id='mobile_no' label="Mobile No." />
             </Form.Group>
             <Form.Input id="addr" name="addr" required label="Address" placeholder="Address" />
             <Form.Input id="town" name="town" label="Town" placeholder="Town" />
             <Form.Input id='pincode' name="pincode" label="Pincode" placeholder="Pincode" />
+            <Divider/>
             <Form.Group> 
-            <Form.Input name="join_date" id='join_date' type="date" label="Joining Date" />
+            <Form.Input width={4} name="join_date" id='join_date' type="date" label="Joining Date" />
            
-            <Form.Field>
+            <Form.Field width={8} >
             <label>Id Proof Type</label>
             <CustomSelect name="id_proof" id="id_proof" label="Id Proof Type" options={IdProofs} placeholder="Choose Id Proof Type"></CustomSelect>
             </Form.Field>
-            <Form.Input name="id_proof_no" placeholder="Id Proof No." id="id_proof_no" type="tel" label="Id Proof No." />
+            <Form.Input width={4} name="id_proof_no" placeholder="Id Proof No." id="id_proof_no" type="tel" label="Id Proof No." />
             </Form.Group>
+            <Divider/>
             <Message error header="There is something wrong!!" content={this.state.errorMsg} />
 
             <Button primary onClick={this.handleSubmit.bind(this)} loading={this.state.btnLoading} disabled={this.state.btnDisable}>
                 {this.props.create ? "Create" : "Modify"}
             </Button>
         </Form>;
-        return (this.state.successState) ? <SuccessMessage /> : form;
+        return (this.state.successState) ? <SuccessC  create={this.props.create} gender={this.state.gender} name={this.state.name} /> : form;
     }
 
 }
 
-function SuccessMessage(props) {
+function SuccessC(props) {
     return (
-        <>
-            <Message header="Success!!" content={(props.create) ? 'Group Added' : "Group Modified"} />
+        <SuccessMessage header={(props.create) ? 'Account Added' : "Account Modified"} >
+    
             <Card>
                 <Card.Content>
-                    <Card.Header><Icon name={(props.gender === "m") ? "male" : "female"} /> {props.name}</Card.Header>
+                    <Card.Header><Icon name={(props.gender === 0) ? "male" : "female"} /> {props.name}</Card.Header>
                     <Card.Meta>Account</Card.Meta>
                 </Card.Content>
             </Card>
-        </>
+        </SuccessMessage>
     )
 }
 

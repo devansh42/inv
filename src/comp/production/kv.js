@@ -1,11 +1,14 @@
 //This file contains component  definition for key/value pair
 import React, { useState } from "react";
 import PropTypes from "prop-types";
+import { Table, Message, Form,Header,Button,Icon, Segment } from "semantic-ui-react";
+import { MakePostFetch } from "../../network";
+import End  from "../../end";
 /**
  * 
  * @param {ReactProps} props 
  */
-function KVTable({ kv_pairs, entityId, header, readOnly }) {
+export function KVTable({ kv_pairs, entityId, header, readOnly }) {
     const [kvpair, setKvpair] = useState(kv_pairs);
     const [errorState, setErrorState] = useState(false);
     const [errorMsg, setErrorMsg] = useState(null);
@@ -63,12 +66,13 @@ function KVTable({ kv_pairs, entityId, header, readOnly }) {
     }
 
     return <>
-        <Header content={header} />
-        <Table>
-            <Table.Row>
-                <Table.Header>
+        <Header dividing content={header} />
+        <Table >
+            
+        <Table.Header><Table.Row>
+              
                     <Table.Cell>
-                        <Button disabled={readOnly} onClick={addRow}>Add Row</Button>
+                        <Button disabled={readOnly} primary onClick={addRow}>Add Row</Button>
                     </Table.Cell>
                     <Table.Cell>
                         Key
@@ -76,11 +80,12 @@ function KVTable({ kv_pairs, entityId, header, readOnly }) {
                     <Table.Cell>
                         Value
                 </Table.Cell>
-                </Table.Header>
+                </Table.Row>
+            </Table.Header>
+            <Table.Body>    
                 {kvpair.map((v, i) => <KVTableRow readOnly={readOnly} setErrorMsg={setErrorMsg} setErrorState={setErrorState} addKV={addKV} key={i} kv_key={v.key} removeRow={removeRow} kv_value={v.value} mutable={v.mutable} />)}
-
-            </Table.Row>
-
+                </Table.Body>
+            
         </Table>
         {(errorState) ? <Message error content={errorMsg} /> : <></>}
     </>
@@ -97,14 +102,14 @@ KVTable.propTypes = {
      */
     header: PropTypes.element,
     /**
-     * Unique id of entity, for which kv pair table is constructed
+     * Unique id of entity                               for which kv pair table is constructed
      */
     entityId: PropTypes.number,
-    /**
-     * specify whether table is readonly or not
+    /**                                                                                                                                                                                                                                                 
+     * specify whether table is readonly or not                                                                             
      */
-    readOnly: PropTypes.number
-}
+    readOnly: PropTypes.bool                            
+}                                                                                                                                                                                                                                                                                                                                                       
 
 
 
