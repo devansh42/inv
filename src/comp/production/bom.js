@@ -1,7 +1,7 @@
 //This file contains bom of an product to manufacture
 
 import React, { Component } from "react";
-import { Message, Card, Header, Icon, Button, Form, Table, Divider } from "semantic-ui-react";
+import { Message, Card, Header, Icon, Button, Form, Table, Divider, Segment } from "semantic-ui-react";
 import { Link } from "react-router-dom";
 import { Get, MakePostFetch, FormErrorHandler, FormResponseHandlerWithLoadingDisabler } from "../../network";
 import End from "../../end";
@@ -10,6 +10,7 @@ import { CustomSelect, HeaderLink, $$, $, SuccessMessage } from "../common/form"
 import { OperationListChooser } from "../master/route";
 import PropTypes from "prop-types";
 import Apm from "../../apm";
+
 export function BomList(_) {
 
     const mapFn = (v, i) => {
@@ -54,6 +55,70 @@ export function BomList(_) {
 
 }
 
+
+
+
+export function ReadOnlyBOMWrapper({ match: { params: { id } } }) {
+    const f = new FormData();
+    f.append("id", id);
+    const f1 = new FormData();
+    f1.append("bom_material", id);
+    const f2 = new FormData();
+    f2.append("operation", id);
+    const d = ({ payload, ...props }) => {
+        const p = payload;
+        return <>
+
+            <Form.Input defaultValue={p.name} readonly name="name" id="name" label="Name" placeholder="BOM Name" title="Unique name of your BOM" />
+            <Form.Group>
+                <Form.Input width={8} defaultValue={p.item_name} label='Item' readonly />
+                <Form.Input width={8} readonly defaultValue={p.qty} name="qty" id="qty" label="Quantity" placeholder="Quantity to Manufacture" type="number" />
+            </Form.Group>
+            <Form.Input label="Route" readonly defaultValue={p.route_name} />
+            <Form.Field >
+                <label>Description</label>
+                <textarea name="description" id="description" rows="5" placeholder="Add some description" ></textarea>
+            </Form.Field>
+
+            <Divider />
+
+
+
+
+
+        </>
+    }
+
+    const dd = ({ payload, ...props }) => {
+        return <>
+
+            <Form.Field readonly>
+                <RequireItemListChooser materialList={payload} readonly />
+            </Form.Field>
+            <Divider />
+        </>
+    }
+
+    const ddd = ({ payload, ...props }) => {
+        return <Form.Field >
+            <OperationListChooser readonly selectedOperations={payload} />
+        </Form.Field>
+
+
+
+    }
+
+
+    const E = withReadOnlySupport(d, "Unit", End.master.unit.read, f);
+    const F = withReadOnlySupport(dd, <Header.Subheader content="Required Material" />, End.production.bom.read, f1);
+    const G = withReadOnlySupport(ddd, <Header.Subheader content="Route Operation(s)" />, End.production.bom.read, f2);
+
+    return <Segment.Group>
+        <E />
+        <G />
+        <F />
+    </Segment.Group>
+}
 
 export class BomForm extends Component {
     constructor(props) {
