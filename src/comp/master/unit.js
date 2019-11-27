@@ -38,6 +38,22 @@ export function UnitList(props) {
 }
 
 
+
+
+export function ReadOnlyUnitWrapper({ match: { params: { id } } }) {
+    const f = new FormData();
+    f.append("id", id);
+
+    const d = ({ payload, ...props }) => {
+        return <>
+          <Form.Input label="Name" defaultValue={payload.name} readonly  />   
+          <Form.Input label="Symbol" defaultValue={payload.symbol} readonly />  
+         </>
+    }
+    const E = withReadOnlySupport(d, "Unit", End.master.unit.read, f);
+    return <E />
+}
+
 export class UnitForm extends Component {
     constructor(props) {
         super(props);

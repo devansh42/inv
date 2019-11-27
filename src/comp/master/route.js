@@ -1,7 +1,7 @@
 //This file contains code for Route
 
 import React, { Component } from 'react';
-import { Form, Header, Message, Card, Button, Table, Icon, Divider } from 'semantic-ui-react';
+import { Form, Header, Message, Card, Button, Table, Icon, Divider, Segment } from 'semantic-ui-react';
 import { Get, MakePostFetch, FormResponseHandlerWithLoadingDisabler, FormErrorHandler } from '../../network';
 import { GroupTypes } from '../../Fixed';
 import End from '../../end';
@@ -41,9 +41,9 @@ export function RouteList(props) {
         return MakePostFetch(End.master.route.read, new FormData(), true)
     }
     const headers = [
-        "", "Name", 
+        "", "Name",
         <HeaderLink header='Group' link={Apm.master.group.concat("/read")} />
-        ,  "Description"
+        , "Description"
     ];
 
     return <RecordList headers={headers} title="Route(s)" mapFn={mapFn} fetchPromise={fetcher} />
@@ -52,6 +52,42 @@ export function RouteList(props) {
 }
 
 
+
+export function ReadOnlyRouteWrapper({ match: { params: { id } } }) {
+    const f = new FormData();
+    f.append("id", id);
+
+    const d = ({ payload, ...props }) => {
+        return <>
+            <Form.Group>
+                <Form.Input width={8} readonly name="name" id="name" label="Name" placeholder="Name of Route" />
+                <Form.Input width={8} label='Group' defaultValue={payload.group_name} />
+            </Form.Group>
+            <Form.Field >
+                <label>Add some Note</label>
+                <textarea name="description" defaultValue={payload.description} placeholder="Add some notes or Description" rows="5" id="description"></textarea>
+            </Form.Field>
+            <Divider/>
+
+        </>
+    }
+    const f1 = new FormData();
+    f1.append("route_operations", id);
+
+    const dd = ({ payload, ...props }) => {
+        return <>
+            
+            <OperationListChooser readonly selectedOperations={payload} />
+        </>
+    }
+
+    const E = withReadOnlySupport(d, "Route", End.master.route.read, f);
+    const F = withReadOnlySupport(dd, <Header.Subheader content="Route Operation(s)" />, f1);
+    return <Segment.Group>
+        <E />
+        <F />
+    </Segment.Group>
+}
 
 export class RouteForm extends Component {
     constructor(props) {
@@ -77,17 +113,6 @@ export class RouteForm extends Component {
                 this.setState({ GroupOptions });
             })
             .catch(FormErrorHandler.bind(this));
-        /*
-    MakePostFetch(End.master.route.read, new FormData(), true)
-        .then(r => {
-            if (r.status === 200) {
-                return r.result
-            } else {
-                throw Error("Couldn't fetch Operations");
-            }
-        })
-        .catch(FormErrorHandler.bind(this));
-*/
 
         MakePostFetch(End.master.operation.read, new FormData(), true)
             .then(r => {
@@ -169,13 +194,13 @@ export class RouteForm extends Component {
 
             <Header dividing>{(create) ? "Add Route" : "Modify Route"}</Header>
             <Form.Group>
-            <Form.Input width={8} required name="name" id="name" label="Name" placeholder="Name of Route" />
-            <Form.Field width={8} required>
-                <label>Group</label>
-                <CustomSelect placeholder="Choose Group" name="gid" id="gid" options={this.state.GroupOptions}></CustomSelect>
-            </Form.Field>
+                <Form.Input width={8} required name="name" id="name" label="Name" placeholder="Name of Route" />
+                <Form.Field width={8} required>
+                    <label>Group</label>
+                    <CustomSelect placeholder="Choose Group" name="gid" id="gid" options={this.state.GroupOptions}></CustomSelect>
+                </Form.Field>
             </Form.Group>
-            <Divider/>
+            <Divider />
             <Form.Field required>
                 <label>Choose Operations to Add</label>
                 <OperationListChooser setSelectedOperations={this.setSelectedOperations.bind(this)} operations={this.state.operations} />
@@ -203,7 +228,6 @@ export class OperationListChooser extends Component {
         };
         this.readonly = ('readonly' in props);
         console.log(props);
-        console.log("selected op",props.selectedOperations);
     }
 
     handleOnChange(_, d) {
@@ -234,10 +258,8 @@ export class OperationListChooser extends Component {
             this.setState({ seletedOperations: x });
 
         };
-        console.log("row",v);
-
         return <Table.Row key={i}>
-            {(this.readonly) ?<></>: <input name="operation" hidden value={v.id} /> }
+            {(this.readonly) ? <></> : <input name="operation" hidden value={v.id} />}
             <Table.Cell width={1}>
                 {i + 1}
             </Table.Cell>
@@ -263,9 +285,9 @@ export class OperationListChooser extends Component {
 
 
     render() {
-        const opts=(this.props.readonly)?this.props.selectedOperations : this.state.selectedOperations;
-        const rows =  opts.map(this.rowFn.bind(this));
-       
+        const opts = (this.props.readonly) ? this.props.selectedOperations : this.state.selectedOperations;
+        const rows = opts.map(this.rowFn.bind(this));
+
         return <>
             <Table selectable><Table.Header>
                 <Table.Row>

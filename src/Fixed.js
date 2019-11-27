@@ -1,6 +1,17 @@
 //this file contains fixed 
 
 
+
+export const GroupType = [
+
+    { key: 1, value: 1, text: "Account" },
+    { key: 2, value: 2, text: "User" },
+    { key: 3, value: 3, text: "Workplace" },
+    { key: 4, value: 4, text: "Item" },
+    { key: 5, value: 5, text: "Operation" },
+    { key: 6, value: 6, text: "Route" }
+];
+
 export const GroupTypes = {
     Account: 1,
     User: 2,

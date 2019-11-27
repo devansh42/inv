@@ -1,13 +1,14 @@
 //This contains code to Different Activities for group
 import React, { Component } from "react";
-import { Icon,  Form, Button, Message, Header, Card, Table, Segment } from "semantic-ui-react";
+import { Icon, Form, Button, Message, Header, Card, Table, Segment, Loader, Divider } from "semantic-ui-react";
 import End from "../../end";
 import { MakePostFetch, FormResponseHandlerWithLoadingDisabler, FormErrorHandler } from "../../network";
 
 import { Link } from 'react-router-dom';
-import {CustomSelect, $,$$} from "../common/form"
+import { CustomSelect, $, $$ } from "../common/form"
 
 import { RecordList } from '../common/recordList';
+import { withReadOnlySupport } from "../common/readonly";
 
 export function GroupList(props) {
     const mapFn = (v, i) => {
@@ -38,6 +39,31 @@ export function GroupList(props) {
 
 
 }
+
+
+
+
+export function ReadOnlyGroupWrapper({ match:{params} }) {
+
+    const f = new FormData();
+    f.append("id", params.id);
+
+    const Readonlygroup = ({ payload, ...props }) => {
+        return <>
+            <Form.Input readonly defaultValue={payload.name} placeholder="Group Name" title="Group Name" label="Group Name" autoFocus />
+            <Form.Field>
+                <label>Group Type</label>
+                <CustomSelect readonly defaultValue={payload.type} placeholder="Select Group Type" name="type" id="group_type" options={GroupType}></CustomSelect>
+            </Form.Field>
+        </>
+    };
+
+    const E = withReadOnlySupport(Readonlygroup, 'Group', End.master.group.read, f);
+    return <E />;
+
+};
+
+
 
 
 /**
@@ -78,7 +104,7 @@ export class GroupForm extends Component {
             let form = $("groupForm");
             if (this.props.create) {
 
-                MakePostFetch(End.master.group.create, form,true)
+                MakePostFetch(End.master.group.create, form, true)
                     .then(FormResponseHandlerWithLoadingDisabler.bind(this))
                     .then(r => {
                         this.setState({ successState: true });
@@ -106,21 +132,23 @@ export class GroupForm extends Component {
         }
     }
     render() {
-        let formEle = <Form name="groupForm" id="groupForm" error={this.state.errorState}>
+        let formEle = <Segment>
             <Header dividing>
                 {this.props.create ? "Create Group" : "Modify Group"}
             </Header>
-            <Form.Input required id="group_name" placeholder="Group Name" name="name" title="Group Name" label="Group Name" autoFocus />
-            <Form.Field required>
-                <label>Group Type</label>
-                <CustomSelect placeholder="Select Group Type" name="type" id="group_type" options={GroupType}></CustomSelect>
-            </Form.Field>
-            <Message error header="There is something wrong!!" content={this.state.errorMsg} />
 
-            <Button primary onClick={this.handleSubmit.bind(this)} loading={this.state.btnLoading} disabled={this.state.btnDisable}>
-                {this.props.create ? "Create" : "Modify"}
-            </Button>
-        </Form>;
+            <Form name="groupForm" id="groupForm" error={this.state.errorState}>
+                <Form.Input required id="group_name" placeholder="Group Name" name="name" title="Group Name" label="Group Name" autoFocus />
+                <Form.Field required>
+                    <label>Group Type</label>
+                    <CustomSelect placeholder="Select Group Type" name="type" id="group_type" options={GroupType}></CustomSelect>
+                </Form.Field>
+                <Message error header="There is something wrong!!" content={this.state.errorMsg} />
+
+                <Button primary onClick={this.handleSubmit.bind(this)} loading={this.state.btnLoading} disabled={this.state.btnDisable}>
+                    {this.props.create ? "Create" : "Modify"}
+                </Button>
+            </Form></Segment>;
         return (this.state.successState) ? <SuccessMessage name={this.state.name} type={this.state.type} create={this.props.create} /> : formEle;
 
     }
@@ -129,8 +157,8 @@ export class GroupForm extends Component {
 
 function SuccessMessage(props) {
     return (<Segment compact>
-      <Header content={(props.create) ? 'Group Added' : "Group Modified"} />
-    
+        <Header content={(props.create) ? 'Group Added' : "Group Modified"} />
+
         <Card color="green">
             <Card.Content>
                 <Card.Header>{props.name}</Card.Header>
@@ -153,12 +181,3 @@ let typename = type => {
     }
     return ""
 }
-const GroupType = [
-
-    { key: 1, value: 1, text: "Account" },
-    { key: 2, value: 2, text: "User" },
-    { key: 3, value: 3, text: "Workplace" },
-    { key: 4, value: 4, text: "Item" },
-    { key: 5, value: 5, text: "Operation" },
-    { key: 6, value: 6, text: "Route" }
-];

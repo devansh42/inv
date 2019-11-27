@@ -56,6 +56,29 @@ export function OperationList(props) {
 
 
 
+export function ReadOnlyOperationWrapper({ match: { params: { id } } }) {
+    const f = new FormData();
+    f.append("id", id);
+
+    const d = ({ payload, ...props }) => {
+        return <>
+          <Form.Input label="name" defaultValue={payload.name} />   
+          <Form.Group>
+                <Form.Input label="Group" defaultValue={payload.group_name} />
+                <Form.Input label="Workplace" defaultValue={payload.workplace_name} />
+          </Form.Group>
+          <Form.Field>
+              <label>Description</label>
+              <textarea defaultValue={payload.description} placeholder="Add Some Description" ></textarea>
+      
+          </Form.Field>
+        </>
+    }
+    const E = withReadOnlySupport(d, "Operation", End.master.operation.read, f);
+    return <E />
+}
+
+
 export class OperationForm extends Component {
     constructor(props) {
         super(props);

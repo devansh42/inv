@@ -55,7 +55,7 @@ export function WorkplaceList(props) {
     }
 
     const headers = [
-        "", "Name", 
+        "", "Name",
         <HeaderLink header="Group" link={Apm.master.group.concat("/read")} />
         , "Opening Time", "Closing Time", "Location"
     ];
@@ -63,6 +63,29 @@ export function WorkplaceList(props) {
     return <RecordList headers={headers} title="WorkPlace(s)" mapFn={mapFn} fetchPromise={fetcher} />
 
 };
+
+
+
+
+export function ReadOnlyWorkStationWrapper({ match: { params: { id } } }) {
+    const f = new FormData();
+    f.append("id", id);
+
+    const d = ({ payload, ...props }) => {
+        return <>
+            <Form.Input readonly defaultValue={payload.name} title="Name of Workplace e.g. Factory-1" label="Name" name="name" type="text" id="wrk_name" placeholder="WorkPlace Name" />
+            <Form.Input readonly name="Address" defaultValue={payload.addr} label="Address" type="text" placeholder="WorkPlace Address" />
+            <Form.Input readonly label='Group' defaultValue={payload.group_name} />
+
+            <Form.Group>
+                <Form.Input readonly defaultValue={timeSecToString(payload.op_time)} id="op_time" name="op_time" title="Opening Time e.g. 08:15:00" type="time" label="Opening Time" />
+                <Form.Input readonly defaultValue={timeSecToString(payload.cl_time)} id="cl_time" name="cl_time" title="Opening Time e.g. 22:15:00" type="time" label="Closing Time" />
+            </Form.Group>
+        </>
+    }
+    const E = withReadOnlySupport(d, "Workplace", End.master.workplace.read, f);
+    return <E />
+}
 
 export class WorkplaceForm extends Component {
     constructor(props) {
