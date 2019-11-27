@@ -1,6 +1,6 @@
 //code of item form
 import React, { Component } from "react";
-import { Header, Icon, Form, List, Message, Button, Table, Divider, } from "semantic-ui-react";
+import { Header, Icon, Form, List, Message, Button, Table, Divider, Segment, } from "semantic-ui-react";
 import { MakePostFetch, FormResponseHandlerWithLoadingDisabler, FormErrorHandler } from "../../network";
 import End from "../../end";
 import { Get } from "../../network";
@@ -9,24 +9,26 @@ import { Link } from "react-router-dom";
 import { RecordList } from "../common/recordList";
 import { CustomSelect, CustomCheckbox, $, SuccessMessage, HeaderLink } from "../common/form";
 import Apm from "../../apm";
-import { withReadOnlySupport } from "../common/readonly";
+import { withReadOnlySupport } from "../common/readOnly";
 export function ItemList(props) {
     const mapFn = (v, i) => {
-        const { name, group_name, unit_name, id } = v;
+        const { gid, unit, name, group_name, unit_name, id } = v;
         return <Table.Row key={i}>
             <Table.Cell width={1} >
-                <Link title="Edit this Record" to={End.master.item.modify + "/" + id}>
+                <Link title="Edit this Record" to={Apm.master.item + "/modify/" + id}>
                     <Icon name="edit"></Icon>
                 </Link>
             </Table.Cell>
             <Table.Cell>
-                {name}
+                <HeaderLink header={name} link={Apm.master.item + "/info/" + id} />
+
             </Table.Cell>
             <Table.Cell>
-                <small>{group_name}</small>
-            </Table.Cell>
+                <HeaderLink header={group_name} link={Apm.master.group + "/info/" + gid} /></Table.Cell>
+
             <Table.Cell>
-                {unit_name}
+                <HeaderLink header={unit_name} link={Apm.master.unit + "/info/" + unit} />
+
             </Table.Cell>
         </Table.Row>
     }
@@ -53,30 +55,30 @@ export function ReadOnlyItemWrapper({ match: { params: { id } } }) {
 
     const d = ({ payload, ...props }) => {
         return <>
-            <Form.Input readonly defaultValue={payload.name} label="Name" />
+            <Form.Input  readOnly defaultValue={payload.name} label="Name" />
             <Form.Group>
-                <Form.Input readonly name="Unit" defaultValue={payload.unit_name} />
-                <Form.Input readonly name="Group" defaultValue={payload.group_name} />
+                <Form.Input readOnly label="Unit" name="Unit" defaultValue={payload.unit_name} />
+                <Form.Input readOnly name="Group" label="Group" defaultValue={payload.group_name} />
             </Form.Group>
-            <CustomCheckbox inline label="Has Serial Code" checked={payload.hser == 1} />
-            {(payload.hser==1)?<>
-                <Divider/>
+            <CustomCheckbox inline label="Has Serial Code" defaultChecked={payload.hser == "1"} />
+            {(payload.hser == 1) ? <>
+                <Divider />
                 <Form.Group>
-                <Form.Input readonly label="Serial Prefix" defaultValue={payload.prefix} placeholder="e.g. ABDxxxxx" maxLength="20"  />
-                <Form.Input readonly label="Serial Suffix" defaultValue={payload.suffix} placeholder="e.g. xxxxxxABD" maxLength="20"  />
-            </Form.Group>
-            <Form.Group>
-                <Form.Input readonly label="Serial Intial Value" placeholder="e.g. 1" defaultValue={payload.initialValue}  type="number" name="ser_ini" id="ser_ini" />
-                <Form.Input readonly label="Serial Step" placeholder="e.g. 1" defaultValue={payload.step}  type="number" name="ser_step" id="ser_step" />
+                    <Form.Input readOnly label="Serial Prefix" defaultValue={payload.prefix} placeholder="e.g. ABDxxxxx" maxLength="20" />
+                    <Form.Input readOnly label="Serial Suffix" defaultValue={payload.suffix} placeholder="e.g. xxxxxxABD" maxLength="20" />
+                </Form.Group>
+                <Form.Group>
+                    <Form.Input readOnly label="Serial Intial Value" placeholder="e.g. 1" defaultValue={payload.initialValue} type="number" name="ser_ini" id="ser_ini" />
+                    <Form.Input readOnly label="Serial Step" placeholder="e.g. 1" defaultValue={payload.step} type="number" name="ser_step" id="ser_step" />
 
-                <Form.Input readonly  label="Max Digit in Dynamic Part" placeholder="e.g. 5" defaultValue={payload.digits} type='number' name="ser_digit" id="ser_digit" />
-            </Form.Group>
-           
-            </>:<></>}
+                    <Form.Input readOnly label="Max Digit in Dynamic Part" placeholder="e.g. 5" defaultValue={payload.digits} type='number' name="ser_digit" id="ser_digit" />
+                </Form.Group>
+
+            </> : <></>}
         </>
     }
     const E = withReadOnlySupport(d, "Item", End.master.item.read, f);
-    return <E />
+    return <Segment.Group>{E}</Segment.Group> 
 }
 
 

@@ -9,6 +9,7 @@ import { RecordList } from "../common/recordList";
 import End from "../../end";
 import { CustomSelect, $, HeaderLink } from "../common/form";
 import Apm from "../../apm";
+import { withReadOnlySupport } from "../common/readOnly";
 
 /**
  * This component renders operations list
@@ -17,21 +18,24 @@ import Apm from "../../apm";
 export function OperationList(props) {
 
     const mapFn = (v, i) => {
-        const { name, group_name, workplace_name, description, id } = v;
+        const {gid,workplace, name, group_name, workplace_name, description, id } = v;
         return <Table.Row key={i}>
             <Table.Cell width={1}>
-                <Link title="Edit this Record" to={End.master.operation.modify + "/" + id}>
+                <Link title="Edit this Record" to={Apm.master.operation + "/modify/" + id}>
                     <Icon name="edit"></Icon>
                 </Link>
             </Table.Cell>
             <Table.Cell>
-                {name}
+            <HeaderLink header={name} link={Apm.master.operation+"/info/"+id} />
+           
             </Table.Cell>
             <Table.Cell>
-                <small>{group_name}</small>
+            <HeaderLink header={group_name} link={Apm.master.group+"/info/"+gid} />
+           
             </Table.Cell>
             <Table.Cell>
-                {workplace_name}
+            <HeaderLink header={workplace_name} link={Apm.master.workplace+"/info/"+workplace} />
+           
             </Table.Cell>
             <Table.Cell>
                 {description}
@@ -75,7 +79,7 @@ export function ReadOnlyOperationWrapper({ match: { params: { id } } }) {
         </>
     }
     const E = withReadOnlySupport(d, "Operation", End.master.operation.read, f);
-    return <E />
+    return <Segment.Group>{E}</Segment.Group>
 }
 
 

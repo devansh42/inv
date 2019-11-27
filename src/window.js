@@ -2,18 +2,18 @@
 import React, { } from "react";
 import { Grid, Menu } from "semantic-ui-react";
 import { Switch, Route, Link } from "react-router-dom";
-import { AccountForm, AccountList } from "./comp/master/account";
-import { UnitForm, UnitList } from "./comp/master/unit";
-import { ItemForm, ItemList } from "./comp/master/item";
-import { WorkplaceForm, WorkplaceList } from "./comp/master/workstation";
-import { GroupForm, GroupList } from "./comp/master/group";
+import { AccountForm, AccountList, ReadOnlyAccountWrapper } from "./comp/master/account";
+import { UnitForm, UnitList, ReadOnlyUnitWrapper } from "./comp/master/unit";
+import { ItemForm, ItemList, ReadOnlyItemWrapper } from "./comp/master/item";
+import { WorkplaceForm, WorkplaceList, ReadOnlyWorkStationWrapper as ReadOnlyWorkPlaceWrapper } from "./comp/master/workstation";
+import { GroupForm, GroupList, ReadOnlyGroupWrapper } from "./comp/master/group";
 import PropTypes from "prop-types";
-import { BomList, BomForm } from "./comp/production/bom";
+import { BomList, BomForm, ReadOnlyBOMWrapper } from "./comp/production/bom";
 import { WorkOrderForm, WorkOrderList } from "./comp/production/workorder";
 import { JobCardList, JobForm } from "./comp/production/job";
 import { UserForm, UserList } from "./comp/master/user";
-import { OperationForm, OperationList } from "./comp/master/operation";
-import { RouteForm, RouteList } from "./comp/master/route";
+import { OperationForm, OperationList, ReadOnlyOperationWrapper } from "./comp/master/operation";
+import { RouteForm, RouteList, ReadOnlyRouteWrapper } from "./comp/master/route";
 import { WorkorderTracker, WorkorderTrackerWrapper } from "./comp/production/workorderTracking";
 import { JobCardAlterationWrapper } from "./comp/production/job_modifier";
 
@@ -24,6 +24,8 @@ export function ProductionWindowResolver(props) {
     const j = "/app/production/job";
     const f = (x, y) => x.concat(y);
     return <Switch>
+        
+        <Route path={f(b,"/info/:id")} component={ReadOnlyBOMWrapper} />
         <Route path={f(b, "/*")}>
             <Window>
                 <WindowItem name="Create" path={f(b, "/create")}>
@@ -35,7 +37,7 @@ export function ProductionWindowResolver(props) {
             </Window>
         </Route>
 
-        <Route path={f(w, "/track/:wid")} component={WorkorderTrackerWrapper}    />
+        <Route path={f(w, "/track/:wid")} component={WorkorderTrackerWrapper} />
 
         <Route path={f(w, "/*")}>
             <Window>
@@ -48,7 +50,8 @@ export function ProductionWindowResolver(props) {
                 </WindowItem>
             </Window>
         </Route>
-        <Route  path={f(j, "/track/:jid/")} component={JobCardAlterationWrapper} />
+
+        <Route path={f(j, "/track/:jid/")} component={JobCardAlterationWrapper} />
         <Route path={f(j, "/*")}>
             <Window>
                 <WindowItem name="List" path={f(j, "/create")}>
@@ -61,7 +64,7 @@ export function ProductionWindowResolver(props) {
 
             </Window>
         </Route>
-       
+
 
     </Switch>
 }
@@ -70,10 +73,10 @@ export function ProductionWindowResolver(props) {
 
 export function Window(props) {
     const f = (v, i) => {
-        return <Menu.Item key={i}> <Link to={v.props.path}>{v.props.name}</Link></Menu.Item>
+        return (v.props.nomenu) ? <></> : <Menu.Item key={i}> <Link to={v.props.path}>{v.props.name}</Link></Menu.Item>
     }
     const f1 = (v, i) => {
-        return <Route key={i} path={v.props.path}>{v.props.children}</Route>
+        return <Route key={i} path={v.props.path} >{v.props.children}</Route>
     }
 
     const ar = props.children instanceof Array ? props.children : [props.children]
@@ -101,6 +104,12 @@ export function Window(props) {
 export function WindowItem(props) {
     return <></>
 }
+WindowItem.propTypes = {
+    /**
+     * nomenu, means we don't want to register it in menu
+     */
+    nomenu: PropTypes.bool
+}
 
 WindowItem.propTypes = {
     name: PropTypes.string,
@@ -117,8 +126,10 @@ export function MasterWindowResolver(props) {
     let us = "/app/master/user";
     let o = '/app/master/operation';
     let r = "/app/master/route";
+    const f = (a, b) => a.concat(b);
     return <Switch>
 
+            <Route path={f(a,"/info/:id")} component={ReadOnlyAccountWrapper} />
         <Route path={a.concat("/*")}  >
             <Window>
                 <WindowItem name="Create" path={a.concat("/create")} >
@@ -130,6 +141,7 @@ export function MasterWindowResolver(props) {
             </Window>
         </Route>
 
+        <Route path={f(a,'/info/:id')} component={ReadOnlyUnitWrapper} />
         <Route path={u.concat("/*")}  >
             <Window>
                 <WindowItem name="Create" path={u.concat("/create")} >
@@ -140,6 +152,7 @@ export function MasterWindowResolver(props) {
                 </WindowItem>
             </Window>
         </Route>
+        <Route path={f(i,"/info/:id")} component={ReadOnlyItemWrapper} />
 
         <Route path={i.concat("/*")}  >
             <Window>
@@ -150,7 +163,8 @@ export function MasterWindowResolver(props) {
                     <ItemList />
                 </WindowItem>
             </Window>
-        </Route>
+          </Route>
+            <Route path={f(w,"/info/:id")} component={ReadOnlyWorkPlaceWrapper} />
         <Route path={w.concat("/*")}  >
             <Window>
                 <WindowItem name="Create" path={w.concat("/create")} >
@@ -161,6 +175,7 @@ export function MasterWindowResolver(props) {
                 </WindowItem>
             </Window>
         </Route>
+        <Route path={f(g,"/info/:id")} component={ReadOnlyGroupWrapper} />
 
         <Route path={g.concat("/*")}  >
             <Window>
@@ -183,6 +198,8 @@ export function MasterWindowResolver(props) {
                 </WindowItem>
             </Window>
         </Route>
+
+        <Route path={f(o,'/info/:id')} component={ReadOnlyOperationWrapper} />
         <Route path={o.concat("/*")}>
             <Window>
                 <WindowItem name="Create" path={o.concat('/create')}>
@@ -195,6 +212,7 @@ export function MasterWindowResolver(props) {
             </Window>
         </Route>
 
+        <Route path={f(r,'/info/:id')} component={ReadOnlyRouteWrapper} />
         <Route path={r.concat("/*")}>
             <Window>
                 <WindowItem name="Create" path={r.concat('/create')}>
@@ -203,7 +221,6 @@ export function MasterWindowResolver(props) {
                 <WindowItem name="List" path={r.concat('/read')}>
                     <RouteList />
                 </WindowItem>
-
             </Window>
         </Route>
     </Switch>

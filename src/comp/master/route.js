@@ -10,25 +10,27 @@ import { Link } from "react-router-dom";
 import { RecordList } from '../common/recordList';
 import { CustomSelect, $, SuccessMessage, $$, HeaderLink } from "../common/form";
 import Apm from '../../apm';
-import { thisExpression } from '@babel/types';
+import { withReadOnlySupport } from '../common/readOnly';
 /**
 * This component renders List of Route List
 * @param {ReactProp} props 
 */
 export function RouteList(props) {
     const mapFn = (v, i) => {
-        const { name, group_name, description, id } = v;
+        const { gid,name, group_name, description, id } = v;
         return <Table.Row key={i}>
             <Table.Cell width={1}>
-                <Link title="Edit this Record" to={End.master.route.modify + "/" + id}>
+                <Link title="Edit this Record" to={Apm.master.route + "/modify/" + id}>
                     <Icon name="edit"></Icon>
                 </Link>
             </Table.Cell>
             <Table.Cell>
-                {name}
+                <HeaderLink header={name} link={Apm.master.route.concat("/info/"+id)}  />
+            
             </Table.Cell>
             <Table.Cell>
-                {group_name}
+                <HeaderLink header={group_name} link={Apm.master.group.concat("/info/"+gid)} />
+                
             </Table.Cell>
 
             <Table.Cell>
@@ -60,7 +62,7 @@ export function ReadOnlyRouteWrapper({ match: { params: { id } } }) {
     const d = ({ payload, ...props }) => {
         return <>
             <Form.Group>
-                <Form.Input width={8} readonly name="name" id="name" label="Name" placeholder="Name of Route" />
+                <Form.Input width={8} readOnly name="name" id="name" label="Name" placeholder="Name of Route" />
                 <Form.Input width={8} label='Group' defaultValue={payload.group_name} />
             </Form.Group>
             <Form.Field >
@@ -77,16 +79,16 @@ export function ReadOnlyRouteWrapper({ match: { params: { id } } }) {
     const dd = ({ payload, ...props }) => {
         return <>
             
-            <OperationListChooser readonly selectedOperations={payload} />
+            <OperationListChooser readOnly selectedOperations={payload} />
         </>
     }
 
     const E = withReadOnlySupport(d, "Route", End.master.route.read, f);
     const F = withReadOnlySupport(dd, <Header.Subheader content="Route Operation(s)" />, f1);
     return <Segment.Group>
-        <E />
-        <F />
-    </Segment.Group>
+       {E}
+       {F}
+       </Segment.Group>
 }
 
 export class RouteForm extends Component {
@@ -226,7 +228,7 @@ export class OperationListChooser extends Component {
         this.state = {
             selectedOperations: ('selectedOperations' in props) ? props.selectedOperations : []
         };
-        this.readonly = ('readonly' in props);
+        this.readOnly = ('readOnly' in props);
         console.log(props);
     }
 
@@ -259,7 +261,7 @@ export class OperationListChooser extends Component {
 
         };
         return <Table.Row key={i}>
-            {(this.readonly) ? <></> : <input name="operation" hidden value={v.id} />}
+            {(this.readOnly) ? <></> : <input name="operation" hidden value={v.id} />}
             <Table.Cell width={1}>
                 {i + 1}
             </Table.Cell>
@@ -275,7 +277,7 @@ export class OperationListChooser extends Component {
             <Table.Cell>
                 {v.description}
             </Table.Cell>
-            {(this.readonly) ? <></> : <Table.Cell>
+            {(this.readOnly) ? <></> : <Table.Cell>
                 <Icon name="times" onClick={removeRow} title="Remove" color="red" />
             </Table.Cell>}
 
@@ -285,7 +287,7 @@ export class OperationListChooser extends Component {
 
 
     render() {
-        const opts = (this.props.readonly) ? this.props.selectedOperations : this.state.selectedOperations;
+        const opts = (this.props.readOnly) ? this.props.selectedOperations : this.state.selectedOperations;
         const rows = opts.map(this.rowFn.bind(this));
 
         return <>
@@ -307,7 +309,7 @@ export class OperationListChooser extends Component {
 
                 </Table.Row>  </Table.Header>
                 <Table.Body>
-                    {this.readonly ? <></> : <Table.Row>
+                    {this.readOnly ? <></> : <Table.Row>
                         <Table.Cell>
                             <Button onClick={this.handleChooseClick.bind(this)} >
                                 Add New
@@ -339,7 +341,7 @@ OperationListChooser.propTypes = {
     /**
      * Specify if it is a Readonly List or not
      */
-    readonly: PropTypes.bool,
+    readOnly: PropTypes.bool,
     /**
      * List of all available Operations
      */

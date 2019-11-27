@@ -5,22 +5,24 @@ import End from "../../end";
 import { MakePostFetch, FormResponseHandlerWithLoadingDisabler, FormErrorHandler } from "../../network";
 
 import { Link } from 'react-router-dom';
-import { CustomSelect, $, $$ } from "../common/form"
+import { CustomSelect, $, $$, HeaderLink } from "../common/form"
 
 import { RecordList } from '../common/recordList';
-import { withReadOnlySupport } from "../common/readonly";
+import { withReadOnlySupport } from "../common/readOnly";
+import { GroupType } from "../../Fixed";
+import Apm from "../../apm";
 
 export function GroupList(props) {
     const mapFn = (v, i) => {
         const { name, type_name, id } = v;
         return <Table.Row key={i}>
             <Table.Cell width={1}>
-                <Link title="Edit this Record" to={End.master.group.modify + "/" + id}>
+                <Link title="Edit this Record" to={Apm.master.group + "/modify/" + id}>
                     <Icon name="edit"></Icon>
                 </Link>
             </Table.Cell>
             <Table.Cell>
-                {name}
+                <HeaderLink header={name} link={Apm.master.group+"/info/"+id} />
             </Table.Cell>
             <Table.Cell>
                 {type_name}
@@ -50,10 +52,10 @@ export function ReadOnlyGroupWrapper({ match:{params} }) {
 
     const Readonlygroup = ({ payload, ...props }) => {
         return <>
-            <Form.Input readonly defaultValue={payload.name} placeholder="Group Name" title="Group Name" label="Group Name" autoFocus />
+            <Form.Input readOnly defaultValue={payload.name} placeholder="Group Name" title="Group Name" label="Group Name" autoFocus />
             <Form.Field>
                 <label>Group Type</label>
-                <CustomSelect readonly defaultValue={payload.type} placeholder="Select Group Type" name="type" id="group_type" options={GroupType}></CustomSelect>
+                <CustomSelect readOnly defaultValue={payload.type} placeholder="Select Group Type" name="type" id="group_type" options={GroupType}></CustomSelect>
             </Form.Field>
         </>
     };

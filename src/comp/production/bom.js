@@ -10,11 +10,12 @@ import { CustomSelect, HeaderLink, $$, $, SuccessMessage } from "../common/form"
 import { OperationListChooser } from "../master/route";
 import PropTypes from "prop-types";
 import Apm from "../../apm";
+import { withReadOnlySupport } from "../common/readOnly";
 
 export function BomList(_) {
 
     const mapFn = (v, i) => {
-        const { name, item_name, qty, route_name, description, id } = v;
+        const { routing, name, item_name, qty,item, route_name, description, id } = v;
         return <Table.Row key={i}>
             <Table.Cell width={1}>
                 <Link title="Edit this Record" to={Apm.production.bom + "/modify/" + id}>
@@ -22,16 +23,19 @@ export function BomList(_) {
                 </Link>
             </Table.Cell>
             <Table.Cell>
-                {name}
+            <HeaderLink header={name} link={Apm.production.bom+"/info/"+id} />
+           
             </Table.Cell>
             <Table.Cell>
-                {item_name}
+            <HeaderLink header={item_name} link={Apm.master.item+"/info/"+item} />
+           
             </Table.Cell>
             <Table.Cell>
                 {qty}
             </Table.Cell>
             <Table.Cell>
-                {route_name}
+            <HeaderLink header={route_name} link={Apm.master.route+ "/info/"+routing} />
+           
             </Table.Cell>
             <Table.Cell>
                 {description}
@@ -69,12 +73,12 @@ export function ReadOnlyBOMWrapper({ match: { params: { id } } }) {
         const p = payload;
         return <>
 
-            <Form.Input defaultValue={p.name} readonly name="name" id="name" label="Name" placeholder="BOM Name" title="Unique name of your BOM" />
+            <Form.Input defaultValue={p.name} readOnly name="name" id="name" label="Name" placeholder="BOM Name" title="Unique name of your BOM" />
             <Form.Group>
-                <Form.Input width={8} defaultValue={p.item_name} label='Item' readonly />
-                <Form.Input width={8} readonly defaultValue={p.qty} name="qty" id="qty" label="Quantity" placeholder="Quantity to Manufacture" type="number" />
+                <Form.Input width={8} defaultValue={p.item_name} label='Item' readOnly />
+                <Form.Input width={8} readOnly defaultValue={p.qty} name="qty" id="qty" label="Quantity" placeholder="Quantity to Manufacture" type="number" />
             </Form.Group>
-            <Form.Input label="Route" readonly defaultValue={p.route_name} />
+            <Form.Input label="Route" readOnly defaultValue={p.route_name} />
             <Form.Field >
                 <label>Description</label>
                 <textarea name="description" id="description" rows="5" placeholder="Add some description" ></textarea>
@@ -92,8 +96,8 @@ export function ReadOnlyBOMWrapper({ match: { params: { id } } }) {
     const dd = ({ payload, ...props }) => {
         return <>
 
-            <Form.Field readonly>
-                <RequireItemListChooser materialList={payload} readonly />
+            <Form.Field readOnly>
+                <RequireItemListChooser materialList={payload} readOnly />
             </Form.Field>
             <Divider />
         </>
@@ -101,7 +105,7 @@ export function ReadOnlyBOMWrapper({ match: { params: { id } } }) {
 
     const ddd = ({ payload, ...props }) => {
         return <Form.Field >
-            <OperationListChooser readonly selectedOperations={payload} />
+            <OperationListChooser readOnly selectedOperations={payload} />
         </Form.Field>
 
 
@@ -259,7 +263,7 @@ export class BomForm extends Component {
             <Form.Field required>
                 <label>Route</label>
                 <CustomSelect name="route" onChange={this.handleRouteChange.bind(this)} options={this.state.RouteOptions} id="route" placeholder="Choose from Routes" />
-                <OperationListChooser readonly selectedOperations={this.state.RouteOperations} />
+                <OperationListChooser readOnly selectedOperations={this.state.RouteOperations} />
             </Form.Field>
             <Divider />
 
@@ -282,9 +286,9 @@ export class BomForm extends Component {
 export class RequireItemListChooser extends Component {
     constructor(props) {
         super(props);
-        this.readonly = 'readonly' in props;
+        this.readOnly = 'readOnly' in props;
         this.state = {
-            selections: (this.readonly) ? props.materialList : []
+            selections: (this.readOnly) ? props.materialList : []
         };
 
     }
@@ -336,7 +340,7 @@ export class RequireItemListChooser extends Component {
     }
 
     render() {
-        const ar = (this.props.readonly) ? this.props.materialList : this.state.selections;
+        const ar = (this.props.readOnly) ? this.props.materialList : this.state.selections;
         const rows = ar.map((v, i) => {
 
             const handleRemove = x => {
@@ -364,12 +368,12 @@ export class RequireItemListChooser extends Component {
                     {v.rate * v.qty}
                 </Table.Cell>
 
-                {(this.readonly) ? <></> : <Table.Cell>
+                {(this.readOnly) ? <></> : <Table.Cell>
                     <Icon name="times" color="red" onClick={handleRemove} />
                 </Table.Cell>}
             </Table.Row>
         })
-        const rowAdder = (this.readonly) ? <></> : <Table.Row>
+        const rowAdder = (this.readOnly) ? <></> : <Table.Row>
             <Table.Cell>
                 <CustomSelect options={this.props.items} name="cur_item" id="cur_item" placeholder='Choose Item/Sub Assembly' >
                 </CustomSelect>
@@ -408,7 +412,7 @@ export class RequireItemListChooser extends Component {
 
             </Table.Row> </Table.Header>
             <Table.Body>
-                {(this.readonly) ? <></> : rowAdder}
+                {(this.readOnly) ? <></> : rowAdder}
                 {rows}
             </Table.Body>
         </Table>
@@ -423,9 +427,9 @@ RequireItemListChooser.propTypes = {
      */
     items: PropTypes.array,
     /**
-     * Specify is readonly or not
+     * Specify is readOnly or not
      */
-    readonly: PropTypes.bool,
+    readOnly: PropTypes.bool,
 
     /**
      * List of Required Material Required List

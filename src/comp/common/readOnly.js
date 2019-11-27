@@ -1,7 +1,7 @@
 //This file contains utility's like components and hook for read only form windows
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { MakePostFetch } from "../../network";
-import { Segment, Header, Divider } from "semantic-ui-react";
+import { Segment, Header, Divider, Form, Message } from "semantic-ui-react";
 
 
 
@@ -9,7 +9,7 @@ import { Segment, Header, Divider } from "semantic-ui-react";
  * 
  * @param {FormData} formData, data to be submitted with fetch requests 
  */
- function useReadOnly(endpoint, formData) {
+function useReadOnly(endpoint, formData) {
     const [fetched, setfetched] = useState(false);
     const [payload, setpayload] = useState({});
     const [errorMsg, setErrorMsg] = useState(null);
@@ -24,12 +24,12 @@ import { Segment, Header, Divider } from "semantic-ui-react";
             })
             .then(r => {
                 if (r.error) throw Error(r.errorMsg)
-                else r.result; //may be undefined
+                else return r.result; //may be undefined
             })
             .then(r => {
                 //now 'r' contains the result
                 setfetched(true);
-                setpayload(r.result);
+                setpayload(r);
             })
             .catch(err => {
                 //Handling error  
@@ -48,15 +48,19 @@ import { Segment, Header, Divider } from "semantic-ui-react";
  * @param {String} endPoint is endpoint to fetch data
  * @param {FormData} formData is formData to submit with fetch request
  */
-export function withReadOnlySupport(Comp,header,endPoint,formData){
-    const [fetched, errorState, errorMsg, payload] = useReadOnly(endPoint, formData);
+export function withReadOnlySupport(Comp, header, endPoint, formData) {
+    const F = () => {
+        const [fetched, errorState, errorMsg, payload] = useReadOnly(endPoint, formData);
+        console.log("state change" , [fetched, errorState, errorMsg, payload]);
     return <Segment>
-         {header instanceof String ? <Header dividing content={header} /> : header}
-        <Form loading={fetched} error={errorState}>
-            {(fetched)?<Comp payload={payload} />:<></>}
-        </Form>
-        <Divider />
-        <Message header="There is an problem!!" content={errorMsg} />
-    </Segment>;
-
+            {header instanceof String ? <Header dividing content={header} /> : header}
+            <Form loading={!fetched} error={errorState}>
+                {(fetched) ? <Comp payload={payload} /> : <></>}
+                <Divider />
+            <Message header="There is an problem!!" error content={errorMsg} />
+            </Form>
+          
+        </Segment>
+    };
+    return <F/>
 }

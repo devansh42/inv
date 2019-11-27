@@ -8,20 +8,22 @@ import { RecordList } from "../common/recordList";
 import End from "../../end";
 import Apm from "../../apm";
 import { CustomSelect, HeaderLink, SuccessMessage, $ } from "../common/form";
+import { withReadOnlySupport } from "../common/readOnly";
 export function AccountList(props) {
     const mapFn = (v, i) => {
-        const { name, group_name, id } = v;
+        const {gid, name, group_name, id } = v;
         return <Table.Row key={i}>
             <Table.Cell width={1} >
-                <Link title="Edit this Record" to={End.master.account.modify + "/" + id}>
+                <Link title="Edit this Record" to={Apm.master.account + "/modify/" + id}>
                     <Icon name="edit"></Icon>
                 </Link>
             </Table.Cell>
             <Table.Cell>
-                {name}
-            </Table.Cell>
+                <HeaderLink link={Apm.master.account.concat("/info/"+id)} header={name} />
+               </Table.Cell>
             <Table.Cell>
-                {group_name}
+            <HeaderLink link={Apm.master.group.concat("/info/"+gid)} header={group_name} />
+            
             </Table.Cell>
         </Table.Row>
     };
@@ -48,32 +50,32 @@ export function ReadOnlyAccountWrapper({ match: { params: { id } } }) {
         const p = payload;
         return <>
 
-            <Form.Input id="name" name="name" defaultValue={p.name} readonly label="Name" placeholder="Name" />
+            <Form.Input id="name" name="name" defaultValue={p.name} readOnly label="Name" placeholder="Name" />
             <Form.Group>
-                <Form.Input width={7} label="Group" defaultValue={p.group_name} readonly />
-                <Form.Field width={3} readonly>
+                <Form.Input width={7} label="Group" defaultValue={p.group_name} readOnly />
+                <Form.Field width={3} readOnly>
                     <label>Gender</label>
-                    <CustomSelect name="gender" readonly defaultValue={p.gender} options={Genders} required id='gender' placeholder="Choose Gender"></CustomSelect>
+                    <CustomSelect name="gender" readOnly defaultValue={p.gender} options={Genders} required id='gender' placeholder="Choose Gender"></CustomSelect>
                 </Form.Field>
-                <Form.Input width={6} readonly defaultValue={p.dob} name="dob" id="dob" label="Date of Birth" type="date" />
+                <Form.Input width={6} readOnly defaultValue={p.dob} name="dob" id="dob" label="Date of Birth" type="date" />
             </Form.Group>
             <Divider />
             <Form.Group>
-                <Form.Input width={8} name="email" readonly defaultValue={p.email} placeholder="e.g. hello@web.com" id="email" label="Email" type="email" />
-                <Form.Input width={8} readonly defaultValue={p.mobile_no} name="mobile_no" placeholder="9412xxxxxx" type="tel" id='mobile_no' label="Mobile No." />
+                <Form.Input width={8} name="email" readOnly defaultValue={p.email} placeholder="e.g. hello@web.com" id="email" label="Email" type="email" />
+                <Form.Input width={8} readOnly defaultValue={p.mobile_no} name="mobile_no" placeholder="9412xxxxxx" type="tel" id='mobile_no' label="Mobile No." />
             </Form.Group>
-            <Form.Input id="addr" name="addr" readonly defaultValue={p.addr} required label="Address" placeholder="Address" />
-            <Form.Input id="town" name="town" readonly defaultValue={p.town} label="Town" placeholder="Town" />
-            <Form.Input id='pincode' name="pincode" defaultValue={p.pincode} readonly label="Pincode" placeholder="Pincode" />
+            <Form.Input id="addr" name="addr" readOnly defaultValue={p.addr} required label="Address" placeholder="Address" />
+            <Form.Input id="town" name="town" readOnly defaultValue={p.town} label="Town" placeholder="Town" />
+            <Form.Input id='pincode' name="pincode" defaultValue={p.pincode} readOnly label="Pincode" placeholder="Pincode" />
             <Divider />
             <Form.Group>
-                <Form.Input width={4} name="join_date" id='join_date' readonly defaultValue={p.join_date} type="date" label="Joining Date" />
+                <Form.Input width={4} name="join_date" id='join_date' readOnly defaultValue={p.join_date} type="date" label="Joining Date" />
 
                 <Form.Field width={8} >
                     <label>Id Proof Type</label>
-                    <CustomSelect name="id_proof" id="id_proof" readonly defaultValue={p.id_proof} label="Id Proof Type" options={IdProofs} placeholder="Choose Id Proof Type"></CustomSelect>
+                    <CustomSelect name="id_proof" id="id_proof" readOnly defaultValue={p.id_proof} label="Id Proof Type" options={IdProofs} placeholder="Choose Id Proof Type"></CustomSelect>
                 </Form.Field>
-                <Form.Input width={4} name="id_proof_no" readonly defaultValue={p.id_proof_no} placeholder="Id Proof No." id="id_proof_no" type="tel" label="Id Proof No." />
+                <Form.Input width={4} name="id_proof_no" readOnly defaultValue={p.id_proof_no} placeholder="Id Proof No." id="id_proof_no" type="tel" label="Id Proof No." />
             </Form.Group>
 
 

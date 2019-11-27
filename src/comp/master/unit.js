@@ -6,18 +6,21 @@ import { Link } from 'react-router-dom';
 import { MakePostFetch, FormResponseHandlerWithLoadingDisabler } from "../../network";
 import End from "../../end";
 import { RecordList } from '../common/recordList';
-import { SuccessMessage ,$ } from "../common/form";
+import { SuccessMessage ,$, HeaderLink } from "../common/form";
+import { withReadOnlySupport } from "../common/readOnly";
+import Apm from "../../apm";
 export function UnitList(props) {
     const mapFn = (v, i) => {
         const { name, symbol, id } = v;
         return <Table.Row key={i}>
             <Table.Cell width={1}>
-                <Link title="Edit this Record" to={End.master.unit.modify + "/" + id}>
+                <Link title="Edit this Record" to={Apm.master.unit+ "/modify/" + id}>
                     <Icon name="edit"></Icon>
                 </Link>
             </Table.Cell>
             <Table.Cell>
-                {name}
+            <HeaderLink header={name} link={Apm.master.unit+"/info/"+id} />
+           
             </Table.Cell>
             <Table.Cell>
                 {symbol}
@@ -46,8 +49,8 @@ export function ReadOnlyUnitWrapper({ match: { params: { id } } }) {
 
     const d = ({ payload, ...props }) => {
         return <>
-          <Form.Input label="Name" defaultValue={payload.name} readonly  />   
-          <Form.Input label="Symbol" defaultValue={payload.symbol} readonly />  
+          <Form.Input label="Name" defaultValue={payload.name} readOnly  />   
+          <Form.Input label="Symbol" defaultValue={payload.symbol} readOnly />  
          </>
     }
     const E = withReadOnlySupport(d, "Unit", End.master.unit.read, f);

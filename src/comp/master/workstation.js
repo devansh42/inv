@@ -10,33 +10,37 @@ import { Link } from 'react-router-dom';
 import { RecordList } from '../common/recordList';
 import { CustomSelect, $, SuccessMessage, HeaderLink } from "../common/form";
 import Apm from "../../apm";
+import { withReadOnlySupport } from "../common/readOnly";
+
+function timeSecToString(s) {
+    let x = "";
+    let h = s / 3600;
+    h = parseInt(h);
+    x += ((h > 9) ? "0" + h : h);
+    x += ":";
+    s -= (h * 3600);
+    let m = parseInt(s / 60);
+    x += ((m > 9) ? m : "0" + m);
+    return x;
+}
 export function WorkplaceList(props) {
 
-    function timeSecToString(s) {
-        let x = "";
-        let h = s / 3600;
-        h = parseInt(h);
-        x += ((h > 9) ? "0" + h : h);
-        x += ":";
-        s -= (h * 3600);
-        let m = parseInt(s / 60);
-        x += ((m > 9) ? m : "0" + m);
-        return x;
-    }
 
     const mapFn = v => {
-        const { name, addr, op_time, id, cl_time, group_name } = v;
+        const {gid, name, addr, op_time, id, cl_time, group_name } = v;
         return <Table.Row key={id}>
             <Table.Cell width={1}>
-                <Link title="Modify this Record" to={End.master.workplace.modify + "/" + id}>
+                <Link title="Modify this Record" to={Apm.master.workplace + "/modify/" + id}>
                     <Icon name="edit" ></Icon>
                 </Link>
             </Table.Cell>
             <Table.Cell>
-                {name}
+            <HeaderLink header={name} link={Apm.master.workplace+"/info/"+id} />
+           
             </Table.Cell>
             <Table.Cell>
-                {group_name}
+            <HeaderLink header={group_name} link={Apm.master.group+"/info/"+gid} />
+           
             </Table.Cell>
             <Table.Cell>
                 {timeSecToString(op_time)}
@@ -73,13 +77,13 @@ export function ReadOnlyWorkStationWrapper({ match: { params: { id } } }) {
 
     const d = ({ payload, ...props }) => {
         return <>
-            <Form.Input readonly defaultValue={payload.name} title="Name of Workplace e.g. Factory-1" label="Name" name="name" type="text" id="wrk_name" placeholder="WorkPlace Name" />
-            <Form.Input readonly name="Address" defaultValue={payload.addr} label="Address" type="text" placeholder="WorkPlace Address" />
-            <Form.Input readonly label='Group' defaultValue={payload.group_name} />
+            <Form.Input readOnly defaultValue={payload.name} title="Name of Workplace e.g. Factory-1" label="Name" name="name" type="text" id="wrk_name" placeholder="WorkPlace Name" />
+            <Form.Input readOnly name="Address" defaultValue={payload.addr} label="Address" type="text" placeholder="WorkPlace Address" />
+            <Form.Input readOnly label='Group' defaultValue={payload.group_name} />
 
             <Form.Group>
-                <Form.Input readonly defaultValue={timeSecToString(payload.op_time)} id="op_time" name="op_time" title="Opening Time e.g. 08:15:00" type="time" label="Opening Time" />
-                <Form.Input readonly defaultValue={timeSecToString(payload.cl_time)} id="cl_time" name="cl_time" title="Opening Time e.g. 22:15:00" type="time" label="Closing Time" />
+                <Form.Input readOnly defaultValue={timeSecToString(payload.op_time)} id="op_time" name="op_time" title="Opening Time e.g. 08:15:00" type="time" label="Opening Time" />
+                <Form.Input readOnly defaultValue={timeSecToString(payload.cl_time)} id="cl_time" name="cl_time" title="Opening Time e.g. 22:15:00" type="time" label="Closing Time" />
             </Form.Group>
         </>
     }
