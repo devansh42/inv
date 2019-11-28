@@ -4,6 +4,12 @@ import { MakePostFetch } from "../../network";
 import { Segment, Header, Divider, Form, Message } from "semantic-ui-react";
 
 
+/**
+ * React's useEffect warapper to run only one time
+ */
+export const useEffectOnlyOne = fn => useEffect(fn,[]);
+
+
 
 /**
  * 
@@ -13,10 +19,8 @@ function useReadOnly(endpoint, formData) {
     const [fetched, setfetched] = useState(false);
     const [payload, setpayload] = useState({});
     const [errorMsg, setErrorMsg] = useState(null);
-    const fixed = false;
-
-    useEffect(() => {
-
+    
+    useEffectOnlyOne(()=>{
         MakePostFetch(endpoint, formData, true)
             .then(r => {
                 if (r.status == 200) return r.json();
@@ -28,14 +32,16 @@ function useReadOnly(endpoint, formData) {
             })
             .then(r => {
                 //now 'r' contains the result
-                setfetched(true);
+               
                 setpayload(r);
+                setfetched(true);
             })
             .catch(err => {
                 //Handling error  
                 setErrorMsg(err.message);
+                setfetched(true)
             })
-    }, [fixed]);
+    });
 
     return [fetched, errorMsg !== null, errorMsg, payload];
 
@@ -49,11 +55,11 @@ function useReadOnly(endpoint, formData) {
  * @param {FormData} formData is formData to submit with fetch request
  */
 export function withReadOnlySupport(Comp, header, endPoint, formData) {
-    const F = () => {
+    const F = (props) => {
         const [fetched, errorState, errorMsg, payload] = useReadOnly(endPoint, formData);
-        console.log("state change" , [fetched, errorState, errorMsg, payload]);
+       console.log("state state",fetched,payload);
     return <Segment>
-            {header instanceof String ? <Header dividing content={header} /> : header}
+            {typeof header == "string" ? <Header dividing content={header} /> : header}
             <Form loading={!fetched} error={errorState}>
                 {(fetched) ? <Comp payload={payload} /> : <></>}
                 <Divider />
@@ -62,5 +68,5 @@ export function withReadOnlySupport(Comp, header, endPoint, formData) {
           
         </Segment>
     };
-    return <F/>
+    return F;
 }

@@ -37,7 +37,7 @@ export function RecordList({fetchPromise,mapFn,...props}) {
                 setErrorState(true);
             })
 
-        },[fetchResult,fetchPromise,mapFn]);
+        },[]);
     return <>
         <Header dividing>{props.title} <Label color="teal" horizontal>{recordCount}</Label> </Header>
         <MasterEntity.List errorState={errorState} errorMsg={errorMsg} sortable headers={props.headers}>

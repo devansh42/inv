@@ -54,7 +54,7 @@ export function ReadOnlyUnitWrapper({ match: { params: { id } } }) {
          </>
     }
     const E = withReadOnlySupport(d, "Unit", End.master.unit.read, f);
-    return <E />
+    return <Segment.Group><E/></Segment.Group> 
 }
 
 export class UnitForm extends Component {

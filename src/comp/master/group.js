@@ -5,7 +5,7 @@ import End from "../../end";
 import { MakePostFetch, FormResponseHandlerWithLoadingDisabler, FormErrorHandler } from "../../network";
 
 import { Link } from 'react-router-dom';
-import { CustomSelect, $, $$, HeaderLink } from "../common/form"
+import { CustomSelect, $,  HeaderLink } from "../common/form"
 
 import { RecordList } from '../common/recordList';
 import { withReadOnlySupport } from "../common/readOnly";
@@ -53,15 +53,14 @@ export function ReadOnlyGroupWrapper({ match:{params} }) {
     const Readonlygroup = ({ payload, ...props }) => {
         return <>
             <Form.Input readOnly defaultValue={payload.name} placeholder="Group Name" title="Group Name" label="Group Name" autoFocus />
-            <Form.Field>
-                <label>Group Type</label>
-                <CustomSelect readOnly defaultValue={payload.type} placeholder="Select Group Type" name="type" id="group_type" options={GroupType}></CustomSelect>
-            </Form.Field>
-        </>
+            <Form.Input readOnly defaultValue={payload.type_name} label='Group Type' />
+           </>
     };
 
     const E = withReadOnlySupport(Readonlygroup, 'Group', End.master.group.read, f);
-    return <E />;
+    return <Segment.Group>
+        <E/>
+    </Segment.Group>
 
 };
 

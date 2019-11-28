@@ -60,9 +60,9 @@ export function ReadOnlyItemWrapper({ match: { params: { id } } }) {
                 <Form.Input readOnly label="Unit" name="Unit" defaultValue={payload.unit_name} />
                 <Form.Input readOnly name="Group" label="Group" defaultValue={payload.group_name} />
             </Form.Group>
-            <CustomCheckbox inline label="Has Serial Code" defaultChecked={payload.hser == "1"} />
             {(payload.hser == 1) ? <>
-                <Divider />
+                
+                <Header dividing>Serial Code Sequence</Header>
                 <Form.Group>
                     <Form.Input readOnly label="Serial Prefix" defaultValue={payload.prefix} placeholder="e.g. ABDxxxxx" maxLength="20" />
                     <Form.Input readOnly label="Serial Suffix" defaultValue={payload.suffix} placeholder="e.g. xxxxxxABD" maxLength="20" />
@@ -78,7 +78,7 @@ export function ReadOnlyItemWrapper({ match: { params: { id } } }) {
         </>
     }
     const E = withReadOnlySupport(d, "Item", End.master.item.read, f);
-    return <Segment.Group>{E}</Segment.Group> 
+    return <Segment.Group><E/></Segment.Group> 
 }
 
 

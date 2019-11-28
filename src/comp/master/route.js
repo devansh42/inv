@@ -62,32 +62,31 @@ export function ReadOnlyRouteWrapper({ match: { params: { id } } }) {
     const d = ({ payload, ...props }) => {
         return <>
             <Form.Group>
-                <Form.Input width={8} readOnly name="name" id="name" label="Name" placeholder="Name of Route" />
-                <Form.Input width={8} label='Group' defaultValue={payload.group_name} />
+                <Form.Input width={8} readOnly  defaultValue={payload.name} name="name" id="name" label="Name" placeholder="Name of Route" />
+                <Form.Input width={8} readOnly label='Group' defaultValue={payload.group_name} />
             </Form.Group>
             <Form.Field >
                 <label>Add some Note</label>
-                <textarea name="description" defaultValue={payload.description} placeholder="Add some notes or Description" rows="5" id="description"></textarea>
+                <textarea name="description" readOnly defaultValue={payload.description} placeholder="Add some notes or Description" rows="5" id="description"></textarea>
             </Form.Field>
-            <Divider/>
-
+          
         </>
     }
     const f1 = new FormData();
     f1.append("route_operations", id);
 
     const dd = ({ payload, ...props }) => {
-        return <>
+        console.log("chrome", payload,props);
+       return <>
             
             <OperationListChooser readOnly selectedOperations={payload} />
         </>
     }
 
     const E = withReadOnlySupport(d, "Route", End.master.route.read, f);
-    const F = withReadOnlySupport(dd, <Header.Subheader content="Route Operation(s)" />, f1);
+    const F = withReadOnlySupport(dd, "Route Operation(s)",End.master.route.read ,f1);
     return <Segment.Group>
-       {E}
-       {F}
+      <E/><F/>
        </Segment.Group>
 }
 

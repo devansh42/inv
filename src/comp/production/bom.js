@@ -113,14 +113,12 @@ export function ReadOnlyBOMWrapper({ match: { params: { id } } }) {
     }
 
 
-    const E = withReadOnlySupport(d, "Unit", End.master.unit.read, f);
-    const F = withReadOnlySupport(dd, <Header.Subheader content="Required Material" />, End.production.bom.read, f1);
-    const G = withReadOnlySupport(ddd, <Header.Subheader content="Route Operation(s)" />, End.production.bom.read, f2);
+    const E = withReadOnlySupport(d, "Bill of Material (BOM)", End.production.bom.read, f);
+    const F = withReadOnlySupport(dd, "Required Material", End.production.bom.read, f1);
+   const G = withReadOnlySupport(ddd, "Route Operation(s)", End.production.bom.read, f2);
 
     return <Segment.Group>
-        <E />
-        <G />
-        <F />
+         <E/><F/><G/>
     </Segment.Group>
 }
 

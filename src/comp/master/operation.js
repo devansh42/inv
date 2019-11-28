@@ -79,7 +79,7 @@ export function ReadOnlyOperationWrapper({ match: { params: { id } } }) {
         </>
     }
     const E = withReadOnlySupport(d, "Operation", End.master.operation.read, f);
-    return <Segment.Group>{E}</Segment.Group>
+    return <Segment.Group><E/></Segment.Group>
 }
 
 

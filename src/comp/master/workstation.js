@@ -16,11 +16,11 @@ function timeSecToString(s) {
     let x = "";
     let h = s / 3600;
     h = parseInt(h);
-    x += ((h > 9) ? "0" + h : h);
+    x += ((h > 9) ? h: "0" + h );
     x += ":";
     s -= (h * 3600);
     let m = parseInt(s / 60);
-    x += ((m > 9) ? m : "0" + m);
+    x += ((m > 9) ? m: "0" + m);
     return x;
 }
 export function WorkplaceList(props) {
@@ -76,19 +76,22 @@ export function ReadOnlyWorkStationWrapper({ match: { params: { id } } }) {
     f.append("id", id);
 
     const d = ({ payload, ...props }) => {
-        return <>
+        console.log(payload);
+    return <>
             <Form.Input readOnly defaultValue={payload.name} title="Name of Workplace e.g. Factory-1" label="Name" name="name" type="text" id="wrk_name" placeholder="WorkPlace Name" />
             <Form.Input readOnly name="Address" defaultValue={payload.addr} label="Address" type="text" placeholder="WorkPlace Address" />
             <Form.Input readOnly label='Group' defaultValue={payload.group_name} />
 
             <Form.Group>
-                <Form.Input readOnly defaultValue={timeSecToString(payload.op_time)} id="op_time" name="op_time" title="Opening Time e.g. 08:15:00" type="time" label="Opening Time" />
-                <Form.Input readOnly defaultValue={timeSecToString(payload.cl_time)} id="cl_time" name="cl_time" title="Opening Time e.g. 22:15:00" type="time" label="Closing Time" />
+                <Form.Input readOnly defaultValue={timeSecToString(payload.op_time)} id="op_time" name="op_time" title="Opening Time e.g. 08:15:00"  label="Opening Time" />
+                <Form.Input readOnly defaultValue={timeSecToString(payload.cl_time)} id="cl_time" name="cl_time" title="Opening Time e.g. 22:15:00"  label="Closing Time" />
             </Form.Group>
         </>
     }
     const E = withReadOnlySupport(d, "Workplace", End.master.workplace.read, f);
-    return <E />
+    return <Segment.Group>
+       <E/>
+    </Segment.Group>;
 }
 
 export class WorkplaceForm extends Component {

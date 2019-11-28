@@ -1,6 +1,6 @@
 //code for handling account form
 import React, { Component } from "react";
-import { Card, Icon, Table, Form, Header, Message, Button, Divider } from "semantic-ui-react";
+import { Card, Icon, Table, Form, Header, Message, Button, Divider, Segment } from "semantic-ui-react";
 import { Genders, IdProofs, GroupTypes } from "../../Fixed";
 import { MakePostFetch, Get, FormResponseHandlerWithLoadingDisabler, FormErrorHandler } from "../../network";
 import { Link } from 'react-router-dom';
@@ -55,25 +55,25 @@ export function ReadOnlyAccountWrapper({ match: { params: { id } } }) {
                 <Form.Input width={7} label="Group" defaultValue={p.group_name} readOnly />
                 <Form.Field width={3} readOnly>
                     <label>Gender</label>
-                    <CustomSelect name="gender" readOnly defaultValue={p.gender} options={Genders} required id='gender' placeholder="Choose Gender"></CustomSelect>
-                </Form.Field>
-                <Form.Input width={6} readOnly defaultValue={p.dob} name="dob" id="dob" label="Date of Birth" type="date" />
+                    <Form.Input readOnly defaultValue={p.gender=='0'?"Male":"Female"}  />
+                 </Form.Field>
+                <Form.Input width={6} readOnly defaultValue={p.dob==null ? undefined : new Date(p.dob).toDateString()} name="dob" id="dob" label="Date of Birth" />
             </Form.Group>
             <Divider />
             <Form.Group>
                 <Form.Input width={8} name="email" readOnly defaultValue={p.email} placeholder="e.g. hello@web.com" id="email" label="Email" type="email" />
                 <Form.Input width={8} readOnly defaultValue={p.mobile_no} name="mobile_no" placeholder="9412xxxxxx" type="tel" id='mobile_no' label="Mobile No." />
             </Form.Group>
-            <Form.Input id="addr" name="addr" readOnly defaultValue={p.addr} required label="Address" placeholder="Address" />
+            <Form.Input id="addr" name="addr" readOnly defaultValue={p.addr}  label="Address" placeholder="Address" />
             <Form.Input id="town" name="town" readOnly defaultValue={p.town} label="Town" placeholder="Town" />
             <Form.Input id='pincode' name="pincode" defaultValue={p.pincode} readOnly label="Pincode" placeholder="Pincode" />
             <Divider />
             <Form.Group>
-                <Form.Input width={4} name="join_date" id='join_date' readOnly defaultValue={p.join_date} type="date" label="Joining Date" />
+                <Form.Input width={4} name="join_date" id='join_date' readOnly defaultValue={p.join_date == null ? undefined : new Date(p.join_date).toDateString()} label="Joining Date" />
 
                 <Form.Field width={8} >
-                    <label>Id Proof Type</label>
-                    <CustomSelect name="id_proof" id="id_proof" readOnly defaultValue={p.id_proof} label="Id Proof Type" options={IdProofs} placeholder="Choose Id Proof Type"></CustomSelect>
+                  
+                    <Form.Input readOnly defaultValue={p.id_proof_type} label="Id Proof" />
                 </Form.Field>
                 <Form.Input width={4} name="id_proof_no" readOnly defaultValue={p.id_proof_no} placeholder="Id Proof No." id="id_proof_no" type="tel" label="Id Proof No." />
             </Form.Group>
@@ -82,7 +82,9 @@ export function ReadOnlyAccountWrapper({ match: { params: { id } } }) {
         </>
     }
     const E = withReadOnlySupport(d, "Account", End.master.account.read, f);
-    return <E />
+    return <Segment.Group>
+       <E/>
+    </Segment.Group>
 }
 
 export class AccountForm extends Component {
