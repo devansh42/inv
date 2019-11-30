@@ -11,6 +11,7 @@ import { RecordList } from '../common/recordList';
 import { withReadOnlySupport } from "../common/readOnly";
 import { GroupType } from "../../Fixed";
 import Apm from "../../apm";
+import { InfoDoc } from "../common/info";
 
 export function GroupList(props) {
     const mapFn = (v, i) => {
@@ -42,7 +43,13 @@ export function GroupList(props) {
 
 }
 
-
+export function DocGroup(props){
+    return <InfoDoc header="Group" >
+            <p>
+               Group is an entity to make group of other entities like <b>Account</b>, <b>Operation</b> and <b>Item</b> etc. 
+            </p>
+    </InfoDoc>
+}
 
 
 export function ReadOnlyGroupWrapper({ match:{params} }) {

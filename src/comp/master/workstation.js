@@ -11,6 +11,7 @@ import { RecordList } from '../common/recordList';
 import { CustomSelect, $, SuccessMessage, HeaderLink } from "../common/form";
 import Apm from "../../apm";
 import { withReadOnlySupport } from "../common/readOnly";
+import { InfoDoc } from "../common/info";
 
 function timeSecToString(s) {
     let x = "";
@@ -93,6 +94,17 @@ export function ReadOnlyWorkStationWrapper({ match: { params: { id } } }) {
        <E/>
     </Segment.Group>;
 }
+
+export function DocWorkStation(props){
+    return <InfoDoc header="WorkPlace">
+        <p>
+            Workplace is the entity to record <b>WorkStation</b>, <b>WareHouse</b> and <b>WorkPlaces</b>.<br/>
+              This enitity is useful in <b>Operation</b> definitions and Item Inventory.
+            You can also use <b>Group</b> to make certain kind of Workplace and Warehouse.
+        </p>
+    </InfoDoc>
+}
+
 
 export class WorkplaceForm extends Component {
     constructor(props) {

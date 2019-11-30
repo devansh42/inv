@@ -11,6 +11,7 @@ import { RecordList } from '../common/recordList';
 import { CustomSelect, $, SuccessMessage, $$, HeaderLink } from "../common/form";
 import Apm from '../../apm';
 import { withReadOnlySupport } from '../common/readOnly';
+import { InfoDoc } from '../common/info';
 /**
 * This component renders List of Route List
 * @param {ReactProp} props 
@@ -53,7 +54,14 @@ export function RouteList(props) {
 
 }
 
-
+export function DocRoute(props){
+    return <InfoDoc header="Route">
+            <p>
+                Route is way to simply model a production flow. Route is an ordered list of operation to execute.
+                On finishing operation specified in route we get <b>single</b> unit of <b>Item</b> being produced. 
+            </p>
+    </InfoDoc>
+}
 
 export function ReadOnlyRouteWrapper({ match: { params: { id } } }) {
     const f = new FormData();

@@ -10,6 +10,7 @@ import End from "../../end";
 import { CustomSelect, $, HeaderLink } from "../common/form";
 import Apm from "../../apm";
 import { withReadOnlySupport } from "../common/readOnly";
+import { InfoDoc } from "../common/info";
 
 /**
  * This component renders operations list
@@ -58,6 +59,18 @@ export function OperationList(props) {
 
 }
 
+
+
+export function DocOperation(props){
+    return <InfoDoc header="Operation">
+        <p>
+            Operation(s) are jobs in Production Lifecycle of a Product.<br/>
+             e.g While manufaturing a Car, Fabrication is an operation in its production process.
+            <br/>We have to specify the <b>Workplace</b> which tells about the place where operation executes. We can also use group to make special kind of operation Group.
+           <br/> e.g. If we have painting of 3 Colors, We can  make seperate operation of each paint color, Paint-Red, Paint-Black and Paint-Blue. We then can hold these operation in <b>Paint</b> group of operation.
+        </p>
+    </InfoDoc>
+}
 
 
 export function ReadOnlyOperationWrapper({ match: { params: { id } } }) {

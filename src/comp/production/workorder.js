@@ -11,6 +11,7 @@ import { RecordList } from "../common/recordList";
 import { RequireItemListChooser } from "./bom";
 import { CustomSelect,CustomCheckbox, HeaderLink, $, SuccessMessage } from "../common/form";
 import Apm from "../../apm";
+import { InfoDoc } from "../common/info";
 export function WorkOrderList(props) {
 
 
@@ -22,7 +23,7 @@ export function WorkOrderList(props) {
     }
 
     const mapFn = (v, i) => {
-        const { item_name, qty, bom_name, state, id } = v;
+        const { item_name, qty, bom_name, state, id,bom,item } = v;
         return <Table.Row key={i}>
             <Table.Cell width={1}>
                 <Link title="Edit this Record" to={End.production.workorder.modify + "/" + id}>
@@ -36,13 +37,15 @@ export function WorkOrderList(props) {
             </Table.Cell>
             
             <Table.Cell>
-                {item_name}
+            <HeaderLink link={Apm.master.item+"/info/"+item} header={item_name} />
+            
+
             </Table.Cell>
             <Table.Cell>
                 {qty}
             </Table.Cell>
             <Table.Cell>
-                {bom_name}
+            <HeaderLink link={Apm.production.bom+"/info/"+bom} header={bom_name} />
             </Table.Cell>
             <Table.Cell>
                 {getorderStatus(state)}
@@ -62,6 +65,14 @@ export function WorkOrderList(props) {
 
     return <RecordList headers={headers} title="WorkOrder(s)" mapFn={mapFn} fetchPromise={fetcher} />
 
+}
+
+export function DocWorkOrder(props){
+    return <InfoDoc header="WorkOrder">
+        <p>
+            Workorder is a prodution order. It specify Item to be produced, The BOM to follow in production and Qty to be produced.
+        </p>
+    </InfoDoc>
 }
 
 export class WorkOrderForm extends Component {

@@ -10,6 +10,7 @@ import { RecordList } from "../common/recordList";
 import { CustomSelect, CustomCheckbox, $, SuccessMessage, HeaderLink } from "../common/form";
 import Apm from "../../apm";
 import { withReadOnlySupport } from "../common/readOnly";
+import { InfoDoc } from "../common/info";
 export function ItemList(props) {
     const mapFn = (v, i) => {
         const { gid, unit, name, group_name, unit_name, id } = v;
@@ -46,6 +47,18 @@ export function ItemList(props) {
 
     return <RecordList headers={headers} title="Item(s)" mapFn={mapFn} fetchPromise={fetcher} />
 
+}
+
+export function DocItem(props){
+    return <InfoDoc header='Item'>
+        <p>
+           <b>Item</b> is the entity for Production Goods and Material used in them.<br/>
+             You can use <b>Group</b> to segregate them.
+           This entity depends on <b>Unit</b>, which tell us about unit to measure items.<br/>
+            You also can make items <b>Serializable</b> so that we can use Serial No. to them.
+           To enable Serial No. generation <b>Check</b> ( <input type="checkbox" checked /> ) on <b>Has Serial No.</b>.
+        </p>
+    </InfoDoc>
 }
 
 

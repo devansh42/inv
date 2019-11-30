@@ -9,6 +9,7 @@ import End from "../../end";
 import Apm from "../../apm";
 import { CustomSelect, HeaderLink, SuccessMessage, $ } from "../common/form";
 import { withReadOnlySupport } from "../common/readOnly";
+import { InfoDoc } from "../common/info";
 export function AccountList(props) {
     const mapFn = (v, i) => {
         const {gid, name, group_name, id } = v;
@@ -40,7 +41,13 @@ export function AccountList(props) {
 
 }
 
-
+export function DocAccount(props){
+    return <InfoDoc header='Account'>
+        <p>
+            Account, is the entity to manage user roles. It contains use full information about users, such as <b>Name</b>, <b>Gender</b>, <b>Group</b>, <b>Date of Birth</b> etc. 
+        </p>
+    </InfoDoc>
+}
 
 export function ReadOnlyAccountWrapper({ match: { params: { id } } }) {
     const f = new FormData();

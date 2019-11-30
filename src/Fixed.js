@@ -1,6 +1,4 @@
-//this file contains fixed 
-
-
+//This file contains Fixed Constants
 
 export const GroupType = [
 
@@ -51,7 +49,7 @@ export function GetProcessStateText(x) {
 }
 
 function getprocessstate(x) {
-    const c= ProcessStates.filter(v=>v.key==x);
+    const c = ProcessStates.filter(v => v.key == x);
     return (x == undefined || x == null || c.length < 1) ? undefined : c.length > 0 ? c[0] : undefined;
 
 }
@@ -65,58 +63,73 @@ export const MenuTree = [
             {
                 name: "Account", value: "1.1", childs: [
                     { name: "Create", value: "1.1.1" },
-                    { name: "Modify", value: "1.1.2" },
-                    { name: "Read", value: "1.1.3" }
+                    { name: "Modify", value: "1.1.2",hidden:true },
+                    { name: "Read", value: "1.1.3" },
+                    { name: "Info", value: '1.1.4' }
                 ]
             },
             {
                 name: "User", value: "1.2", childs: [
                     { name: "Create", value: "1.2.1" },
-                    { name: "Modify", value: "1.2.2" },
-                    { name: "Read", value: "1.2.3" }
+                    { name: "Modify", value: "1.2.2",hidden:true },
+                    { name: "Read", value: "1.2.3" },
+                    { name: "Info", value: '1.2.4' }
+
                 ]
             },
             {
                 name: "Item", value: "1.3", childs: [
                     { name: "Create", value: "1.3.1" },
-                    { name: "Modify", value: "1.3.2" },
-                    { name: "Read", value: "1.3.3" }
+                    { name: "Modify", value: "1.3.2",hidden:true },
+                    { name: "Read", value: "1.3.3" },
+                    { name: "Info", value: '1.3.4' }
+
                 ]
             },
             {
                 name: "Group", value: "1.4", childs: [
                     { name: "Create", value: "1.4.1" },
-                    { name: "Modify", value: "1.4.2" },
-                    { name: "Read", value: "1.4.3" }
+                    { name: "Modify", value: "1.4.2",hidden:true },
+                    { name: "Read", value: "1.4.3" },
+                    { name: "Info", value: '1.4.4' }
+
 
                 ]
             },
             {
                 name: "Unit", value: "1.5", childs: [
                     { name: "Create", value: "1.5.1" },
-                    { name: "Modify", value: "1.5.2" },
-                    { name: "Read", value: "1.5.3" }
+                    { name: "Modify", value: "1.5.2",hidden:true },
+                    { name: "Read", value: "1.5.3" },
+                    { name: "Info", value: '1.5.4' }
+
                 ]
             },
             {
                 name: "Workplace", value: "1.6", childs: [
                     { name: "Create", value: "1.6.1" },
-                    { name: "Modify", value: "1.6.2" },
-                    { name: "Read", value: "1.6.3" }
+                    { name: "Modify", value: "1.6.2",hidden:true },
+                    { name: "Read", value: "1.6.3" },
+                    { name: "Info", value: '1.6.4' }
+
                 ]
             },
             {
                 name: 'Operation', value: "1.8", childs: [
                     { name: "Create", value: "1.8.1" },
-                    { name: "Modify", value: "1.8.2" },
-                    { name: "Read", value: "1.8.3" }
+                    { name: "Modify", value: "1.8.2",hidden:true },
+                    { name: "Read", value: "1.8.3" },
+                    { name: "Info", value: '1.8.4' }
+
                 ]
             },
             {
                 name: "Route", value: "1.7", childs: [
                     { name: "Create", value: "1.7.1" },
-                    { name: "Modify", value: "1.7.2" },
-                    { name: "Read", value: "1.7.3" }
+                    { name: "Modify", value: "1.7.2",hidden:true },
+                    { name: "Read", value: "1.7.3" },
+                    { name: "Info", value: '1.7.4' }
+
                 ]
             }
 
@@ -129,21 +142,25 @@ export const MenuTree = [
             {
                 name: "Bill of Materials", value: "2.1", childs: [
                     { name: "Create", value: "2.1.1" },
-                    { name: "Modify", value: "2.1.2" },
-                    { name: "Read", value: "2.1.3" }
+                    { name: "Modify", value: "2.1.2",hidden:true },
+                    { name: "Read", value: "2.1.3" },
+                    { name: "Info", value: '2.1.4' }
+
                 ]
             },
             {
                 name: "WorkOrder", value: "2.2", childs: [
                     { name: "Create", value: "2.2.1" },
-                    { name: "Modify", value: "2.2.2" },
-                    { name: "Read", value: "2.2.3" }
+                    { name: "Modify", value: "2.2.2",hidden:true },
+                    { name: "Read", value: "2.2.3" },
+                    
+                    { name: "Track", value: '2.2.4' }
                 ]
             },
             {
                 name: "Job", value: "2.3", childs: [
                     { name: "Create", value: "2.3.1" },
-                    { name: "Modify", value: "2.3.2" },
+                    { name: "Modify", value: "2.3.2",hidden:true },
                     { name: "Read", value: "2.3.3" }
                 ]
             }

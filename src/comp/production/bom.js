@@ -11,6 +11,7 @@ import { OperationListChooser } from "../master/route";
 import PropTypes from "prop-types";
 import Apm from "../../apm";
 import { withReadOnlySupport } from "../common/readOnly";
+import { InfoDoc } from "../common/info";
 
 export function BomList(_) {
 
@@ -60,7 +61,13 @@ export function BomList(_) {
 }
 
 
-
+export function DocBOM(props){
+    return <InfoDoc header="Bill of Material(s)">
+        BOM is the Document which contains production detail to manufacture items.
+       <br/>It contains <b>Route</b> to follow Production Flow. It also contains Material List (The list of <b>Item</b> to be used in production).
+        It depends on <b>Item</b>, <b>Route</b>, <b>Operation</b>
+    </InfoDoc>
+}
 
 export function ReadOnlyBOMWrapper({ match: { params: { id } } }) {
     const f = new FormData();

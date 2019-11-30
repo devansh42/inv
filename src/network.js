@@ -17,15 +17,17 @@ export let MakePostFetch = (path, body, auth) => {
         'credentials': "include",
         headers: {
             "Access-Control-Allow-Origin": "http://localhost:3001",
-         }
+        }
     };
 
     if (auth) {
         let t = localStorage.getItem("jwt_token");
+        let p = localStorage.getItem("perms");
         if (t === null) {
             throw Error("No Authorization Token Provided");
         }
         opt.headers["Authorization"] = "Bearer ".concat(t); //adding auth token
+        opt.headers["X-PERMS"] = p == null ? p : p.toString(); //menu perms
     }
 
     return fetch(path, opt);
@@ -154,7 +156,7 @@ async function getitem(type) {
     const r = await MakePostFetch(End.master.item.read, f, true)
     if (r.status === 200) {
         const json = await r.json();
-        return json.result.map(v => { return { key: v.id, value: v.id, text: v.name, gid: v.gid, name: v.name, unit: v.unit, unit_name: v.unit_name, group_name: v.group_name,...v } });
+        return json.result.map(v => { return { key: v.id, value: v.id, text: v.name, gid: v.gid, name: v.name, unit: v.unit, unit_name: v.unit_name, group_name: v.group_name, ...v } });
     }
     else throw Error("unable to fullfill this request");
 }
@@ -170,7 +172,7 @@ async function getroute(type) {
     const r = await MakePostFetch(End.master.route.read, f, true);
     if (r.status === 200) {
         const json = await r.json();
-        return json.result.map((v,i) => { return { key:i, value: v.id, text: v.name, gid: v.gid, group_name: v.group_name, name: v.name, description: v.description } });
+        return json.result.map((v, i) => { return { key: i, value: v.id, text: v.name, gid: v.gid, group_name: v.group_name, name: v.name, description: v.description } });
     }
     else throw Error("unable to fullfill this request");
 }
@@ -188,7 +190,7 @@ async function getaccount(aid) {
     if (r.status === 200) {
         const json = await r.json();
         return json.result.map((v, i) => {
-            return { key: i,value:v.id, text: v.name, ...v }
+            return { key: i, value: v.id, text: v.name, ...v }
         });
     }
     else throw Error("unable to fullfill this request");

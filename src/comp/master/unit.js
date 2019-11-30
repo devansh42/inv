@@ -9,6 +9,7 @@ import { RecordList } from '../common/recordList';
 import { SuccessMessage ,$, HeaderLink } from "../common/form";
 import { withReadOnlySupport } from "../common/readOnly";
 import Apm from "../../apm";
+import { InfoDoc } from "../common/info";
 export function UnitList(props) {
     const mapFn = (v, i) => {
         const { name, symbol, id } = v;
@@ -42,6 +43,14 @@ export function UnitList(props) {
 
 
 
+
+export function DocUnit(props){
+    return <InfoDoc header="Unit">
+        <p>
+           Unit is the entity to Quantify Items. You can make various kind of Units such as <b>Metre</b>, <b>Pack</b>, <b>Nos</b> etc. We can also specify Unit Symbol for short hands.  
+        </p>
+    </InfoDoc>
+}
 
 export function ReadOnlyUnitWrapper({ match: { params: { id } } }) {
     const f = new FormData();

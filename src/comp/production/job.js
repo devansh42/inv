@@ -6,12 +6,13 @@ import { MakePostFetch, FormErrorHandler } from "../../network";
 import End from '../../end';
 import Apm from '../../apm';
 import { RecordList } from '../common/recordList';
-import { CustomSelect } from "../common/form";
+import { CustomSelect, HeaderLink } from "../common/form";
+import { InfoDoc } from '../common/info';
 
 export function JobCardList(props) {
 
     const mapFn = (v, i) => {
-        const { id, workorder, operation_name, qty } = v;
+        const { id, workorder,operation, operation_name, qty } = v;
         return <Table.Row key={i}>
             <Table.Cell>
                 <Link title="Edit this Record" to={End.production.job.modify + "/" + id}>
@@ -24,10 +25,12 @@ export function JobCardList(props) {
                 </Link>
             </Table.Cell>
             <Table.Cell>
-                {"#".concat(workorder)}
+                <HeaderLink header={"#".concat(workorder)} link={Apm.production.workorder+"/track/"+workorder} />
+            
             </Table.Cell>
             <Table.Cell>
-                {operation_name}
+            <HeaderLink header={operation_name} link={Apm.master.operation+'/info/'+operation}  />       
+              
             </Table.Cell>
             <Table.Cell>
                 {qty}
@@ -46,7 +49,12 @@ export function JobCardList(props) {
 }
 
 
-
+export function DocJOB(props){
+    return <InfoDoc header="Job Card">
+        <p>This entity is used to manage life cycle of Workorder.
+        </p>
+    </InfoDoc>
+}
 
 export class JobForm extends Component {
     constructor(props) {
@@ -82,27 +90,6 @@ export class JobForm extends Component {
             .catch(FormErrorHandler.bind(this));
 
 
-
-
-        /*
-        
-        MakePostFetch(End.master.account.read,new FormData(),true)
-        .then(r=>{
-            if(r.status===200){
-                return r.json();
-            }
-            else throw Error("Couldn't fetch Worker List");
-
-        })
-        .then(r=>{
-            const WorkerOptions=r.result.map(v=>{
-                return {id:v.id,key:v.id,text:v.name,...v}
-            });
-            this.setState({WorkerOptions});
-            
-        })
-        .catch(FormErrorHandler.bind(this));
-        */
     }
 
     handleChange(e) {
@@ -152,10 +139,7 @@ export class JobForm extends Component {
                 <Form.Input required label="Post Date" name="post_date" type="datetime-local" id="post_date" />
 
             </Form.Group>
-            {/**   <Form.Field required>
-                <label>Worker/Employee</label>
-                <Select name="worker" id="worker" options={state.WorkerOptions} placeholder="Choose Worker/Employee for this task" ></Select>
-            </Form.Field> **/}
+          
             <Message error header="There is something wrong!!" content={this.state.errorMsg} />
 
             <Button primary loading={this.state.btnLoading} disabled={this.state.btnDisable} onClick={this.handleClick.bind(this)}>{(create) ? "Create" : "Modify"} JOB Card</Button>

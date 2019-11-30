@@ -4,7 +4,9 @@
   "private": true,
   "dependencies": {
     "@hapi/joi": "^16.1.5",
+    "@types/mousetrap": "^1.6.3",
     "immutable": "^4.0.0-rc.12",
+    "mousetrap": "^1.6.3",
     "prop-types": "^15.7.2",
     "react": "^16.10.1",
     "react-dom": "^16.10.1",

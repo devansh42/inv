@@ -50,6 +50,13 @@ export default function FirstWindow(props) {
 
 }
 
+
+function LogoutHandler(props){
+    ["jwt_token","uid","role"].forEach(v=>localStorage.removeItem(v));
+    window.location.href="/";
+    return <FirstWindow /> 
+}
+
 function HomeRedirector(props) {
     let x = window.location.pathname;
 
@@ -59,6 +66,9 @@ function HomeRedirector(props) {
         <Switch>
             <Route path="/app">
                 <HomeWindow />
+            </Route>
+            <Route path='/logout'>
+                <LogoutHandler/>
             </Route>
         </Switch>
     </>;
