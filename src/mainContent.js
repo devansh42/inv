@@ -1,13 +1,14 @@
 //This file contains code for main Page content (area below menu)
-import React, {} from "react";
-import { Switch, Route } from "react-router-dom";
-import {MasterWindowResolver, ProductionWindowResolver } from "./window";
+import React, { } from "react";
+import { Switch } from "react-router-dom";
+import { MasterWindowResolver, ProductionWindowResolver } from "./window";
+import { ACRoute } from "./comp/common/route";
 
 export function MainContent(props) {
     return <Switch>
-        <Route path="/app/master/*" component={MasterWindowResolver} />
-        <Route path="/app/production" component={ProductionWindowResolver} />
-        <Route path="/app" component={AppComponent} />
+        <ACRoute  path="/app/master/*" component={MasterWindowResolver} />
+        <ACRoute path="/app/production" component={ProductionWindowResolver} />
+        <ACRoute path="/app" component={AppComponent} />
     </Switch>;
 }
 

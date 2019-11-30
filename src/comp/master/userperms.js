@@ -8,9 +8,9 @@ import { MenuTree } from "../../Fixed";
  * This components renders root node of tree
  * @param {ReactProps} props 
  */
-export function UserPermTree(props) {
+export function UserPermTree({ readOnly, perms, ...props }) {
     const map = (v, i) => {
-        return <TreeNode checked={false} key={i} {...v} />
+        return <TreeNode perm={perms} readOnly={readOnly} checked={false} key={i} {...v} />
     };
 
     return <List>
@@ -18,23 +18,34 @@ export function UserPermTree(props) {
     </List>
 }
 
+UserPermTree.propTypes = {
+    /**
+     * This is the which contain permissions provided to user
+     */
+    perms: PropTypes.array,
+    /**
+     * This specify if this tree is Read Only or not
+     */
+    readOnly: PropTypes.bool
+}
+
 /**
  * Node, which contains info current menu option node
  * @param {ReactProps} props 
  */
-function TreeNode(props) {
+function TreeNode({ perm, readOnly, ...props }) {
 
-    const [hasPerm, setPerm] = useState(props.checked);
+    const [hasPerm, setPerm] = useState(perm ? perm.indexOf(props.value) !== -1 : props.checked);
     const [isHidden, setIsHidden] = useState(true); //by default all subtrees are hidden
     const SubTree = p => {
-        return <List.List style={{display:(isHidden)?"none":"block"}} >
+        return <List.List style={{ display: (isHidden) ? "none" : "block" }} >
             {p.childs.map((v, i) => {
-                return <TreeNode {...v} checked={hasPerm} key={i} />
+                return <TreeNode {...v} readOnly={readOnly} perm={perm} checked={hasPerm} key={i} />
             })}
         </List.List>
     }
 
-    const checkChange = (_,d) => {
+    const checkChange = (_, d) => {
         setPerm(d.checked);
     }
     const handleExpansion = e => {
@@ -45,7 +56,7 @@ function TreeNode(props) {
         {'childs' in props ? <List.Icon tilte={isHidden ? "Expand" : "Contract"} name={isHidden ? "plus circle" : "minus circle"} onClick={handleExpansion} /> : <List.Icon size="tiny" name="circle" />}
         <List.Content>
             <List.Header>
-                <Form.Checkbox checked={hasPerm}   onChange={checkChange} label={props.name} />
+                <Form.Checkbox readOnly={readOnly} checked={hasPerm} onChange={checkChange} label={props.name} />
                 {(hasPerm) ? <input hidden name='menu_perm' defaultValue={props.value} /> : <></>}
             </List.Header>
             {'childs' in props ? <SubTree checked={hasPerm} childs={props.childs} /> : <></>}
@@ -71,6 +82,14 @@ TreeNode.propTypes = {
     /**
      * array of child subtree
      */
-    childs: PropTypes.array
+    childs: PropTypes.array,
+    /**
+   * This is the which contain permissions provided to user
+   */
+    perms: PropTypes.array,
+    /**
+     * This specify if this tree is Read Only or not
+     */
+    readOnly: PropTypes.bool
 
 }

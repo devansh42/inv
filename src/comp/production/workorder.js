@@ -5,7 +5,7 @@ import { Form, Table, Icon, Message, Card, Header, Button, Divider } from "seman
 import { Get, MakePostFetch, FormErrorHandler, FormResponseHandlerWithLoadingDisabler } from "../../network";
 import End from "../../end";
 import { OperationListChooser } from "../master/route";
-import { ProcessStates } from "../../Fixed";
+import { ProcessStates ,GetProcessStateText } from "../../Fixed";
 import { Link } from "react-router-dom";
 import { RecordList } from "../common/recordList";
 import { RequireItemListChooser } from "./bom";
@@ -48,7 +48,7 @@ export function WorkOrderList(props) {
             <HeaderLink link={Apm.production.bom+"/info/"+bom} header={bom_name} />
             </Table.Cell>
             <Table.Cell>
-                {getorderStatus(state)}
+                {GetProcessStateText(state)}
             </Table.Cell>
         </Table.Row>
     };

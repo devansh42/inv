@@ -88,7 +88,7 @@ export function ReadOnlyBOMWrapper({ match: { params: { id } } }) {
             <Form.Input label="Route" readOnly defaultValue={p.route_name} />
             <Form.Field >
                 <label>Description</label>
-                <textarea name="description" id="description" rows="5" placeholder="Add some description" ></textarea>
+                <textarea name="description" readOnly id="description" rows="5" placeholder="Add some description" ></textarea>
             </Form.Field>
 
             <Divider />
@@ -367,10 +367,10 @@ export class RequireItemListChooser extends Component {
                     {v.unit_name}
                 </Table.Cell>
                 <Table.Cell>
-                    {v.rate}
+                    {v.rate.toFixed(2)}
                 </Table.Cell>
                 <Table.Cell>
-                    {v.rate * v.qty}
+                    {(v.rate * v.qty).toFixed(2)}
                 </Table.Cell>
 
                 {(this.readOnly) ? <></> : <Table.Cell>

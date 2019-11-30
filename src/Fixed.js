@@ -1,5 +1,7 @@
 //This file contains Fixed Constants
 
+import Apm from './apm';
+
 export const GroupType = [
 
     { key: 1, value: 1, text: "Account" },
@@ -56,14 +58,16 @@ function getprocessstate(x) {
 
 
 
+const  mh = Apm.master;
+
 export const MenuTree = [
     {
-        name: "Master", value: "1",
+        name: "Master", value: "1",href:mh,
         childs: [
             {
-                name: "Account", value: "1.1", childs: [
-                    { name: "Create", value: "1.1.1" },
-                    { name: "Modify", value: "1.1.2",hidden:true },
+                name: "Account", value: "1.1", href:mh.account , childs: [
+                    { name: "Create", href:mh.account+"/create" ,  value: "1.1.1" },
+                    { name: "Modify",href:mh.account+"/modify", value: "1.1.2",hidden:true },
                     { name: "Read", value: "1.1.3" },
                     { name: "Info", value: '1.1.4' }
                 ]

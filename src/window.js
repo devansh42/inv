@@ -1,7 +1,7 @@
 //This file contains code to render window related to master menu
-import React, { } from "react";
+import React from "react";
 import { Grid, Menu, Label } from "semantic-ui-react";
-import { Switch, Route, Link } from "react-router-dom";
+import { Switch, Link } from "react-router-dom";
 import { AccountForm, AccountList, ReadOnlyAccountWrapper, DocAccount } from "./comp/master/account";
 import { UnitForm, UnitList, ReadOnlyUnitWrapper, DocUnit } from "./comp/master/unit";
 import { ItemForm, ItemList, ReadOnlyItemWrapper, DocItem } from "./comp/master/item";
@@ -11,15 +11,15 @@ import PropTypes from "prop-types";
 import { BomList, BomForm, ReadOnlyBOMWrapper, DocBOM } from "./comp/production/bom";
 import { WorkOrderForm, WorkOrderList, DocWorkOrder } from "./comp/production/workorder";
 import { JobCardList, JobForm, DocJOB } from "./comp/production/job";
-import { UserForm, UserList } from "./comp/master/user";
+import { UserForm, UserList, ReadOnlyUserWrapper, DocUser } from "./comp/master/user";
 import { OperationForm, OperationList, ReadOnlyOperationWrapper, DocOperation } from "./comp/master/operation";
 import { RouteForm, RouteList, ReadOnlyRouteWrapper, DocRoute } from "./comp/master/route";
-import {  WorkorderTrackerWrapper } from "./comp/production/workorderTracking";
+import { WorkorderTrackerWrapper } from "./comp/production/workorderTracking";
 import { JobCardAlterationWrapper } from "./comp/production/job_modifier";
+import { ACRoute } from "./comp/common/route";
 
-
-const altn="alt+n";
-const altl="alt+l";
+const altn = "alt+n";
+const altl = "alt+l";
 
 export function ProductionWindowResolver(props) {
     const b = "/app/production/bom";
@@ -28,50 +28,50 @@ export function ProductionWindowResolver(props) {
     const f = (x, y) => x.concat(y);
     return <Switch>
 
-        <Route path={f(b, "/*")}>
+        <ACRoute path={f(b, "/*")}>
             <Window>
-                <WindowItem  shortcut={altn} name="Create" path={f(b, "/create")}>
+                <WindowItem shortcut={altn} perm={['2.1.1']} name="Create" path={f(b, "/create")}>
                     <BomForm create />
                 </WindowItem>
-                <WindowItem name="List" shortcut={altl} path={f(b, "/read")}>
+                <WindowItem name="List" perm={['2.1.3']} shortcut={altl} path={f(b, "/read")}>
                     <BomList />
                 </WindowItem>
-                <WindowItem nomenu component={ReadOnlyBOMWrapper} path={f(b, "/info/:id")} />
-                <WindowItem nomenu component={DocBOM}  path={b} />
-        
-             </Window>
-        </Route>
+                <WindowItem nomenu perm={['2.1.4']} component={ReadOnlyBOMWrapper} path={f(b, "/info/:id")} />
+                <WindowItem nomenu component={DocBOM} path={b} />
 
-        <Route path={f(w, "/track/:wid")} component={WorkorderTrackerWrapper} />
+            </Window>
+        </ACRoute>
 
-        <Route path={f(w, "/*")}>
+        <ACRoute path={f(w, "/track/:wid")} perm={['2.2.4']} component={WorkorderTrackerWrapper} />
+
+        <ACRoute path={f(w, "/*")}>
             <Window>
-                <WindowItem name='Create' shortcut={altn} path={f(w, "/create")}>
+                <WindowItem name='Create' perm={['2.2.1']} shortcut={altn} path={f(w, "/create")}>
                     <WorkOrderForm create />
                 </WindowItem>
 
-                <WindowItem name='List' shortcut={altl} path={f(w, "/read")}>
+                <WindowItem name='List' perm={['2.2.3']} shortcut={altl} path={f(w, "/read")}>
                     <WorkOrderList />
                 </WindowItem>
-                <WindowItem nomenu component={DocWorkOrder}  path={w} />
-        
-            </Window>
-        </Route>
+                <WindowItem nomenu component={DocWorkOrder} path={w} />
 
-        <Route path={f(j, "/track/:jid/")} component={JobCardAlterationWrapper} />
-        <Route path={f(j, "/*")}>
+            </Window>
+        </ACRoute>
+
+        <ACRoute path={f(j, "/track/:jid/")} perm={['2.3.2']} component={JobCardAlterationWrapper} />
+        <ACRoute path={f(j, "/*")}>
             <Window>
-                <WindowItem name="Create" shortcut={altn}  path={f(j, "/create")}>
+                <WindowItem name="Create" perm={['2.3.1']} shortcut={altn} path={f(j, "/create")}>
                     <JobForm create />
                 </WindowItem>
 
-                <WindowItem name="List" shortcut={altl} path={f(j, "/read")}>
+                <WindowItem name="List" perm={['2.3.3']} shortcut={altl} path={f(j, "/read")}>
                     <JobCardList />
                 </WindowItem>
-                <WindowItem nomenu component={DocJOB}  path={j} />
-        
+                <WindowItem nomenu component={DocJOB} path={j} />
+
             </Window>
-        </Route>
+        </ACRoute>
 
 
     </Switch>
@@ -84,7 +84,7 @@ export function Window(props) {
         return (v.props.nomenu) ? <></> : <Menu.Item key={i}> <Link to={v.props.path}>{v.props.name}</Link> </Menu.Item>
     }
     const f1 = (v, i) => {
-        return (v.props.nomenu) ? <Route key={i} path={v.props.path} component={v.props.component} /> : <Route key={i} path={v.props.path} >{v.props.children}</Route>
+        return (v.props.nomenu) ? <ACRoute key={i} perm={v.props.perm} path={v.props.path} component={v.props.component} /> : <ACRoute key={i} perm={v.props.perm} path={v.props.path} >{v.props.children}</ACRoute>
     }
 
     const ar = props.children instanceof Array ? props.children : [props.children]
@@ -124,7 +124,11 @@ WindowItem.propTypes = {
     /**
      * short cut for menu item
      */
-    shortcut:PropTypes.string
+    shortcut: PropTypes.string,
+    /**
+     * Perms to follow on this url
+     */
+    perm: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)])
 }
 
 WindowItem.propTypes = {
@@ -145,103 +149,106 @@ export function MasterWindowResolver(props) {
     const f = (a, b) => a.concat(b);
     return <Switch>
 
-        <Route path={a.concat("/*")}  >
+        <ACRoute path={a.concat("/*")}  >
             <Window>
-                <WindowItem name="Create" shortcut={altn} path={a.concat("/create")} >
+                <WindowItem name="Create" perm={['1.1.1']} shortcut={altn} path={a.concat("/create")} >
                     <AccountForm create />
                 </WindowItem>
-                <WindowItem name="List"  shortcut={altl} path={a.concat("/read")}>
+                <WindowItem name="List" perm={['1.1.3']} shortcut={altl} path={a.concat("/read")}>
                     <AccountList />
                 </WindowItem>
-                <WindowItem nomenu component={ReadOnlyAccountWrapper} path={f(a, "/info/:id")} />
-                <WindowItem nomenu component={DocAccount}  path={a} />
+                <WindowItem nomenu perm={['1.1.4']} component={ReadOnlyAccountWrapper} path={f(a, "/info/:id")} />
+                <WindowItem nomenu component={DocAccount} path={a} />
             </Window>
-        </Route>
+        </ACRoute>
 
-        <Route path={u.concat("/*")}  >
+        <ACRoute path={u.concat("/*")}  >
             <Window>
-                <WindowItem name="Create" shortcut={altn} path={u.concat("/create")} >
+                <WindowItem name="Create" perm={['1.5.1']} shortcut={altn} path={u.concat("/create")} >
                     <UnitForm create />
                 </WindowItem>
-                <WindowItem name="List" shortcut={altl} path={u.concat("/read")}>
+                <WindowItem name="List" perm={['1.5.3']} shortcut={altl} path={u.concat("/read")}>
                     <UnitList />
                 </WindowItem>
-                <WindowItem nomenu component={ReadOnlyUnitWrapper} path={f(u, "/info/:id")} />
+                <WindowItem nomenu perm={['1.5.4']} component={ReadOnlyUnitWrapper} path={f(u, "/info/:id")} />
                 <WindowItem nomenu component={DocUnit} path={u} />
             </Window>
-        </Route>
-        <Route path={i.concat("/*")}  >
+        </ACRoute>
+        <ACRoute path={i.concat("/*")}  >
             <Window>
-                <WindowItem name="Create" shortcut={altn} path={i.concat("/create")} >
+                <WindowItem name="Create" perm={['1.3.1']} shortcut={altn} path={i.concat("/create")} >
                     <ItemForm create />
                 </WindowItem>
-                <WindowItem name="List"  shortcut={altl} path={i.concat("/read")}>
+                <WindowItem name="List" perm={['1.3.3']} shortcut={altl} path={i.concat("/read")}>
                     <ItemList />
                 </WindowItem>
-                <WindowItem nomenu component={ReadOnlyItemWrapper} path={f(i, "/info/:id")} />
+                <WindowItem nomenu perm={['1.3.4']} component={ReadOnlyItemWrapper} path={f(i, "/info/:id")} />
                 <WindowItem nomenu component={DocItem} path={i} />
             </Window>
-        </Route>
-        <Route path={w.concat("/*")}  >
+        </ACRoute>
+        <ACRoute path={w.concat("/*")}  >
             <Window>
-                <WindowItem name="Create" shortcut={altn} path={w.concat("/create")} >
+                <WindowItem name="Create" perm={['1.6.1']} shortcut={altn} path={w.concat("/create")} >
                     <WorkplaceForm create />
                 </WindowItem>
-                <WindowItem name="List"  shortcut={altl} path={w.concat("/read")}>
+                <WindowItem name="List" perm={['1.6.3']} shortcut={altl} path={w.concat("/read")}>
                     <WorkplaceList />
                 </WindowItem>
-                <WindowItem nomenu component={ReadOnlyWorkStationWrapper} path={f(w, "/info/:id")} />
+                <WindowItem nomenu perm={['1.6.4']} component={ReadOnlyWorkStationWrapper} path={f(w, "/info/:id")} />
                 <WindowItem nomenu component={DocWorkStation} path={w} />
             </Window>
-        </Route>
-        <Route path={g.concat("/*")}  >
+        </ACRoute>
+        <ACRoute path={g.concat("/*")}  >
             <Window>
-                <WindowItem name="Create" shortcut={altn}  path={g.concat("/create")} >
+                <WindowItem name="Create" perm={['1.4.1']} shortcut={altn} path={g.concat("/create")} >
                     <GroupForm create />
                 </WindowItem>
-                <WindowItem name="List" shortcut={altl} path={g.concat("/read")}>
+                <WindowItem name="List" perm={['1.4.3']} shortcut={altl} path={g.concat("/read")}>
                     <GroupList />
                 </WindowItem>
-                <WindowItem nomenu component={ReadOnlyGroupWrapper} path={f(g, "/info/:id")} />
+                <WindowItem nomenu perm={['1.4.4']} component={ReadOnlyGroupWrapper} path={f(g, "/info/:id")} />
                 <WindowItem nomenu component={DocGroup} path={g} />
             </Window>
-        </Route>
+        </ACRoute>
 
-        <Route path={us.concat("/*")}  >
+        <ACRoute path={us.concat("/*")}  >
             <Window>
-                <WindowItem name="Create" shortcut={altn} path={us.concat("/create")} >
+                <WindowItem name="Create" perm={['1.2.1']} shortcut={altn} path={us.concat("/create")} >
                     <UserForm create />
                 </WindowItem>
-                <WindowItem name="List" shortcut={altl}  path={us.concat("/read")}>
+                <WindowItem name="List" perm={['1.2.3']} shortcut={altl} path={us.concat("/read")}>
                     <UserList />
                 </WindowItem>
+                <WindowItem nomenu perm={['1.2.4']} component={ReadOnlyUserWrapper} path={f(us, "/info/:id")} />
+                <WindowItem path={o} nomenu component={DocUser} />
+                
             </Window>
-        </Route>
+        </ACRoute>
 
-        <Route path={o.concat("/*")}>
+        <ACRoute path={o.concat("/*")}>
             <Window>
-                <WindowItem name="Create" shortcut={altn} path={o.concat('/create')}>
+                <WindowItem name="Create" perm={['1.8.1']} shortcut={altn} path={o.concat('/create')}>
                     <OperationForm create />
                 </WindowItem>
-                <WindowItem name="List" shortcut={altl}  path={o.concat('/read')}>
+                <WindowItem name="List" perm={['1.8.3']} shortcut={altl} path={o.concat('/read')}>
                     <OperationList />
                 </WindowItem>
-                <WindowItem nomenu component={ReadOnlyOperationWrapper} path={f(o, "/info/:id")} />
+                <WindowItem nomenu perm={['1.8.4']} component={ReadOnlyOperationWrapper} path={f(o, "/info/:id")} />
                 <WindowItem path={o} nomenu component={DocOperation} />
             </Window>
-        </Route>
+        </ACRoute>
 
-        <Route path={r.concat("/*")}>
+        <ACRoute path={r.concat("/*")}>
             <Window>
-                <WindowItem name="Create" shortcut={altn} path={r.concat('/create')}>
+                <WindowItem name="Create" perm={['1.7.1']} shortcut={altn} path={r.concat('/create')}>
                     <RouteForm create />
                 </WindowItem>
-                <WindowItem name="List" shortcut={altl}  path={r.concat('/read')}>
+                <WindowItem name="List" perm={['1.7.3']} shortcut={altl} path={r.concat('/read')}>
                     <RouteList />
                 </WindowItem>
-                <WindowItem nomenu component={ReadOnlyRouteWrapper} path={f(r, "/info/:id")} />
+                <WindowItem nomenu perm={['1.7.4']} component={ReadOnlyRouteWrapper} path={f(r, "/info/:id")} />
                 <WindowItem nomenu component={DocRoute} path={r} />
             </Window>
-        </Route>
+        </ACRoute>
     </Switch>
 }
